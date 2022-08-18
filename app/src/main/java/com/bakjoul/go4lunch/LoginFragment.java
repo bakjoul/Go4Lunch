@@ -9,8 +9,14 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-public class LoginFragment extends Fragment {
+import com.bakjoul.go4lunch.databinding.FragmentLoginBinding;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 
+public class LoginFragment extends Fragment {
 
     public static LoginFragment newInstance() {
         return new LoginFragment();
@@ -19,6 +25,31 @@ public class LoginFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return super.onCreateView(inflater, container, savedInstanceState);
+        FragmentLoginBinding binding = FragmentLoginBinding.inflate(inflater, container, false);
+
+        CallbackManager callbackManager = CallbackManager.Factory.create();
+        LoginButton loginButtonFacebook = binding.loginButtonFacebook;
+        loginButtonFacebook.setPermissions("email");
+        loginButtonFacebook.setFragment(this);
+
+        loginButtonFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+
+            }
+
+            @Override
+            public void onCancel() {
+
+            }
+
+            @Override
+            public void onError(@NonNull FacebookException e) {
+
+            }
+        });
+
+        return binding.getRoot();
     }
+
 }
