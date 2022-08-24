@@ -1,5 +1,6 @@
 plugins {
     id 'com.android.application'
+    id 'dagger.hilt.android.plugin'
     id 'com.google.gms.google-services'
 }
 
@@ -36,9 +37,16 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.5.0'
     implementation 'com.google.android.material:material:1.6.1'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.google.firebase:firebase-auth:21.0.7'
-
+    // Hilt
+    implementation "com.google.dagger:hilt-android:2.42"
+    annotationProcessor 'com.google.dagger:hilt-compiler:2.42'
+    // Firebase
+    implementation platform('com.google.firebase:firebase-bom:30.3.1')
+    implementation 'com.google.firebase:firebase-auth'
+    // Facebook
     implementation 'com.facebook.android:facebook-login:latest.release'
+    // Google
+    implementation 'com.google.android.gms:play-services-auth:20.2.0'
 
     testImplementation 'junit:junit:4.13.2'
 

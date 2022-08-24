@@ -1,18 +1,14 @@
-package com.bakjoul.go4lunch;
+package com.bakjoul.go4lunch.ui;
 
-import android.app.Activity;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.os.Bundle;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import com.bakjoul.go4lunch.databinding.FragmentLoginBinding;
+import com.bakjoul.go4lunch.R;
+import com.bakjoul.go4lunch.databinding.ActivityLoginBinding;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -20,7 +16,6 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.google.android.gms.auth.api.identity.BeginSignInRequest;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
@@ -30,31 +25,25 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
 import java.util.Arrays;
-import java.util.concurrent.Executor;
 
-public class LoginFragment extends Fragment {
+public class LoginActivity extends AppCompatActivity {
 
-    private static final String TAG = "LoginFragment";
-
-    public static LoginFragment newInstance() {
-        return new LoginFragment();
-    }
+    private static final String TAG = "LoginActivity";
 
     private FirebaseAuth firebaseAuth;
     private CallbackManager callbackManager;
-    private ActivityResultLauncher activityResultLauncher;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        FragmentLoginBinding binding = FragmentLoginBinding.inflate(inflater, container, false);
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        ActivityLoginBinding binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
         firebaseAuth = FirebaseAuth.getInstance();
 
         callbackManager = CallbackManager.Factory.create();
         LoginButton fbLoginButton = binding.loginButtonFacebook;
         fbLoginButton.setPermissions("email", "public_profile");
-        fbLoginButton.setFragment(this);
 
         fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -74,30 +63,12 @@ public class LoginFragment extends Fragment {
             }
         });
 
-
-
-/*        BeginSignInRequest signInRequest = BeginSignInRequest.builder()
-            .setGoogleIdTokenRequestOptions(BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
-                .setSupported(true)
-                .setServerClientId(getString(R.string.google_server_client_id))
-                .setFilterByAuthorizedAccounts(true)
-                .build())
-            .build();*/
-
         binding.loginButtonFacebook.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LoginManager.getInstance().logInWithReadPermissions(requireActivity(), callbackManager, Arrays.asList("public_profile"));
+                LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, callbackManager, Arrays.asList("public_profile"));
             }
         });
-
-        return binding.getRoot();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
     }
 
     private void handleFbAccessToken(AccessToken token) {
@@ -105,7 +76,7 @@ public class LoginFragment extends Fragment {
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         firebaseAuth.signInWithCredential(credential)
-            .addOnCompleteListener(requireActivity(), new OnCompleteListener<AuthResult>() {
+            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                 @Override
                 public void onComplete(@NonNull Task<AuthResult> task) {
                     if (task.isSuccessful()) {
@@ -117,5 +88,11 @@ public class LoginFragment extends Fragment {
                     }
                 }
             });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
     }
 }
