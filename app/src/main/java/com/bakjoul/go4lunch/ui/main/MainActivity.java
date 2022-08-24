@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.ui;
+package com.bakjoul.go4lunch.ui.main;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
@@ -7,6 +7,7 @@ import android.view.MenuItem;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.ActivityMainBinding;
@@ -18,10 +19,6 @@ import com.google.android.material.navigation.NavigationBarView;
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
-
-    private MapFragment mapFragment = null;
-    private ListFragment listFragment = null;
-    private WorkmatesFragment workmatesFragment = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,23 +35,55 @@ public class MainActivity extends AppCompatActivity {
 
     private void displayFragment(int id) {
         Fragment fragment;
+        String tag;
+        boolean found = true;
+
         switch (id) {
             case 0:
-                fragment = new MapFragment();
+                tag = "MapFragment";
+                MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentByTag(tag);
+                if (mapFragment == null) {
+                    found = false;
+                    mapFragment = MapFragment.newInstance();
+                }
+                fragment = mapFragment;
                 break;
             case 1:
-                fragment = new ListFragment();
+                tag = "ListFragment";
+                ListFragment listFragment = (ListFragment) getSupportFragmentManager().findFragmentByTag(tag);
+                if (listFragment == null) {
+                    found = false;
+                    listFragment = ListFragment.newInstance();
+                }
+                fragment = listFragment;
                 break;
             case 2:
-                fragment = new WorkmatesFragment();
+                tag = "WormatesFragment";
+                WorkmatesFragment workmatesFragment = (WorkmatesFragment) getSupportFragmentManager().findFragmentByTag(tag);
+                if (workmatesFragment == null) {
+                    found = false;
+                    workmatesFragment = WorkmatesFragment.newInstance();
+                }
+                fragment = workmatesFragment;
                 break;
             default:
                 throw new IllegalStateException("Unknown id :" + id);
         }
 
-        getSupportFragmentManager().beginTransaction()
-            .replace(binding.mainFrameLayoutFragmentContainer.getId(), fragment)
-            .commit();
+        Fragment previousFragment = getSupportFragmentManager().findFragmentById(binding.mainFrameLayoutFragmentContainer.getId());
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+
+        if (previousFragment != null) {
+            transaction.detach(previousFragment);
+        }
+
+        if (found) {
+            transaction.attach(fragment);
+        } else {
+            transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), fragment, tag);
+        }
+
+        transaction.commit();
     }
 
     private void setBottomNavigationView() {

@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.ui;
+package com.bakjoul.go4lunch.ui.login;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 
-import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.ActivityLoginBinding;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;

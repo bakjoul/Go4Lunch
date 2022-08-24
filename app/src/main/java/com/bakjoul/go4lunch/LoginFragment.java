@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.ui.login;
+package com.bakjoul.go4lunch;
 
 import android.os.Bundle;
 import android.util.Log;

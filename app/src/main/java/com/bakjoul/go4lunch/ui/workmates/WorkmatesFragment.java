@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.ui;
+package com.bakjoul.go4lunch.ui.workmates;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;

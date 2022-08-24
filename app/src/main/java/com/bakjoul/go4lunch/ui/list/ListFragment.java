@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.ui;
+package com.bakjoul.go4lunch.ui.list;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -12,10 +12,10 @@ import androidx.fragment.app.Fragment;
 import com.bakjoul.go4lunch.databinding.FragmentListViewBinding;
 
 
-public class ListViewFragment extends Fragment {
+public class ListFragment extends Fragment {
 
-    public static ListViewFragment newInstance() {
-        return new ListViewFragment();
+    public static ListFragment newInstance() {
+        return new ListFragment();
     }
 
     @Nullable
@@ -24,4 +24,5 @@ public class ListViewFragment extends Fragment {
         FragmentListViewBinding binding = FragmentListViewBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
+
 }
