@@ -27,7 +27,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 public class LoginFragment extends Fragment {
 
@@ -71,8 +71,6 @@ public class LoginFragment extends Fragment {
             }
         });
 
-
-
 /*        BeginSignInRequest signInRequest = BeginSignInRequest.builder()
             .setGoogleIdTokenRequestOptions(BeginSignInRequest.GoogleIdTokenRequestOptions.builder()
                 .setSupported(true)
@@ -81,12 +79,13 @@ public class LoginFragment extends Fragment {
                 .build())
             .build();*/
 
-        binding.loginButtonFacebook.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                LoginManager.getInstance().logInWithReadPermissions(requireActivity(), callbackManager, Arrays.asList("public_profile"));
-            }
-        });
+        binding.loginButtonFacebook.setOnClickListener(view ->
+            LoginManager.getInstance().logInWithReadPermissions(
+                requireActivity(),
+                callbackManager,
+                Collections.singletonList("public_profile")
+            )
+        );
 
         return binding.getRoot();
     }
@@ -97,21 +96,17 @@ public class LoginFragment extends Fragment {
         FirebaseUser currentUser = firebaseAuth.getCurrentUser();
     }
 
-    private void handleFbAccessToken(AccessToken token) {
+    private void handleFbAccessToken(@NonNull AccessToken token) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         firebaseAuth.signInWithCredential(credential)
-            .addOnCompleteListener(requireActivity(), new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "signInWithCredential:success");
-                        FirebaseUser user = firebaseAuth.getCurrentUser();
-                    }
-                    else {
-                        Log.w(TAG, "signInWithCredential:failure", task.getException());
-                    }
+            .addOnCompleteListener(requireActivity(), task -> {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "signInWithCredential:success");
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
+                } else {
+                    Log.w(TAG, "signInWithCredential:failure", task.getException());
                 }
             });
     }
