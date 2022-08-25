@@ -5,7 +5,5 @@
     <string name="fb_login_protocol_scheme">fb617236343084381</string>
     <string name="fb_client_token">322987708a1d3820ee4db7fa2c506060</string>
     <string name="google_server_client_id">632861719315-imlohdmamhkqk7qshlqtg3fj38sbo7mq.apps.googleusercontent.com</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>
