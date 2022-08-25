@@ -59,9 +59,6 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "facebook:onError", e);
             }
         });
-
-        binding.loginButtonFacebook.setOnClickListener(view ->
-            LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, callbackManager, Collections.singletonList("public_profile")));
     }
 
     private void handleFacebookAccessToken(@NonNull AccessToken token) {
