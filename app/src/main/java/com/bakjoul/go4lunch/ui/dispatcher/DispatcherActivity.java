@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bakjoul.go4lunch.ui.login.LoginActivity;
 import com.bakjoul.go4lunch.ui.main.MainActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -22,7 +23,7 @@ public class DispatcherActivity extends AppCompatActivity {
         viewModel.getViewActionSingleLiveEvent().observe(this, dispatcherViewAction -> {
             switch (dispatcherViewAction) {
                 case GO_TO_CONNECT_SCREEN:
-                    startActivity(new Intent(DispatcherActivity.this, MainActivity.class));
+                    startActivity(new Intent(DispatcherActivity.this, LoginActivity.class));
                     finish();
                     break;
                 case GO_TO_MAIN_SCREEN:

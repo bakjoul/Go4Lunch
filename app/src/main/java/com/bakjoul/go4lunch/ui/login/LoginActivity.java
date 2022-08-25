@@ -72,19 +72,13 @@ public class LoginActivity extends AppCompatActivity {
             .addOnCompleteListener(this, task -> {
                 if (task.isSuccessful()) {
                     Log.d(TAG, "signInWithCredential:success");
+                    //FirebaseUser user = firebaseAuth.getCurrentUser();
 
-                    FirebaseUser user = firebaseAuth.getCurrentUser();
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 } else {
                     Log.w(TAG, "signInWithCredential:failure", task.getException());
                 }
             });
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
     }
 }
