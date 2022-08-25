@@ -2,9 +2,7 @@ package com.bakjoul.go4lunch.ui.main;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
-import android.view.MenuItem;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -14,7 +12,6 @@ import com.bakjoul.go4lunch.databinding.ActivityMainBinding;
 import com.bakjoul.go4lunch.ui.list.ListFragment;
 import com.bakjoul.go4lunch.ui.map.MapFragment;
 import com.bakjoul.go4lunch.ui.workmates.WorkmatesFragment;
-import com.google.android.material.navigation.NavigationBarView;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -86,30 +83,21 @@ public class MainActivity extends AppCompatActivity {
         transaction.commit();
     }
 
+    @SuppressLint("NonConstantResourceId")
     private void setBottomNavigationView() {
-        binding.mainBottomNavigationView.setOnItemSelectedListener(new NavigationBarView.OnItemSelectedListener() {
-            @SuppressLint("NonConstantResourceId")
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                switch (item.getItemId()) {
-                    case R.id.bottomNavigationView_menu_mapView:
-                        displayFragment(0);
-                        break;
-                    case R.id.bottomNavigationView_menu_listView:
-                        displayFragment(1);
-                        break;
-                    case R.id.bottomNavigationView_menu_workmates:
-                        displayFragment(2);
-                        break;
-                }
-                return true;
+        binding.mainBottomNavigationView.setOnItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.bottomNavigationView_menu_mapView:
+                    displayFragment(0);
+                    break;
+                case R.id.bottomNavigationView_menu_listView:
+                    displayFragment(1);
+                    break;
+                case R.id.bottomNavigationView_menu_workmates:
+                    displayFragment(2);
+                    break;
             }
+            return true;
         });
     }
-
-
-/*
-        }*/
-
-
 }

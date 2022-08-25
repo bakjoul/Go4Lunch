@@ -1,13 +1,14 @@
 package com.bakjoul.go4lunch.ui.login;
 
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-
 import com.bakjoul.go4lunch.databinding.ActivityLoginBinding;
+import com.bakjoul.go4lunch.ui.main.MainActivity;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -15,15 +16,12 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-import java.util.Arrays;
+import java.util.Collections;
 
 public class LoginActivity extends AppCompatActivity {
 
@@ -41,14 +39,14 @@ public class LoginActivity extends AppCompatActivity {
         firebaseAuth = FirebaseAuth.getInstance();
 
         callbackManager = CallbackManager.Factory.create();
-        LoginButton fbLoginButton = binding.loginButtonFacebook;
-        fbLoginButton.setPermissions("email", "public_profile");
-
-        fbLoginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+        LoginButton loginButtonFacebook = binding.loginButtonFacebook;
+        loginButtonFacebook.setPermissions("email", "public_profile");
+        loginButtonFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
-                handleFbAccessToken(loginResult.getAccessToken());
+
+                handleFacebookAccessToken(loginResult.getAccessToken());
             }
 
             @Override
@@ -62,29 +60,24 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        binding.loginButtonFacebook.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, callbackManager, Arrays.asList("public_profile"));
-            }
-        });
+        binding.loginButtonFacebook.setOnClickListener(view ->
+            LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, callbackManager, Collections.singletonList("public_profile")));
     }
 
-    private void handleFbAccessToken(AccessToken token) {
+    private void handleFacebookAccessToken(@NonNull AccessToken token) {
         Log.d(TAG, "handleFacebookAccessToken:" + token);
 
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         firebaseAuth.signInWithCredential(credential)
-            .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        Log.d(TAG, "signInWithCredential:success");
-                        FirebaseUser user = firebaseAuth.getCurrentUser();
-                    }
-                    else {
-                        Log.w(TAG, "signInWithCredential:failure", task.getException());
-                    }
+            .addOnCompleteListener(this, task -> {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "signInWithCredential:success");
+
+                    FirebaseUser user = firebaseAuth.getCurrentUser();
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                    finish();
+                } else {
+                    Log.w(TAG, "signInWithCredential:failure", task.getException());
                 }
             });
     }
