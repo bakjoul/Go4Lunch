@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.ui;
+package com.bakjoul.go4lunch.ui.map;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -11,10 +11,10 @@ import androidx.fragment.app.Fragment;
 
 import com.bakjoul.go4lunch.databinding.FragmentMapViewBinding;
 
-public class MapViewFragment extends Fragment {
+public class MapFragment extends Fragment {
 
-    public static MapViewFragment newInstance() {
-        return new MapViewFragment();
+    public static MapFragment newInstance() {
+        return new MapFragment();
     }
 
     @Nullable

@@ -6,8 +6,8 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.bakjoul.go4lunch.ui.LoginActivity;
-import com.bakjoul.go4lunch.ui.MainActivity;
+import com.bakjoul.go4lunch.ui.login.LoginActivity;
+import com.bakjoul.go4lunch.ui.main.MainActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 

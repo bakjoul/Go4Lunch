@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.ui;
+package com.bakjoul.go4lunch.ui.workmates;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -9,19 +9,18 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.bakjoul.go4lunch.databinding.FragmentListViewBinding;
+import com.bakjoul.go4lunch.databinding.FragmentWorkmatesBinding;
 
+public class WorkmatesFragment extends Fragment {
 
-public class ListViewFragment extends Fragment {
-
-    public static ListViewFragment newInstance() {
-        return new ListViewFragment();
+    public static WorkmatesFragment newInstance() {
+        return new WorkmatesFragment();
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        FragmentListViewBinding binding = FragmentListViewBinding.inflate(inflater, container, false);
+        FragmentWorkmatesBinding binding = FragmentWorkmatesBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 }
