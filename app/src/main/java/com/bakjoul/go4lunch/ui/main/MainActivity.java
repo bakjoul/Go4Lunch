@@ -1,16 +1,17 @@
 package com.bakjoul.go4lunch.ui.main;
 
-import android.annotation.SuppressLint;
 import android.os.Bundle;
 
+import androidx.annotation.IdRes;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.ActivityMainBinding;
-import com.bakjoul.go4lunch.ui.list.ListFragment;
 import com.bakjoul.go4lunch.ui.map.MapFragment;
+import com.bakjoul.go4lunch.ui.restaurants.RestaurantsFragment;
 import com.bakjoul.go4lunch.ui.workmates.WorkmatesFragment;
 
 public class MainActivity extends AppCompatActivity {
@@ -18,7 +19,7 @@ public class MainActivity extends AppCompatActivity {
     private ActivityMainBinding binding;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -26,78 +27,83 @@ public class MainActivity extends AppCompatActivity {
         setBottomNavigationView();
 
         if (savedInstanceState == null) {
-            displayFragment(0);
+            displayFragment(BottomNavigationViewFragment.MAP);
         }
     }
 
-    private void displayFragment(int id) {
-        Fragment fragment;
-        String tag;
-        boolean found = true;
-
-        switch (id) {
-            case 0:
-                tag = "MapFragment";
-                MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentByTag(tag);
-                if (mapFragment == null) {
-                    found = false;
-                    mapFragment = MapFragment.newInstance();
-                }
-                fragment = mapFragment;
-                break;
-            case 1:
-                tag = "ListFragment";
-                ListFragment listFragment = (ListFragment) getSupportFragmentManager().findFragmentByTag(tag);
-                if (listFragment == null) {
-                    found = false;
-                    listFragment = ListFragment.newInstance();
-                }
-                fragment = listFragment;
-                break;
-            case 2:
-                tag = "WormatesFragment";
-                WorkmatesFragment workmatesFragment = (WorkmatesFragment) getSupportFragmentManager().findFragmentByTag(tag);
-                if (workmatesFragment == null) {
-                    found = false;
-                    workmatesFragment = WorkmatesFragment.newInstance();
-                }
-                fragment = workmatesFragment;
-                break;
-            default:
-                throw new IllegalStateException("Unknown id :" + id);
-        }
-
-        Fragment previousFragment = getSupportFragmentManager().findFragmentById(binding.mainFrameLayoutFragmentContainer.getId());
+    private void displayFragment(BottomNavigationViewFragment selected) {
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        boolean shown = false;
 
-        if (previousFragment != null) {
-            transaction.detach(previousFragment);
+        for (Fragment fragment : getSupportFragmentManager().getFragments()) {
+            if (fragment instanceof MapFragment) {
+                if (selected == BottomNavigationViewFragment.MAP) {
+                    transaction.show(fragment);
+                    shown = true;
+                } else {
+                    transaction.hide(fragment);
+                }
+            } else if (fragment instanceof RestaurantsFragment) {
+                if (selected == BottomNavigationViewFragment.RESTAURANTS) {
+                    transaction.show(fragment);
+                    shown = true;
+                } else {
+                    transaction.hide(fragment);
+                }
+            } else if (fragment instanceof WorkmatesFragment) {
+                if (selected == BottomNavigationViewFragment.WORKMATES) {
+                    transaction.show(fragment);
+                    shown = true;
+                } else {
+                    transaction.hide(fragment);
+                }
+            }
         }
 
-        if (found) {
-            transaction.attach(fragment);
-        } else {
-            transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), fragment, tag);
+        if (!shown) {
+            switch (selected) {
+                case MAP:
+                    transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), MapFragment.newInstance());
+                    break;
+                case RESTAURANTS:
+                    transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), RestaurantsFragment.newInstance());
+                    break;
+                case WORKMATES:
+                    transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), WorkmatesFragment.newInstance());
+                    break;
+            }
         }
 
         transaction.commit();
     }
 
-    @SuppressLint("NonConstantResourceId")
     private void setBottomNavigationView() {
         binding.mainBottomNavigationView.setOnItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.bottomNavigationView_menu_mapView:
-                    displayFragment(0);
-                    break;
-                case R.id.bottomNavigationView_menu_listView:
-                    displayFragment(1);
-                    break;
-                case R.id.bottomNavigationView_menu_workmates:
-                    displayFragment(2);
-                    break;
-            }
+            displayFragment(BottomNavigationViewFragment.fromMenuId(item.getItemId()));
             return true;
         });
+    }
+
+    private enum BottomNavigationViewFragment {
+        MAP(R.id.bottomNavigationView_menu_mapView),
+        RESTAURANTS(R.id.bottomNavigationView_menu_listView),
+        WORKMATES(R.id.bottomNavigationView_menu_workmates);
+
+        @IdRes
+        private final int menuId;
+
+        BottomNavigationViewFragment(@IdRes int menuId) {
+            this.menuId = menuId;
+        }
+
+        public static BottomNavigationViewFragment fromMenuId(@IdRes int menuId) {
+            for (BottomNavigationViewFragment value : BottomNavigationViewFragment.values()) {
+                if (value.menuId == menuId) {
+                    return value;
+                }
+            }
+
+            throw new IllegalStateException("Unknown menuId: " + menuId);
+        }
     }
 }
