@@ -3,6 +3,7 @@ package com.bakjoul.go4lunch.ui.main;
 import android.os.Bundle;
 
 import androidx.annotation.IdRes;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
@@ -96,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
             this.menuId = menuId;
         }
 
+        @NonNull
         public static BottomNavigationViewFragment fromMenuId(@IdRes int menuId) {
             for (BottomNavigationViewFragment value : BottomNavigationViewFragment.values()) {
                 if (value.menuId == menuId) {

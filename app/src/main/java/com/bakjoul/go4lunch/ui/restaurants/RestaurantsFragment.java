@@ -9,8 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.bakjoul.go4lunch.databinding.FragmentListViewBinding;
-
+import com.bakjoul.go4lunch.databinding.FragmentRestaurantsBinding;
 
 public class RestaurantsFragment extends Fragment {
 
@@ -20,14 +19,14 @@ public class RestaurantsFragment extends Fragment {
         return new RestaurantsFragment();
     }
 
-    private FragmentListViewBinding binding;
+    private FragmentRestaurantsBinding binding;
 
     private int clicked = 0;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentListViewBinding.inflate(inflater, container, false);
+        binding = FragmentRestaurantsBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
 
