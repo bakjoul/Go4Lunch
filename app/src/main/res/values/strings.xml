@@ -6,4 +6,13 @@
     <string name="fb_client_token">322987708a1d3820ee4db7fa2c506060</string>
     <string name="google_server_client_id">632861719315-imlohdmamhkqk7qshlqtg3fj38sbo7mq.apps.googleusercontent.com</string>
 
+    <string name="main_drawer_name_hint">John Smith</string>
+    <string name="main_drawer_mail_hint">jsmith.1337@gmail.com</string>
+    <string name="navigation_drawer_menu_lunch">YOUR LUNCH</string>
+    <string name="navigation_drawer_menu_settings">SETTINGS</string>
+    <string name="navigation_drawer_menu_logout">LOGOUT</string>
+    <string name="bottom_navigation_view_mapView">Map View</string>
+    <string name="bottom_navigation_view_listView">List View</string>
+    <string name="bottom_navigation_view_workmates">Workmates</string>
+
 </resources>

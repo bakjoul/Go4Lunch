@@ -3,13 +3,13 @@
     <item
         android:id="@+id/bottomNavigationView_menu_mapView"
         android:icon="@drawable/ic_baseline_map_24"
-        android:title="Map View" />
+        android:title="@string/bottom_navigation_view_mapView" />
     <item
         android:id="@+id/bottomNavigationView_menu_listView"
         android:icon="@drawable/ic_baseline_view_list_24"
-        android:title="List View" />
+        android:title="@string/bottom_navigation_view_listView" />
     <item
         android:id="@+id/bottomNavigationView_menu_workmates"
         android:icon="@drawable/ic_baseline_people_24"
-        android:title="Workmates" />
+        android:title="@string/bottom_navigation_view_workmates" />
 </menu>

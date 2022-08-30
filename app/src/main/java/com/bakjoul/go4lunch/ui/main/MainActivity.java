@@ -1,11 +1,14 @@
 package com.bakjoul.go4lunch.ui.main;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
@@ -19,11 +22,19 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
 
+    @SuppressLint("NewApi")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        Toolbar toolbar = binding.mainToolbar;
+        setSupportActionBar(toolbar);
+        toolbar.setBackgroundColor(getColor(R.color.primaryColor));
+
+        DrawerLayout drawerLayout = binding.mainDrawerLayout;
+        drawerLayout.setStatusBarBackground(R.color.primaryDarkColor);
 
         setBottomNavigationView();
 
