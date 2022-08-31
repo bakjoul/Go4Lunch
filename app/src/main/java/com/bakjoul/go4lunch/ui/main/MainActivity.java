@@ -20,6 +20,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.ActivityMainBinding;
+import com.bakjoul.go4lunch.ui.dispatcher.DispatcherActivity;
 import com.bakjoul.go4lunch.ui.login.LoginActivity;
 import com.bakjoul.go4lunch.ui.map.MapFragment;
 import com.bakjoul.go4lunch.ui.restaurants.RestaurantsFragment;
@@ -55,7 +56,7 @@ public class MainActivity extends AppCompatActivity {
                 switch (item.getItemId()) {
                     case R.id.mainNavigationDrawer_menu_logout:
                         viewModel.logOut();
-                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                        startActivity(new Intent(MainActivity.this, DispatcherActivity.class));
                         finish();
                         break;
                 }
