@@ -22,7 +22,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <androidx.appcompat.widget.AppCompatImageView
-        android:id="@+id/main_drawer_avatar"
+        android:id="@+id/main_drawer_user_avatar"
         android:layout_width="48dp"
         android:layout_height="48dp"
         android:layout_marginHorizontal="16dp"
@@ -35,13 +35,13 @@
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="16dp"
         android:orientation="vertical"
-        app:layout_constraintBottom_toBottomOf="@+id/main_drawer_avatar"
+        app:layout_constraintBottom_toBottomOf="@+id/main_drawer_user_avatar"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/main_drawer_avatar"
+        app:layout_constraintStart_toEndOf="@+id/main_drawer_user_avatar"
         app:layout_constraintTop_toBottomOf="@+id/main_drawer_title">
 
         <TextView
-            android:id="@+id/main_drawer_name"
+            android:id="@+id/main_drawer_user_name"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/main_drawer_name_hint"
@@ -52,7 +52,7 @@
             app:layout_constraintTop_toBottomOf="@+id/main_drawer_title" />
 
         <TextView
-            android:id="@+id/main_drawer_mail"
+            android:id="@+id/main_drawer_user_email"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/main_drawer_mail_hint"

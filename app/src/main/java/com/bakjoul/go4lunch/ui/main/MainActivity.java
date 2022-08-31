@@ -1,6 +1,6 @@
 package com.bakjoul.go4lunch.ui.main;
 
-import android.annotation.SuppressLint;
+import android.os.Build;
 import android.os.Bundle;
 
 import androidx.annotation.IdRes;
@@ -22,25 +22,39 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
 
-    @SuppressLint("NewApi")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        Toolbar toolbar = binding.mainToolbar;
-        setSupportActionBar(toolbar);
-        toolbar.setBackgroundColor(getColor(R.color.primaryColor));
-
-        DrawerLayout drawerLayout = binding.mainDrawerLayout;
-        drawerLayout.setStatusBarBackground(R.color.primaryDarkColor);
-
+        setToolbar();
+        setDrawerLayout();
         setBottomNavigationView();
 
         if (savedInstanceState == null) {
             displayFragment(BottomNavigationViewFragment.MAP);
         }
+    }
+
+    private void setToolbar() {
+        Toolbar toolbar = binding.mainToolbar;
+        setSupportActionBar(toolbar);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            toolbar.setBackgroundColor(getColor(R.color.primaryColor));
+        }
+    }
+
+    private void setDrawerLayout() {
+        DrawerLayout drawerLayout = binding.mainDrawerLayout;
+        drawerLayout.setStatusBarBackground(R.color.primaryDarkColor);
+    }
+
+    private void setBottomNavigationView() {
+        binding.mainBottomNavigationView.setOnItemSelectedListener(item -> {
+            displayFragment(BottomNavigationViewFragment.fromMenuId(item.getItemId()));
+            return true;
+        });
     }
 
     private void displayFragment(BottomNavigationViewFragment selected) {
@@ -87,13 +101,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         transaction.commit();
-    }
-
-    private void setBottomNavigationView() {
-        binding.mainBottomNavigationView.setOnItemSelectedListener(item -> {
-            displayFragment(BottomNavigationViewFragment.fromMenuId(item.getItemId()));
-            return true;
-        });
     }
 
     private enum BottomNavigationViewFragment {

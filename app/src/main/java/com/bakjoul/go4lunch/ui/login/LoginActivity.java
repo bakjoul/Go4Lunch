@@ -1,6 +1,5 @@
 package com.bakjoul.go4lunch.ui.login;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -56,7 +55,6 @@ public class LoginActivity extends AppCompatActivity {
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onGoogleSignInResult);
 
         binding.loginButtonGoogle.setOnClickListener(view -> googleSignIn());
-
     }
 
     private void googleSignIn() {
@@ -134,7 +132,6 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     Log.w(TAG, "signInWithCredential:failure", task.getException());
                 }
-
             });
     }
 }
