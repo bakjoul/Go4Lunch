@@ -1,26 +1,40 @@
 package com.bakjoul.go4lunch.ui.main;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.TextView;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.ActivityMainBinding;
+import com.bakjoul.go4lunch.ui.login.LoginActivity;
 import com.bakjoul.go4lunch.ui.map.MapFragment;
 import com.bakjoul.go4lunch.ui.restaurants.RestaurantsFragment;
 import com.bakjoul.go4lunch.ui.workmates.WorkmatesFragment;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.google.android.material.navigation.NavigationView;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
+    MainViewModel viewModel;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -28,9 +42,39 @@ public class MainActivity extends AppCompatActivity {
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        viewModel = new ViewModelProvider(this).get(MainViewModel.class);
+
+        View header = binding.mainNavigationView.getHeaderView(0);
+        AppCompatImageView photo = header.findViewById(R.id.main_drawer_user_photo);
+        TextView username = header.findViewById(R.id.main_drawer_user_name);
+        TextView email = header.findViewById(R.id.main_drawer_user_email);
+
+        binding.mainNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                switch (item.getItemId()) {
+                    case R.id.mainNavigationDrawer_menu_logout:
+                        viewModel.logOut();
+                        startActivity(new Intent(MainActivity.this, LoginActivity.class));
+                        finish();
+                        break;
+                }
+                return true;
+            }
+        });
         setToolbar();
         setDrawerLayout();
         setBottomNavigationView();
+
+
+        viewModel.getMainActivityViewStateLiveData().observe(this, mainViewState -> {
+            Glide.with(photo.getContext())
+                .load(mainViewState.getPhotoUrl())
+                .apply(RequestOptions.circleCropTransform())
+                .into(photo);
+            username.setText(mainViewState.getUsername());
+            email.setText(mainViewState.getEmail());
+        });
 
         if (savedInstanceState == null) {
             displayFragment(BottomNavigationViewFragment.MAP);
