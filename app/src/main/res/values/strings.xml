@@ -14,5 +14,6 @@
     <string name="bottom_navigation_view_mapView">Map View</string>
     <string name="bottom_navigation_view_listView">List View</string>
     <string name="bottom_navigation_view_workmates">Workmates</string>
+    <string name="login_subtitle">Find a nice restaurant and invite your co-workers for lunch!</string>
 
 </resources>

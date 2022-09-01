@@ -3,6 +3,7 @@ package com.bakjoul.go4lunch.ui.login;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.ActivityLoginBinding;
 import com.bakjoul.go4lunch.ui.main.MainActivity;
+import com.bumptech.glide.Glide;
 import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
@@ -31,6 +33,8 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import jp.wasabeef.glide.transformations.BlurTransformation;
+
 public class LoginActivity extends AppCompatActivity {
 
     private static final String TAG = "LoginActivity";
@@ -48,6 +52,8 @@ public class LoginActivity extends AppCompatActivity {
 
         firebaseAuth = FirebaseAuth.getInstance();
 
+        setBackground();
+
         SignInButton signInButton = findViewById(R.id.login_button_google);
         signInButton.setSize(SignInButton.SIZE_WIDE);
 
@@ -55,6 +61,14 @@ public class LoginActivity extends AppCompatActivity {
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onGoogleSignInResult);
 
         binding.loginButtonGoogle.setOnClickListener(view -> googleSignIn());
+    }
+
+    private void setBackground() {
+        ImageView background = binding.loginBackground;
+        Glide.with(getApplicationContext())
+            .load(R.drawable.bkg_colleagues_lunch)
+            .transform(new BlurTransformation(25,1))
+            .into(background);
     }
 
     private void googleSignIn() {
