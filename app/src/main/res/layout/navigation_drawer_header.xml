@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="16dp"
-    android:background="@drawable/lunch"
-    >
+    android:background="@drawable/lunch">
 
     <TextView
         android:id="@+id/main_drawer_title"
@@ -21,21 +19,17 @@
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <View
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:layout_marginTop="-16dp"
         android:background="@drawable/shade"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        android:layout_marginTop="-16dp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/main_drawer_user_photo"
-        app:layout_constraintVertical_bias="0.0"
-        />
+        app:layout_constraintTop_toTopOf="@id/main_drawer_user_photo" />
 
     <ImageView
         android:id="@+id/main_drawer_user_photo"
@@ -47,38 +41,39 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/main_drawer_title"
-        tools:src="@drawable/bkg_oval"
-        />
+        tools:src="@drawable/bkg_oval" />
 
-    <TextView
-        android:id="@+id/main_drawer_user_name"
+    <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
-        android:hint="@string/main_drawer_name_hint"
-        android:textAppearance="?attr/textAppearanceBody2"
-        android:textColor="@color/white"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/main_drawer_user_photo"
-        app:layout_constraintTop_toBottomOf="@+id/main_drawer_title"
-        app:layout_constraintBottom_toTopOf="@id/main_drawer_user_email"
-        />
-
-    <TextView
-        android:id="@+id/main_drawer_user_email"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
-        android:hint="@string/main_drawer_mail_hint"
-        android:textAppearance="?attr/textAppearanceBody2"
-        android:textColor="@color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/main_drawer_user_photo"
-        app:layout_constraintTop_toBottomOf="@+id/main_drawer_user_name"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="@id/main_drawer_user_photo"
-        />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@id/main_drawer_user_photo"
+        app:layout_constraintTop_toTopOf="@id/main_drawer_user_photo">
+
+        <TextView
+            android:id="@+id/main_drawer_user_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_drawer_name_hint"
+            android:lines="1"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/main_drawer_user_email"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/main_drawer_mail_hint"
+            android:lines="1"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

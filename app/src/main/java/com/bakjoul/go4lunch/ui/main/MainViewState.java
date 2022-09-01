@@ -49,6 +49,7 @@ public class MainViewState {
         return Objects.hash(photoUrl, username, email);
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "MainActivityViewState{" +
