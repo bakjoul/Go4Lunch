@@ -71,16 +71,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/login_subtitle">
 
-        <com.facebook.login.widget.LoginButton
+        <Button
             android:id="@+id/login_button_facebook"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-
-        <com.google.android.gms.common.SignInButton
-            android:id="@+id/login_button_google"
-            android:layout_width="wrap_content"
+            android:layout_width="285dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="12dp" />
+            android:backgroundTint="@color/com_facebook_blue"
+            android:text="@string/login_button_facebook_text"
+            app:icon="@drawable/ic_facebook_logo_white_58"
+            app:iconTint="@null" />
+
+        <Button
+            android:id="@+id/login_button_google"
+            android:layout_width="285dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:backgroundTint="@color/white"
+            android:text="@string/login_button_google_text"
+            android:textColor="@color/black"
+            app:icon="@drawable/ic_google_logo_512"
+            app:iconTint="@null" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

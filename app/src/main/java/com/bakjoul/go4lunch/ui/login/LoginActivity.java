@@ -9,6 +9,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.bakjoul.go4lunch.R;
@@ -19,8 +20,8 @@ import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
-import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -33,6 +34,8 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.GoogleAuthProvider;
 
+import java.util.Arrays;
+
 import jp.wasabeef.glide.transformations.BlurTransformation;
 
 public class LoginActivity extends AppCompatActivity {
@@ -42,6 +45,7 @@ public class LoginActivity extends AppCompatActivity {
     private ActivityLoginBinding binding;
 
     private FirebaseAuth firebaseAuth;
+    private CallbackManager callbackManager;
     private ActivityResultLauncher<Intent> activityResultLauncher;
 
     @Override
@@ -54,7 +58,7 @@ public class LoginActivity extends AppCompatActivity {
 
         setBackground();
 
-        SignInButton signInButton = findViewById(R.id.login_button_google);
+        SignInButton signInButton = findViewById(R.id.login_button_google2);
         signInButton.setSize(SignInButton.SIZE_WIDE);
 
         initFacebookLoginButton();
@@ -67,7 +71,7 @@ public class LoginActivity extends AppCompatActivity {
         ImageView background = binding.loginBackground;
         Glide.with(getApplicationContext())
             .load(R.drawable.bkg_colleagues_lunch)
-            .transform(new BlurTransformation(25,1))
+            .transform(new BlurTransformation(25, 1))
             .into(background);
     }
 
@@ -94,10 +98,8 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     private void initFacebookLoginButton() {
-        CallbackManager callbackManager = CallbackManager.Factory.create();
-        LoginButton loginButtonFacebook = binding.loginButtonFacebook;
-        loginButtonFacebook.setPermissions("email", "public_profile");
-        loginButtonFacebook.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+        callbackManager = CallbackManager.Factory.create();
+        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
             public void onSuccess(LoginResult loginResult) {
                 Log.d(TAG, "facebook:onSuccess:" + loginResult);
@@ -115,6 +117,16 @@ public class LoginActivity extends AppCompatActivity {
                 Log.d(TAG, "facebook:onError", e);
             }
         });
+
+        binding.loginButtonFacebook.setOnClickListener(view ->
+            LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, Arrays.asList("email", "public_profile")));
+
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     private void handleFacebookAccessToken(@NonNull AccessToken token) {
