@@ -2,6 +2,7 @@ package com.bakjoul.go4lunch.ui.login;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.ImageView;
 
@@ -46,6 +47,8 @@ public class LoginActivity extends AppCompatActivity {
     private CallbackManager callbackManager;
     private ActivityResultLauncher<Intent> activityResultLauncher;
 
+    private long lastClickTime = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,9 +91,14 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        binding.loginButtonFacebook.setOnClickListener(view ->
-            LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, callbackManager, Arrays.asList("email", "public_profile")));
+        binding.loginButtonFacebook.setOnClickListener(view -> {
+            if (SystemClock.elapsedRealtime() - lastClickTime < 1000) {
+                return;
+            }
+            lastClickTime = SystemClock.elapsedRealtime();
 
+            LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, callbackManager, Arrays.asList("email", "public_profile"));
+        });
     }
 
     private void handleFacebookAccessToken(@NonNull AccessToken token) {
@@ -114,7 +122,13 @@ public class LoginActivity extends AppCompatActivity {
 
     private void initGoogleLoginButton() {
         activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onGoogleSignInResult);
-        binding.loginButtonGoogle.setOnClickListener(view -> googleSignIn());
+        binding.loginButtonGoogle.setOnClickListener(view -> {
+            if (SystemClock.elapsedRealtime() - lastClickTime < 1000) {
+                return;
+            }
+            lastClickTime = SystemClock.elapsedRealtime();
+            googleSignIn();
+        });
     }
 
     private void googleSignIn() {
