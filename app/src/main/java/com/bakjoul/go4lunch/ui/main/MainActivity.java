@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
@@ -72,6 +73,11 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             toolbar.setBackgroundColor(getColor(R.color.primaryColor));
         }
+        binding.mainToolbar.setNavigationIcon(R.drawable.ic_baseline_menu_24);
+        binding.mainToolbar.setNavigationIconTint(getResources().getColor(R.color.white));
+        binding.mainToolbar.setNavigationOnClickListener(view ->
+            binding.mainDrawerLayout.openDrawer(GravityCompat.START)
+        );
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -149,9 +155,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private enum BottomNavigationViewFragment {
-        MAP(R.id.bottomNavigationView_menu_mapView),
-        RESTAURANTS(R.id.bottomNavigationView_menu_listView),
-        WORKMATES(R.id.bottomNavigationView_menu_workmates);
+        MAP(R.id.main_bottomNavigationView_menuItem_mapView),
+        RESTAURANTS(R.id.main_bottomNavigationView_menuItem_listView),
+        WORKMATES(R.id.main_bottomNavigationView_menuItem_workmates);
 
         @IdRes
         private final int menuId;

@@ -1,15 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
-        android:id="@+id/bottomNavigationView_menu_mapView"
+        android:id="@+id/main_bottomNavigationView_menuItem_mapView"
         android:icon="@drawable/ic_baseline_map_24"
         android:title="@string/bottom_navigation_view_mapView" />
     <item
-        android:id="@+id/bottomNavigationView_menu_listView"
+        android:id="@+id/main_bottomNavigationView_menuItem_listView"
         android:icon="@drawable/ic_baseline_view_list_24"
         android:title="@string/bottom_navigation_view_listView" />
     <item
-        android:id="@+id/bottomNavigationView_menu_workmates"
+        android:id="@+id/main_bottomNavigationView_menuItem_workmates"
         android:icon="@drawable/ic_baseline_people_24"
         android:title="@string/bottom_navigation_view_workmates" />
 </menu>
