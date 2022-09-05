@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/restaurants_item_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="5dp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toStartOf="@id/restaurants_item_rating"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="Restaurant" />
+
+    <TextView
+        android:id="@+id/restaurants_item_location"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="@id/restaurants_item_name"
+        app:layout_constraintStart_toStartOf="@id/restaurants_item_name"
+        app:layout_constraintTop_toBottomOf="@id/restaurants_item_name"
+        tools:text="Location" />
+
+    <TextView
+        android:id="@+id/restaurants_item_opening_times"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:textStyle="italic"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="@id/restaurants_item_location"
+        app:layout_constraintStart_toStartOf="@id/restaurants_item_location"
+        app:layout_constraintTop_toBottomOf="@id/restaurants_item_location"
+        tools:text="Opening times" />
+
+    <ImageView
+        android:id="@+id/restaurants_item_photo"
+        android:layout_width="60dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="5dp"
+        android:importantForAccessibility="no"
+        app:layout_constraintBottom_toBottomOf="@id/restaurants_item_opening_times"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/restaurants_item_name"
+        tools:background="@color/black" />
+
+    <TextView
+        android:id="@+id/restaurants_item_distance"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="5dp"
+        android:textColor="@color/grey"
+        app:layout_constraintEnd_toStartOf="@+id/restaurants_item_photo"
+        app:layout_constraintTop_toTopOf="@id/restaurants_item_name"
+        tools:text="Dist." />
+
+    <TextView
+        android:id="@+id/restaurants_item_attendance"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:textSize="11sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="@+id/restaurants_item_distance"
+        app:layout_constraintStart_toStartOf="@id/restaurants_item_distance"
+        app:layout_constraintTop_toBottomOf="@id/restaurants_item_distance"
+        tools:drawableStartCompat="@drawable/ic_baseline_person_outline_16"
+        tools:text="(Nb)" />
+
+    <RatingBar
+        android:id="@+id/restaurants_item_rating"
+        style="@style/RatingBar"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:isIndicator="true"
+        android:numStars="3"
+        android:paddingTop="5dp"
+        android:rotationY="180"
+        android:stepSize="1"
+        app:layout_constraintBottom_toBottomOf="@id/restaurants_item_opening_times"
+        app:layout_constraintEnd_toEndOf="@+id/restaurants_item_attendance"
+        app:layout_constraintTop_toBottomOf="@id/restaurants_item_attendance"
+        tools:rating="1" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

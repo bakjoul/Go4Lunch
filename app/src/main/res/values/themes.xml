@@ -13,4 +13,9 @@
         <!-- Customize your theme here. -->
         <item name="android:windowTranslucentStatus">true</item>
     </style>
+
+    <style name="RatingBar" parent="Widget.AppCompat.RatingBar.Small">
+        <item name="android:colorControlNormal">@android:color/transparent</item>
+        <item name="android:colorControlActivated">@color/yellow</item>
+    </style>
 </resources>

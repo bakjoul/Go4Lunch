@@ -17,5 +17,6 @@
     <string name="login_subtitle">Find a nice restaurant and invite your co-workers for lunch!</string>
     <string name="login_button_facebook_text">Sign in with Facebook</string>
     <string name="login_button_google_text">Sign in with Google</string>
+    <string name="restaurants_item_rating_cs">Rating</string>
 
 </resources>
