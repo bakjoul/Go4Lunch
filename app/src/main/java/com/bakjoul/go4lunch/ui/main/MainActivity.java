@@ -67,6 +67,13 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        viewModel.onResume();
+    }
+
     private void setToolbar() {
         Toolbar toolbar = binding.mainToolbar;
         setSupportActionBar(toolbar);

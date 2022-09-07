@@ -6,120 +6,63 @@ import android.app.AlertDialog;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Looper;
-import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 
-import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.databinding.FragmentMapViewBinding;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.Priority;
+import com.bakjoul.go4lunch.data.LocationRepository;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.util.Arrays;
+import javax.inject.Inject;
 
-public class MapFragment extends Fragment {
+import dagger.hilt.android.AndroidEntryPoint;
 
-    private static final long INTERVAL = 10000;
-    private static final long FASTEST_INTERVAL = INTERVAL / 2;
+@AndroidEntryPoint
+public class MapFragment extends SupportMapFragment {
 
     public static MapFragment newInstance() {
         return new MapFragment();
     }
 
-    private final ActivityResultLauncher<String> requestPermissionLauncher = registerForActivityResult(
-        new ActivityResultContracts.RequestPermission(),
-        new ActivityResultCallback<Boolean>() {
-            @SuppressLint("MissingPermission")
+    @Inject
+    LocationRepository locationRepository;
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
+
+        getMapAsync(new OnMapReadyCallback() {
             @Override
-            public void onActivityResult(Boolean result) {
-                if (result) {
-                    fusedLocationProvider.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-                } else {
-                    Log.d("test", "onActivityResult: nonono");
-                }
+            public void onMapReady(@NonNull GoogleMap googleMap) {
+                locationRepository.getCurrentLocationLiveData().observe(getViewLifecycleOwner(), new Observer<Location>() {
+                    @SuppressLint("MissingPermission")
+                    @Override
+                    public void onChanged(Location location) {
+                        if (location != null) {
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                                    new LatLng(
+                                        location.getLatitude(),
+                                        location.getLongitude()
+                                    ),
+                                    14
+                                )
+                            );
+                            googleMap.setMyLocationEnabled(true);
+                        }
+                    }
+                });
+
             }
         });
-
-    private Location currentLocation;
-    private FusedLocationProviderClient fusedLocationProvider;
-    private final LocationRequest locationRequest =
-        LocationRequest.create()
-            .setInterval(10000)
-            .setFastestInterval(FASTEST_INTERVAL)
-            .setPriority(Priority.PRIORITY_HIGH_ACCURACY)
-            .setSmallestDisplacement(5f);
-    private final LocationCallback locationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(@NonNull LocationResult locationResult) {
-            super.onLocationResult(locationResult);
-            currentLocation = locationResult.getLastLocation();
-            Log.d("test", "onLocationResult: " + currentLocation);
-            SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
-            mapFragment.getMapAsync(MapFragment.this::onMapReady);
-        }
-    };
-    private GoogleMap map;
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        FragmentMapViewBinding binding = FragmentMapViewBinding.inflate(inflater, container, false);
-
-        requestPermissionLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
-
-        fusedLocationProvider = LocationServices.getFusedLocationProviderClient(requireContext());
-        //checkLocationPermission();
-
-        return binding.getRoot();
-    }
-
-    @SuppressLint("MissingPermission")
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedLocationProvider.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-        }
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.ACCESS_FINE_LOCATION)
-            == PackageManager.PERMISSION_GRANTED
-        ) {
-            fusedLocationProvider.removeLocationUpdates(locationCallback);
-        }
-    }
-
-    @SuppressLint("MissingPermission")
-    private void onMapReady(@NonNull GoogleMap map) {
-        this.map = map;
-        LatLng latLng = new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude());
-        map.animateCamera(CameraUpdateFactory.newLatLng(latLng));
-        map.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
-        map.setMyLocationEnabled(true);
     }
 
     private void checkLocationPermission() {
