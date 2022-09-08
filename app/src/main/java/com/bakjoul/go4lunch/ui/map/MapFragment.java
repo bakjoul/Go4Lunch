@@ -12,27 +12,24 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
-import com.bakjoul.go4lunch.data.LocationRepository;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-
-import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class MapFragment extends SupportMapFragment {
 
+    @NonNull
     public static MapFragment newInstance() {
         return new MapFragment();
     }
 
-    @Inject
-    LocationRepository locationRepository;
+/*    @Inject
+    LocationRepository locationRepository;*/
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -40,10 +37,22 @@ public class MapFragment extends SupportMapFragment {
 
         ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 0);
 
+        MapViewModel viewModel = new ViewModelProvider(this).get(MapViewModel.class);
+
         getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(@NonNull GoogleMap googleMap) {
-                locationRepository.getCurrentLocationLiveData().observe(getViewLifecycleOwner(), new Observer<Location>() {
+                viewModel.getCurrentLocation().observe(getViewLifecycleOwner(), new Observer<Location>() {
+                    @SuppressLint("MissingPermission")
+                    @Override
+                    public void onChanged(Location location) {
+                        if (location != null) {
+                            viewModel.animateCamera(location, googleMap, 14);
+                            googleMap.setMyLocationEnabled(true);
+                        }
+                    }
+                });
+                /*locationRepository.getCurrentLocation().observe(getViewLifecycleOwner(), new Observer<Location>() {
                     @SuppressLint("MissingPermission")
                     @Override
                     public void onChanged(Location location) {
@@ -59,7 +68,7 @@ public class MapFragment extends SupportMapFragment {
                             googleMap.setMyLocationEnabled(true);
                         }
                     }
-                });
+                });*/
 
             }
         });

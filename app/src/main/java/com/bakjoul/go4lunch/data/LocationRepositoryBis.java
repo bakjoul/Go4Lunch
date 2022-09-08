@@ -7,10 +7,8 @@ import android.location.Location;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -21,6 +19,7 @@ public class LocationRepositoryBis {
 
     private static final long INTERVAL = 10000;
     private static final long FASTEST_INTERVAL = INTERVAL / 2;
+    private static final float SMALLEST_DISPLACEMENT = 5f;
 
     private final FusedLocationProviderClient fusedLocationProvider;
 
@@ -28,7 +27,7 @@ public class LocationRepositoryBis {
         .setInterval(INTERVAL)
         .setFastestInterval(FASTEST_INTERVAL)
         .setPriority(PRIORITY_HIGH_ACCURACY)
-        .setSmallestDisplacement(5f);
+        .setSmallestDisplacement(SMALLEST_DISPLACEMENT);
 
     private final LocationCallback locationCallback = new LocationCallback() {
         @Override
@@ -47,6 +46,7 @@ public class LocationRepositoryBis {
         return locationMutableLiveData;
     }
 
+    @SuppressLint("MissingPermission")
     public void startLocationSearch() {
         fusedLocationProvider.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }

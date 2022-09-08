@@ -74,9 +74,9 @@ public class MainViewModel extends ViewModel {
 
     public void onResume() {
         if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationRepository.startLocationSearch();
+            locationRepository.startLocationUpdates();
         } else {
-            locationRepository.stopLocationSearch();
+            locationRepository.stopLocationUpdates();
         }
     }
 }

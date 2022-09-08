@@ -24,8 +24,11 @@ import javax.inject.Singleton;
 @Singleton
 public class LocationRepository {
 
+    private static final String TAG = "LocationRepository";
+
     private static final long INTERVAL = 10000;
     private static final long FASTEST_INTERVAL = INTERVAL / 2;
+    private static final float SMALLEST_DISPLACEMENT = 5f;
 
     @NonNull
     private final FusedLocationProviderClient fusedLocationProvider;
@@ -34,7 +37,7 @@ public class LocationRepository {
         .setInterval(INTERVAL)
         .setFastestInterval(FASTEST_INTERVAL)
         .setPriority(PRIORITY_HIGH_ACCURACY)
-        .setSmallestDisplacement(5f);
+        .setSmallestDisplacement(SMALLEST_DISPLACEMENT);
 
     private final MutableLiveData<Boolean> isLocationPermissionAllowedLiveData = new MutableLiveData<>(false);
 
@@ -43,19 +46,19 @@ public class LocationRepository {
         this.fusedLocationProvider = fusedLocationProvider;
     }
 
-    public LiveData<Location> getCurrentLocationLiveData() {
+    public LiveData<Location> getCurrentLocation() {
         return Transformations.switchMap(isLocationPermissionAllowedLiveData, new Function<Boolean, LiveData<Location>>() {
             @SuppressLint("MissingPermission")
             @Override
             public LiveData<Location> apply(Boolean isLocationPermissionAllowed) {
-                Log.d("Nino", "switchMap() called with: isLocationPermissionAllowed = [" + isLocationPermissionAllowed + "]");
+                Log.d(TAG, "switchMap() called with: isLocationPermissionAllowed = [" + isLocationPermissionAllowed + "]");
                 MutableLiveData<Location> locationMutableLiveData = new MutableLiveData<>();
 
                 if (isLocationPermissionAllowed) {
                     final LocationCallback locationCallback = new LocationCallback() {
                         @Override
                         public void onLocationResult(@NonNull LocationResult locationResult) {
-                            Log.d("Nino", "onLocationResult() called with: locationResult = [" + locationResult + "]");
+                            Log.d(TAG, "onLocationResult() called with: locationResult = [" + locationResult + "]");
                             locationMutableLiveData.setValue(locationResult.getLastLocation());
                         }
                     };
@@ -70,13 +73,13 @@ public class LocationRepository {
         });
     }
 
-    public void startLocationSearch() {
-        Log.d("Nino", "startLocationSearch() called");
+    public void startLocationUpdates() {
+        Log.d(TAG, "startLocationUpdates() called");
         isLocationPermissionAllowedLiveData.setValue(true);
     }
 
-    public void stopLocationSearch() {
-        Log.d("Nino", "stopLocationSearch() called");
+    public void stopLocationUpdates() {
+        Log.d(TAG, "stopLocationUpdates() called");
         isLocationPermissionAllowedLiveData.setValue(false);
     }
 }
