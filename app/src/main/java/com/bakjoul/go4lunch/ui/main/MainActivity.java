@@ -2,6 +2,7 @@ package com.bakjoul.go4lunch.ui.main;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
@@ -68,10 +69,23 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+
+        if (requestCode == 1) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                viewModel.onLocationPermissionGranted();
+            } else {
+                viewModel.onLocationPermissionDenied();
+            }
+        }
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
 
-        viewModel.onResume();
+        viewModel.checkLocationPermission(this, this);
     }
 
     private void setToolbar() {

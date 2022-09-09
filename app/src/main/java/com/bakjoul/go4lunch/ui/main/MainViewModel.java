@@ -1,18 +1,17 @@
 package com.bakjoul.go4lunch.ui.main;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.data.LocationRepository;
+import com.bakjoul.go4lunch.data.PermissionRepository;
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
@@ -37,13 +36,17 @@ public class MainViewModel extends ViewModel {
     @NonNull
     private final LocationRepository locationRepository;
 
+    @NonNull
+    private final PermissionRepository permissionRepository;
+
     private final MutableLiveData<MainViewState> mainActivityViewStateLiveData = new MutableLiveData<>();
 
     @Inject
-    public MainViewModel(@ApplicationContext @NonNull Context context, @NonNull FirebaseAuth firebaseAuth, @NonNull LocationRepository locationRepository) {
+    public MainViewModel(@ApplicationContext @NonNull Context context, @NonNull FirebaseAuth firebaseAuth, @NonNull LocationRepository locationRepository, @NonNull PermissionRepository permissionRepository) {
         this.context = context;
         this.firebaseAuth = firebaseAuth;
         this.locationRepository = locationRepository;
+        this.permissionRepository = permissionRepository;
 
         if (firebaseAuth.getCurrentUser() != null) {
             mainActivityViewStateLiveData.setValue(
@@ -72,11 +75,17 @@ public class MainViewModel extends ViewModel {
         }
     }
 
-    public void onResume() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationRepository.startLocationUpdates();
-        } else {
-            locationRepository.stopLocationUpdates();
-        }
+    public void checkLocationPermission(Activity activity, Context context) {
+        permissionRepository.checkLocationPermission(activity, context);
+    }
+
+    public void onLocationPermissionGranted() {
+        permissionRepository.onLocationPermissionGranted();
+        locationRepository.startLocationUpdates();
+    }
+
+    public void onLocationPermissionDenied() {
+        permissionRepository.onLocationPermissionDenied();
+        locationRepository.stopLocationUpdates();
     }
 }

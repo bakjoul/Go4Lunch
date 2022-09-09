@@ -31,6 +31,9 @@ public class LocationRepository {
     private static final float SMALLEST_DISPLACEMENT = 5f;
 
     @NonNull
+    private final PermissionRepository permissionRepository;
+
+    @NonNull
     private final FusedLocationProviderClient fusedLocationProvider;
 
     private final LocationRequest locationRequest = LocationRequest.create()
@@ -39,11 +42,14 @@ public class LocationRepository {
         .setPriority(PRIORITY_HIGH_ACCURACY)
         .setSmallestDisplacement(SMALLEST_DISPLACEMENT);
 
-    private final MutableLiveData<Boolean> isLocationPermissionAllowedLiveData = new MutableLiveData<>(false);
+    private final LiveData<Boolean> isLocationPermissionAllowedLiveData;
 
     @Inject
-    public LocationRepository(@NonNull FusedLocationProviderClient fusedLocationProvider) {
+    public LocationRepository(@NonNull PermissionRepository permissionRepository, @NonNull FusedLocationProviderClient fusedLocationProvider) {
+        this.permissionRepository = permissionRepository;
         this.fusedLocationProvider = fusedLocationProvider;
+
+        isLocationPermissionAllowedLiveData = permissionRepository.getLocationPermissionState();
     }
 
     public LiveData<Location> getCurrentLocation() {
@@ -75,11 +81,11 @@ public class LocationRepository {
 
     public void startLocationUpdates() {
         Log.d(TAG, "startLocationUpdates() called");
-        isLocationPermissionAllowedLiveData.setValue(true);
+        permissionRepository.onLocationPermissionGranted();
     }
 
     public void stopLocationUpdates() {
         Log.d(TAG, "stopLocationUpdates() called");
-        isLocationPermissionAllowedLiveData.setValue(false);
+        permissionRepository.onLocationPermissionDenied();
     }
 }
