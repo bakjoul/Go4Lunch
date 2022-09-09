@@ -4,19 +4,17 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.pm.PackageManager;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.app.ActivityCompat;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -28,9 +26,7 @@ public class MapFragment extends SupportMapFragment {
         return new MapFragment();
     }
 
-/*    @Inject
-    LocationRepository locationRepository;*/
-
+    @SuppressLint("MissingPermission")
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -39,39 +35,19 @@ public class MapFragment extends SupportMapFragment {
 
         MapViewModel viewModel = new ViewModelProvider(this).get(MapViewModel.class);
 
-        getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(@NonNull GoogleMap googleMap) {
-                viewModel.getCurrentLocation().observe(getViewLifecycleOwner(), new Observer<Location>() {
-                    @SuppressLint("MissingPermission")
-                    @Override
-                    public void onChanged(Location location) {
-                        if (location != null) {
-                            viewModel.animateCamera(location, googleMap, 14);
-                            googleMap.setMyLocationEnabled(true);
-                        }
-                    }
-                });
-                /*locationRepository.getCurrentLocation().observe(getViewLifecycleOwner(), new Observer<Location>() {
-                    @SuppressLint("MissingPermission")
-                    @Override
-                    public void onChanged(Location location) {
-                        if (location != null) {
-                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                                    new LatLng(
-                                        location.getLatitude(),
-                                        location.getLongitude()
-                                    ),
-                                    14
-                                )
-                            );
-                            googleMap.setMyLocationEnabled(true);
-                        }
-                    }
-                });*/
-
-            }
-        });
+        viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), mapViewState ->
+            getMapAsync(googleMap -> {
+                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(
+                            mapViewState.getLatitude(),
+                            mapViewState.getLongitude()
+                        ),
+                        14
+                    )
+                );
+                googleMap.setMyLocationEnabled(true);
+            })
+        );
     }
 
     private void checkLocationPermission() {

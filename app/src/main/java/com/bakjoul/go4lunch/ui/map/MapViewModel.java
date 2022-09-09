@@ -3,13 +3,12 @@ package com.bakjoul.go4lunch.ui.map;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
+import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.data.LocationRepository;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
 
 import javax.inject.Inject;
 
@@ -21,23 +20,28 @@ public class MapViewModel extends ViewModel {
     @NonNull
     private final LocationRepository locationRepository;
 
+    private final LiveData<MapViewState> mapViewState;
+
     @Inject
     public MapViewModel(@NonNull LocationRepository locationRepository) {
         this.locationRepository = locationRepository;
-    }
 
-    public LiveData<Location> getCurrentLocation() {
-        return locationRepository.getCurrentLocation();
-    }
+        mapViewState = Transformations.map(
+            locationRepository.getCurrentLocation(), new Function<Location, MapViewState>() {
+                MapViewState mapViewState = new MapViewState(0, 0);
 
-    public void animateCamera(@NonNull Location location, @NonNull GoogleMap googleMap, float zoom) {
-        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                new LatLng(
-                    location.getLatitude(),
-                    location.getLongitude()
-                ),
-                zoom
-            )
+                @Override
+                public MapViewState apply(Location location) {
+                    if (location != null) {
+                        mapViewState = new MapViewState(location.getLatitude(), location.getLongitude());
+                    }
+                    return mapViewState;
+                }
+            }
         );
+    }
+
+    public LiveData<MapViewState> getMapViewStateLiveData() {
+        return mapViewState;
     }
 }
