@@ -2,6 +2,7 @@ package com.bakjoul.go4lunch.ui.map;
 
 import android.annotation.SuppressLint;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.annotation.NonNull;
@@ -17,6 +18,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MapFragment extends SupportMapFragment {
 
+    private static final String TAG = "MapFragment";
+
     @NonNull
     public static MapFragment newInstance() {
         return new MapFragment();
@@ -29,19 +32,23 @@ public class MapFragment extends SupportMapFragment {
 
         MapViewModel viewModel = new ViewModelProvider(this).get(MapViewModel.class);
 
-        viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), mapViewState ->
-            getMapAsync(googleMap -> {
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                        new LatLng(
-                            mapViewState.getLatitude(),
-                            mapViewState.getLongitude()
-                        ),
-                        14
-                    )
-                );
-                googleMap.setMyLocationEnabled(true);
-            })
+        viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), mapViewState -> {
+                if (mapViewState != null) {
+                    MapFragment.this.getMapAsync(googleMap -> {
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                                new LatLng(
+                                    mapViewState.getLatitude(),
+                                    mapViewState.getLongitude()
+                                ),
+                                14
+                            )
+                        );
+                        googleMap.setMyLocationEnabled(true);
+                    });
+                } else {
+                    Log.d(TAG, "Location permission is not allowed. Map will not update.");
+                }
+            }
         );
     }
-
 }

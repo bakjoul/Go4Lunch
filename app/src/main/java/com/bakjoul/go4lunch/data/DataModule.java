@@ -29,4 +29,10 @@ public class DataModule {
     public FusedLocationProviderClient provideFusedLocationProviderClient(@ApplicationContext Context context) {
         return LocationServices.getFusedLocationProviderClient(context);
     }
+
+    @Provides
+    @Singleton
+    public PermissionRepository providePermissionRepository(@ApplicationContext Context context) {
+        return new PermissionRepository(context);
+    }
 }

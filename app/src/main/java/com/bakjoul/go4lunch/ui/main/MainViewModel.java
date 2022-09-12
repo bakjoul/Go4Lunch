@@ -88,4 +88,12 @@ public class MainViewModel extends ViewModel {
         permissionRepository.onLocationPermissionDenied();
         locationRepository.stopLocationUpdates();
     }
+
+    public void onLocationPermissionGranted() {
+        permissionRepository.onLocationPermissionGranted();
+    }
+
+    public void onLocationPermissionDenied() {
+        permissionRepository.onLocationPermissionDenied();
+    }
 }

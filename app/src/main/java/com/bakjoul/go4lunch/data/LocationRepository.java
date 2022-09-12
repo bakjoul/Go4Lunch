@@ -42,18 +42,14 @@ public class LocationRepository {
         .setPriority(PRIORITY_HIGH_ACCURACY)
         .setSmallestDisplacement(SMALLEST_DISPLACEMENT);
 
-    private final LiveData<Boolean> isLocationPermissionAllowedLiveData;
-
     @Inject
     public LocationRepository(@NonNull PermissionRepository permissionRepository, @NonNull FusedLocationProviderClient fusedLocationProvider) {
         this.permissionRepository = permissionRepository;
         this.fusedLocationProvider = fusedLocationProvider;
-
-        isLocationPermissionAllowedLiveData = permissionRepository.getLocationPermissionState();
     }
 
     public LiveData<Location> getCurrentLocation() {
-        return Transformations.switchMap(isLocationPermissionAllowedLiveData, new Function<Boolean, LiveData<Location>>() {
+        return Transformations.switchMap(permissionRepository.getLocationPermissionState(), new Function<Boolean, LiveData<Location>>() {
             @SuppressLint("MissingPermission")
             @Override
             public LiveData<Location> apply(Boolean isLocationPermissionAllowed) {
