@@ -1,11 +1,13 @@
 package com.bakjoul.go4lunch.ui.main;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -75,18 +77,12 @@ public class MainViewModel extends ViewModel {
         }
     }
 
-    public void checkLocationPermission(Activity activity, Context context) {
-        permissionRepository.checkLocationPermission(activity, context);
-    }
-
-    public void onLocationPermissionGranted() {
-        permissionRepository.onLocationPermissionGranted();
-        locationRepository.startLocationUpdates();
-    }
-
-    public void onLocationPermissionDenied() {
-        permissionRepository.onLocationPermissionDenied();
-        locationRepository.stopLocationUpdates();
+    public void onResume() {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationRepository.startLocationUpdates();
+        } else {
+            locationRepository.stopLocationUpdates();
+        }
     }
 
     public void onLocationPermissionGranted() {
