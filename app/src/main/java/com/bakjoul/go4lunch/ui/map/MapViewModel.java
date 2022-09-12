@@ -17,18 +17,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class MapViewModel extends ViewModel {
 
-    @NonNull
-    private final LocationRepository locationRepository;
-
     private final LiveData<MapViewState> mapViewState;
 
     @Inject
     public MapViewModel(@NonNull LocationRepository locationRepository) {
-        this.locationRepository = locationRepository;
 
         mapViewState = Transformations.map(
             locationRepository.getCurrentLocation(), new Function<Location, MapViewState>() {
-                MapViewState mapViewState = new MapViewState(0, 0);
+                MapViewState mapViewState;
 
                 @Override
                 public MapViewState apply(Location location) {

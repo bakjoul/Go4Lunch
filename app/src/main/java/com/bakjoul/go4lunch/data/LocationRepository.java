@@ -31,6 +31,9 @@ public class LocationRepository {
     private static final float SMALLEST_DISPLACEMENT = 5f;
 
     @NonNull
+    private final PermissionRepository permissionRepository;
+
+    @NonNull
     private final FusedLocationProviderClient fusedLocationProvider;
 
     private final LocationRequest locationRequest = LocationRequest.create()
@@ -39,15 +42,14 @@ public class LocationRepository {
         .setPriority(PRIORITY_HIGH_ACCURACY)
         .setSmallestDisplacement(SMALLEST_DISPLACEMENT);
 
-    private final MutableLiveData<Boolean> isLocationPermissionAllowedLiveData = new MutableLiveData<>(false);
-
     @Inject
-    public LocationRepository(@NonNull FusedLocationProviderClient fusedLocationProvider) {
+    public LocationRepository(@NonNull PermissionRepository permissionRepository, @NonNull FusedLocationProviderClient fusedLocationProvider) {
+        this.permissionRepository = permissionRepository;
         this.fusedLocationProvider = fusedLocationProvider;
     }
 
     public LiveData<Location> getCurrentLocation() {
-        return Transformations.switchMap(isLocationPermissionAllowedLiveData, new Function<Boolean, LiveData<Location>>() {
+        return Transformations.switchMap(permissionRepository.getLocationPermissionState(), new Function<Boolean, LiveData<Location>>() {
             @SuppressLint("MissingPermission")
             @Override
             public LiveData<Location> apply(Boolean isLocationPermissionAllowed) {
@@ -75,11 +77,11 @@ public class LocationRepository {
 
     public void startLocationUpdates() {
         Log.d(TAG, "startLocationUpdates() called");
-        isLocationPermissionAllowedLiveData.setValue(true);
+        permissionRepository.onLocationPermissionGranted();
     }
 
     public void stopLocationUpdates() {
         Log.d(TAG, "stopLocationUpdates() called");
-        isLocationPermissionAllowedLiveData.setValue(false);
+        permissionRepository.onLocationPermissionDenied();
     }
 }
