@@ -194,16 +194,21 @@ public class MainActivity extends AppCompatActivity {
     private void checkLocationPermission() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                new AlertDialog.Builder(this)
-                    .setTitle("Localisation requise")
-                    .setMessage("Pour continuer, activez la localisation de l'appareil.")
-                    .setPositiveButton("OK", (dialogInterface, i) -> requestLocationPermission())
-                    .create()
-                    .show();
+                showRequestPermissionRationale();
             } else {
                 requestLocationPermission();
             }
         }
+    }
+
+    private void showRequestPermissionRationale() {
+        new AlertDialog.Builder(this)
+            .setTitle("Localisation requise")
+            .setMessage("Pour continuer, activez la localisation de l'appareil.")
+            .setPositiveButton("OK", (dialogInterface, i) -> requestLocationPermission())
+            .setNegativeButton("Annuler", (dialogInterface, i) -> dialogInterface.dismiss())
+            .create()
+            .show();
     }
 
     private void requestLocationPermission() {
@@ -219,6 +224,7 @@ public class MainActivity extends AppCompatActivity {
                 viewModel.onLocationPermissionGranted();
             } else {
                 viewModel.onLocationPermissionDenied();
+                showRequestPermissionRationale();
             }
         }
     }
