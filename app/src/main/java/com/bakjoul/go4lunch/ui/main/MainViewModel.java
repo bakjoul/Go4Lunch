@@ -92,4 +92,8 @@ public class MainViewModel extends ViewModel {
     public void onLocationPermissionDenied() {
         permissionRepository.onLocationPermissionDenied();
     }
+
+    public LiveData<Boolean> getLocationPermissionLiveData() {
+        return permissionRepository.getLocationPermissionLiveData();
+    }
 }

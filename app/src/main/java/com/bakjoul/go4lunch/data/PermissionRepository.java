@@ -25,15 +25,15 @@ public class PermissionRepository {
     public PermissionRepository(Context context) {
         this.context = context;
 
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             isLocationPermissionGranted.setValue(true);
         } else {
             isLocationPermissionGranted.setValue(false);
         }
     }
 
-    public LiveData<Boolean> getLocationPermissionState() {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+    public LiveData<Boolean> getLocationPermissionLiveData() {
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             isLocationPermissionGranted.setValue(true);
         } else {
             isLocationPermissionGranted.setValue(false);

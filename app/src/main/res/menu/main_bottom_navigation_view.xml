@@ -12,4 +12,7 @@
         android:id="@+id/main_bottomNavigationView_menuItem_workmates"
         android:icon="@drawable/ic_baseline_people_24"
         android:title="@string/bottom_navigation_view_workmates" />
+    <item
+        android:id="@+id/main_bottomNavigationView_menuItem_noPermission"
+        android:visible="false" />
 </menu>

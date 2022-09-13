@@ -49,7 +49,7 @@ public class LocationRepository {
     }
 
     public LiveData<Location> getCurrentLocation() {
-        return Transformations.switchMap(permissionRepository.getLocationPermissionState(), new Function<Boolean, LiveData<Location>>() {
+        return Transformations.switchMap(permissionRepository.getLocationPermissionLiveData(), new Function<Boolean, LiveData<Location>>() {
             @SuppressLint("MissingPermission")
             @Override
             public LiveData<Location> apply(Boolean isLocationPermissionAllowed) {
