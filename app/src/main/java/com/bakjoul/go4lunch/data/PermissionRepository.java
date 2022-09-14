@@ -17,14 +17,10 @@ public class PermissionRepository {
 
     private static final String TAG = "PermissionRepository";
 
-    private final Context context;
-
-    private final MutableLiveData<Boolean> isLocationPermissionGranted = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> isLocationPermissionGranted = new MutableLiveData<>();
 
     @Inject
     public PermissionRepository(Context context) {
-        this.context = context;
-
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             isLocationPermissionGranted.setValue(true);
         } else {
@@ -33,21 +29,11 @@ public class PermissionRepository {
     }
 
     public LiveData<Boolean> getLocationPermissionLiveData() {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            isLocationPermissionGranted.setValue(true);
-        } else {
-            isLocationPermissionGranted.setValue(false);
-        }
         return isLocationPermissionGranted;
     }
 
-    public void onLocationPermissionGranted() {
-        Log.d(TAG, "onLocationPermissionGranted() called");
-        isLocationPermissionGranted.setValue(true);
-    }
-
-    public void onLocationPermissionDenied() {
-        Log.d(TAG, "onLocationPermissionDenied() called");
-        isLocationPermissionGranted.setValue(false);
+    public void setLocationPermission(boolean granted) {
+        Log.d(TAG, "setLocationPermission() called with granted = " + granted);
+        isLocationPermissionGranted.setValue(granted);
     }
 }

@@ -4,14 +4,12 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.IdRes;
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -21,12 +19,15 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.ActivityMainBinding;
 import com.bakjoul.go4lunch.ui.NoPermissionFragment;
 import com.bakjoul.go4lunch.ui.dispatcher.DispatcherActivity;
+import com.bakjoul.go4lunch.ui.main.MainViewModel.BottomNavigationViewButton;
+import com.bakjoul.go4lunch.ui.main.MainViewModel.FragmentToDisplay;
 import com.bakjoul.go4lunch.ui.map.MapFragment;
 import com.bakjoul.go4lunch.ui.restaurants.RestaurantsFragment;
 import com.bakjoul.go4lunch.ui.workmates.WorkmatesFragment;
@@ -40,7 +41,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private MainViewModel viewModel;
-    private Boolean isLocationPermissionGranted = false;
+
+    private boolean isBottomNavigationViewListenerDisabled = false;
 
     @SuppressLint("NonConstantResourceId")
     @Override
@@ -71,34 +73,12 @@ public class MainActivity extends AppCompatActivity {
             email.setText(mainViewState.getEmail());
         });
 
-        viewModel.getLocationPermissionLiveData().observe(this, isLocationAllowed -> {
-            if (isLocationAllowed) {
-                isLocationPermissionGranted = true;
-                switch (binding.mainBottomNavigationView.getSelectedItemId()) {
-                    case R.id.main_bottomNavigationView_menuItem_mapView:
-                        displayFragment(BottomNavigationViewFragment.MAP);
-                        break;
-                    case R.id.main_bottomNavigationView_menuItem_listView:
-                        displayFragment(BottomNavigationViewFragment.RESTAURANTS);
-                        break;
-                    case R.id.main_bottomNavigationView_menuItem_workmates:
-                        displayFragment(BottomNavigationViewFragment.WORKMATES);
-                        break;
-                }
-            } else {
-                isLocationPermissionGranted = false;
-                switch (binding.mainBottomNavigationView.getSelectedItemId()) {
-                    case R.id.main_bottomNavigationView_menuItem_mapView:
-                    case R.id.main_bottomNavigationView_menuItem_listView:
-                        displayFragment(BottomNavigationViewFragment.NO_PERMISSION);
-                        break;
-                    case R.id.main_bottomNavigationView_menuItem_workmates:
-                        displayFragment(BottomNavigationViewFragment.WORKMATES);
-                        break;
-                }
+        viewModel.getFragmentToDisplaySingleLiveEvent().observe(this, new Observer<FragmentToDisplay>() {
+            @Override
+            public void onChanged(FragmentToDisplay fragmentToDisplay) {
+                displayFragment(fragmentToDisplay);
             }
         });
-
     }
 
     @Override
@@ -144,39 +124,42 @@ public class MainActivity extends AppCompatActivity {
 
     private void setBottomNavigationView() {
         binding.mainBottomNavigationView.setOnItemSelectedListener(item -> {
-            displayFragment(BottomNavigationViewFragment.fromMenuId(item.getItemId()));
+            if (!isBottomNavigationViewListenerDisabled) {
+                viewModel.onBottomNavigationClicked(BottomNavigationViewButton.fromMenuId(item.getItemId()));
+            }
             return true;
         });
     }
 
-    private void displayFragment(BottomNavigationViewFragment selected) {
+    private void displayFragment(FragmentToDisplay selected) {
+        Log.d("Nino", "displayFragment() called with: selected = [" + selected + "]");
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         boolean shown = false;
 
         for (Fragment fragment : getSupportFragmentManager().getFragments()) {
             if (fragment instanceof MapFragment) {
-                if (selected == BottomNavigationViewFragment.MAP && isLocationPermissionGranted) {
+                if (selected == FragmentToDisplay.MAP) {
                     transaction.show(fragment);
                     shown = true;
                 } else {
                     transaction.hide(fragment);
                 }
             } else if (fragment instanceof RestaurantsFragment) {
-                if (selected == BottomNavigationViewFragment.RESTAURANTS && isLocationPermissionGranted) {
+                if (selected == FragmentToDisplay.RESTAURANT) {
                     transaction.show(fragment);
                     shown = true;
                 } else {
                     transaction.hide(fragment);
                 }
             } else if (fragment instanceof WorkmatesFragment) {
-                if (selected == BottomNavigationViewFragment.WORKMATES) {
+                if (selected == FragmentToDisplay.WORKMATES) {
                     transaction.show(fragment);
                     shown = true;
                 } else {
                     transaction.hide(fragment);
                 }
             } else if (fragment instanceof NoPermissionFragment) {
-                if (selected == BottomNavigationViewFragment.MAP && !isLocationPermissionGranted || selected == BottomNavigationViewFragment.RESTAURANTS && !isLocationPermissionGranted) {
+                if (selected == FragmentToDisplay.NO_PERMISSION) {
                     transaction.show(fragment);
                     shown = true;
                 } else {
@@ -188,18 +171,10 @@ public class MainActivity extends AppCompatActivity {
         if (!shown) {
             switch (selected) {
                 case MAP:
-                    if (isLocationPermissionGranted) {
-                        transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), MapFragment.newInstance());
-                    } else {
-                        transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), NoPermissionFragment.newInstance());
-                    }
+                    transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), MapFragment.newInstance());
                     break;
-                case RESTAURANTS:
-                    if (isLocationPermissionGranted) {
-                        transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), RestaurantsFragment.newInstance());
-                    } else {
-                        transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), NoPermissionFragment.newInstance());
-                    }
+                case RESTAURANT:
+                    transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), RestaurantsFragment.newInstance());
                     break;
                 case WORKMATES:
                     transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), WorkmatesFragment.newInstance());
@@ -211,45 +186,18 @@ public class MainActivity extends AppCompatActivity {
         }
 
         transaction.commit();
-    }
 
-    private enum BottomNavigationViewFragment {
-        MAP(R.id.main_bottomNavigationView_menuItem_mapView),
-        RESTAURANTS(R.id.main_bottomNavigationView_menuItem_listView),
-        WORKMATES(R.id.main_bottomNavigationView_menuItem_workmates),
-        NO_PERMISSION(R.id.main_bottomNavigationView_menuItem_noPermission);
-
-        @IdRes
-        private final int menuId;
-
-        BottomNavigationViewFragment(@IdRes int menuId) {
-            this.menuId = menuId;
-        }
-
-        @NonNull
-        public static BottomNavigationViewFragment fromMenuId(@IdRes int menuId) {
-            for (BottomNavigationViewFragment value : BottomNavigationViewFragment.values()) {
-                if (value.menuId == menuId) {
-                    return value;
-                }
-            }
-
-            throw new IllegalStateException("Unknown menuId: " + menuId);
-        }
+        isBottomNavigationViewListenerDisabled = true;
+        binding.mainBottomNavigationView.setSelectedItemId(selected.getMenuItemId());
+        isBottomNavigationViewListenerDisabled = false;
     }
 
     private void checkLocationPermission() {
-        if (!isLocationPermissionGranted()) {
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-                showRequestPermissionRationale();
-            } else {
-                requestLocationPermission();
-            }
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            showRequestPermissionRationale();
+        } else {
+            requestLocationPermission();
         }
-    }
-
-    private boolean isLocationPermissionGranted() {
-        return ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
     }
 
     private void showRequestPermissionRationale() {
@@ -264,19 +212,5 @@ public class MainActivity extends AppCompatActivity {
 
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-
-        if (requestCode == 1) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                viewModel.onLocationPermissionGranted();
-            } else {
-                viewModel.onLocationPermissionDenied();
-                showRequestPermissionRationale();
-            }
-        }
     }
 }
