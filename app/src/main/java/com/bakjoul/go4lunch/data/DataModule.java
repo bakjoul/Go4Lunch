@@ -2,6 +2,7 @@ package com.bakjoul.go4lunch.data;
 
 import android.content.Context;
 
+import com.bakjoul.go4lunch.data.repository.PermissionRepository;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
@@ -13,6 +14,8 @@ import dagger.Provides;
 import dagger.hilt.InstallIn;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 @Module
 @InstallIn(SingletonComponent.class)
@@ -34,5 +37,14 @@ public class DataModule {
     @Singleton
     public PermissionRepository providePermissionRepository(@ApplicationContext Context context) {
         return new PermissionRepository(context);
+    }
+
+    @Provides
+    @Singleton
+    public Retrofit provideRetrofit() {
+        return new Retrofit.Builder()
+            .baseUrl("url")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build();
     }
 }

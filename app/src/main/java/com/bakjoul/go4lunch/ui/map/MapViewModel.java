@@ -8,7 +8,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.bakjoul.go4lunch.data.LocationRepository;
+import com.bakjoul.go4lunch.data.repository.LocationRepository;
 
 import javax.inject.Inject;
 

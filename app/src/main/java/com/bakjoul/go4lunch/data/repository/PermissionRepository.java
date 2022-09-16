@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.data;
+package com.bakjoul.go4lunch.data.repository;
 
 import android.Manifest;
 import android.content.Context;

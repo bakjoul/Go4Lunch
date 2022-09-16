@@ -16,8 +16,8 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.LocationRepository;
-import com.bakjoul.go4lunch.data.PermissionRepository;
+import com.bakjoul.go4lunch.data.repository.LocationRepository;
+import com.bakjoul.go4lunch.data.repository.PermissionRepository;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
@@ -78,19 +78,12 @@ public class MainViewModel extends ViewModel {
 
         LiveData<Boolean> isLocationPermissionEnabledLiveData = permissionRepository.getLocationPermissionLiveData();
 
-        fragmentToDisplaySingleLiveEvent.addSource(bottomNavigationViewButtonMutableLiveData, new Observer<BottomNavigationViewButton>() {
-            @Override
-            public void onChanged(BottomNavigationViewButton bottomNavigationViewButton) {
-                combine(bottomNavigationViewButton, isLocationPermissionEnabledLiveData.getValue());
-            }
-        });
+        fragmentToDisplaySingleLiveEvent.addSource(bottomNavigationViewButtonMutableLiveData, bottomNavigationViewButton ->
+            combine(bottomNavigationViewButton, isLocationPermissionEnabledLiveData.getValue()));
 
-        fragmentToDisplaySingleLiveEvent.addSource(isLocationPermissionEnabledLiveData, new Observer<Boolean>() {
-            @Override
-            public void onChanged(Boolean isLocationPermissionEnabled) {
-                Log.d("Nino", "onChanged() called with: isLocationPermissionEnabled = [" + isLocationPermissionEnabled + "]");
-                combine(bottomNavigationViewButtonMutableLiveData.getValue(), isLocationPermissionEnabled);
-            }
+        fragmentToDisplaySingleLiveEvent.addSource(isLocationPermissionEnabledLiveData, isLocationPermissionEnabled -> {
+            Log.d("Nino", "onChanged() called with: isLocationPermissionEnabled = [" + isLocationPermissionEnabled + "]");
+            combine(bottomNavigationViewButtonMutableLiveData.getValue(), isLocationPermissionEnabled);
         });
     }
 
