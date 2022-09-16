@@ -2,7 +2,11 @@ package com.bakjoul.go4lunch.data;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
+import com.bakjoul.go4lunch.data.api.RestaurantSearchService;
 import com.bakjoul.go4lunch.data.repository.PermissionRepository;
+import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
@@ -43,8 +47,13 @@ public class DataModule {
     @Singleton
     public Retrofit provideRetrofit() {
         return new Retrofit.Builder()
-            .baseUrl("url")
+            .baseUrl(RestaurantRepository.BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build();
+    }
+
+    @Provides
+    public RestaurantSearchService provideRestaurantSearchService(@NonNull Retrofit retrofit) {
+        return retrofit.create(RestaurantSearchService.class);
     }
 }
