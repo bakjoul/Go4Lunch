@@ -25,6 +25,7 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:ellipsize="end"
+        android:lines="1"
         app:layout_constraintEnd_toEndOf="@id/restaurants_item_name"
         app:layout_constraintStart_toStartOf="@id/restaurants_item_name"
         app:layout_constraintTop_toBottomOf="@id/restaurants_item_name"
