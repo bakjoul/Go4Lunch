@@ -16,7 +16,7 @@ public class RestaurantsItemViewState {
     @NonNull
     private final String location;
     @NonNull
-    private final String openingTimes;
+    private final String isOpen;
     @NonNull
     private final String distance;
     @NonNull
@@ -30,7 +30,7 @@ public class RestaurantsItemViewState {
     public RestaurantsItemViewState(@NonNull String id,
                                     @NonNull String name,
                                     @NonNull String location,
-                                    @NonNull String openingTimes,
+                                    @NonNull String isOpen,
                                     @NonNull String distance,
                                     @NonNull String attendance,
                                     int rating,
@@ -38,7 +38,7 @@ public class RestaurantsItemViewState {
         this.id = id;
         this.name = name;
         this.location = location;
-        this.openingTimes = openingTimes;
+        this.isOpen = isOpen;
         this.distance = distance;
         this.attendance = attendance;
         this.rating = rating;
@@ -61,8 +61,8 @@ public class RestaurantsItemViewState {
     }
 
     @NonNull
-    public String getOpeningTimes() {
-        return openingTimes;
+    public String getIsOpen() {
+        return isOpen;
     }
 
     @NonNull
@@ -89,12 +89,12 @@ public class RestaurantsItemViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RestaurantsItemViewState that = (RestaurantsItemViewState) o;
-        return rating == that.rating && id.equals(that.id) && name.equals(that.name) && location.equals(that.location) && openingTimes.equals(that.openingTimes) && distance.equals(that.distance) && attendance.equals(that.attendance) && Objects.equals(photo, that.photo);
+        return rating == that.rating && id.equals(that.id) && name.equals(that.name) && location.equals(that.location) && isOpen.equals(that.isOpen) && distance.equals(that.distance) && attendance.equals(that.attendance) && Objects.equals(photo, that.photo);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, location, openingTimes, distance, attendance, rating, photo);
+        return Objects.hash(id, name, location, isOpen, distance, attendance, rating, photo);
     }
 
     @NonNull
@@ -104,7 +104,7 @@ public class RestaurantsItemViewState {
             "id='" + id + '\'' +
             ", name='" + name + '\'' +
             ", location='" + location + '\'' +
-            ", openingTimes='" + openingTimes + '\'' +
+            ", openingTimes='" + isOpen + '\'' +
             ", distance='" + distance + '\'' +
             ", attendance='" + attendance + '\'' +
             ", rating=" + rating +

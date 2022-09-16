@@ -24,14 +24,14 @@ public class MapViewModel extends ViewModel {
 
         mapViewState = Transformations.map(
             locationRepository.getCurrentLocation(), new Function<Location, MapViewState>() {
-                MapViewState mapViewState;
+                MapViewState viewState;
 
                 @Override
                 public MapViewState apply(Location location) {
                     if (location != null) {
-                        mapViewState = new MapViewState(location.getLatitude(), location.getLongitude());
+                        viewState = new MapViewState(location.getLatitude(), location.getLongitude());
                     }
-                    return mapViewState;
+                    return viewState;
                 }
             }
         );
