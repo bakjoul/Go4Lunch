@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -35,15 +36,22 @@ public class MapFragment extends SupportMapFragment {
         viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), mapViewState -> {
                 if (mapViewState != null) {
                     MapFragment.this.getMapAsync(googleMap -> {
-                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                 new LatLng(
                                     mapViewState.getLatitude(),
                                     mapViewState.getLongitude()
                                 ),
-                                14
+                            13.5F
                             )
                         );
                         googleMap.setMyLocationEnabled(true);
+
+                        // Custom location button position
+                        View locationButton = ((View) view.findViewById(Integer.parseInt("1")).getParent()).findViewById(Integer.parseInt("2"));
+                        RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
+                        rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
+                        rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
+                        rlp.setMargins(0,0,30,30);
                     });
                 } else {
                     Log.d(TAG, "Location permission is not allowed. Map will not update.");
