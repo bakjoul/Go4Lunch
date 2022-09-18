@@ -44,6 +44,7 @@ android {
             keyPassword 'android'
         }
     }
+    namespace 'com.bakjoul.go4lunch'
 }
 
 dependencies {
