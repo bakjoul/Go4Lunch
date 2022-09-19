@@ -1,9 +1,6 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
-import android.net.Uri;
-
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
@@ -11,30 +8,28 @@ public class RestaurantsItemViewState {
 
     @NonNull
     private final String id;
+
     @NonNull
     private final String name;
+
     @NonNull
     private final String location;
+
     @NonNull
     private final String isOpen;
+
     @NonNull
     private final String distance;
+
     @NonNull
     private final String attendance;
 
     private final int rating;
 
-    @Nullable
-    private final Uri photo;
+    @NonNull
+    private final String photoUrl;
 
-    public RestaurantsItemViewState(@NonNull String id,
-                                    @NonNull String name,
-                                    @NonNull String location,
-                                    @NonNull String isOpen,
-                                    @NonNull String distance,
-                                    @NonNull String attendance,
-                                    int rating,
-                                    @Nullable Uri photo) {
+    public RestaurantsItemViewState(@NonNull String id, @NonNull String name, @NonNull String location, @NonNull String isOpen, @NonNull String distance, @NonNull String attendance, int rating, @NonNull String photoUrl) {
         this.id = id;
         this.name = name;
         this.location = location;
@@ -42,7 +37,7 @@ public class RestaurantsItemViewState {
         this.distance = distance;
         this.attendance = attendance;
         this.rating = rating;
-        this.photo = photo;
+        this.photoUrl = photoUrl;
     }
 
     @NonNull
@@ -79,9 +74,9 @@ public class RestaurantsItemViewState {
         return rating;
     }
 
-    @Nullable
-    public Uri getPhoto() {
-        return photo;
+    @NonNull
+    public String getPhotoUrl() {
+        return photoUrl;
     }
 
     @Override
@@ -89,12 +84,12 @@ public class RestaurantsItemViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RestaurantsItemViewState that = (RestaurantsItemViewState) o;
-        return rating == that.rating && id.equals(that.id) && name.equals(that.name) && location.equals(that.location) && isOpen.equals(that.isOpen) && distance.equals(that.distance) && attendance.equals(that.attendance) && Objects.equals(photo, that.photo);
+        return rating == that.rating && id.equals(that.id) && name.equals(that.name) && location.equals(that.location) && isOpen.equals(that.isOpen) && distance.equals(that.distance) && attendance.equals(that.attendance) && photoUrl.equals(that.photoUrl);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, location, isOpen, distance, attendance, rating, photo);
+        return Objects.hash(id, name, location, isOpen, distance, attendance, rating, photoUrl);
     }
 
     @NonNull
@@ -104,11 +99,11 @@ public class RestaurantsItemViewState {
             "id='" + id + '\'' +
             ", name='" + name + '\'' +
             ", location='" + location + '\'' +
-            ", openingTimes='" + isOpen + '\'' +
+            ", isOpen='" + isOpen + '\'' +
             ", distance='" + distance + '\'' +
             ", attendance='" + attendance + '\'' +
             ", rating=" + rating +
-            ", photo=" + photo +
+            ", photoReference='" + photoUrl + '\'' +
             '}';
     }
 }

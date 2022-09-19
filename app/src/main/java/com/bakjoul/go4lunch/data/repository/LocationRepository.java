@@ -28,7 +28,7 @@ public class LocationRepository {
 
     private static final long INTERVAL = 10000;
     private static final long FASTEST_INTERVAL = INTERVAL / 2;
-    private static final float SMALLEST_DISPLACEMENT = 5f;
+    private static final float SMALLEST_DISPLACEMENT = 10f;
 
     private final MutableLiveData<Boolean> isLocationPermissionAllowedLiveData = new MutableLiveData<>(false);
 

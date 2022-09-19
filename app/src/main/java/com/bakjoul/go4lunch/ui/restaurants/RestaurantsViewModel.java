@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModel;
 import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHours;
+import com.bakjoul.go4lunch.data.model.Photo;
 import com.bakjoul.go4lunch.data.model.Restaurant;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
@@ -83,20 +84,11 @@ public class RestaurantsViewModel extends ViewModel {
                         getDistance(location, r.getGeometry().getLocation()),
                         "",
                         3,
-                        null
+                        getPhotoUrl(r.getPhotos())
                     )
                 );
             }
         }
-    }
-
-    @NonNull
-    private String getDistance(@NonNull Location currentLocation, @NonNull com.bakjoul.go4lunch.data.model.Location restaurantLocation) {
-        double distance = SphericalUtil.computeDistanceBetween(
-            new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-            new LatLng(restaurantLocation.getLat(), restaurantLocation.getLng())
-        );
-        return String.format(Locale.getDefault(), "%.0fm", distance);
     }
 
     @NonNull
@@ -117,6 +109,28 @@ public class RestaurantsViewModel extends ViewModel {
             isOpen = "Information indisponible";
         }
         return isOpen;
+    }
+
+    @NonNull
+    private String getDistance(@NonNull Location currentLocation, @NonNull com.bakjoul.go4lunch.data.model.Location restaurantLocation) {
+        double distance = SphericalUtil.computeDistanceBetween(
+            new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+            new LatLng(restaurantLocation.getLat(), restaurantLocation.getLng())
+        );
+        return String.format(Locale.getDefault(), "%.0fm", distance);
+    }
+
+    @NonNull
+    private String getPhotoUrl(List<Photo> photos) {
+        String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=100&photoreference=";
+        String photoRef;
+        if (photos != null) {
+            photoRef = photos.get(0).getPhotoReference();
+            url += photoRef + "&key=" + BuildConfig.MAPS_API_KEY;
+        } else {
+            url = "";
+        }
+        return url;
     }
 
     public LiveData<RestaurantsViewState> getRestaurantsViewState() {

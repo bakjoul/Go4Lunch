@@ -2,6 +2,7 @@ package com.bakjoul.go4lunch.ui.restaurants;
 
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
@@ -9,6 +10,7 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bakjoul.go4lunch.databinding.FragmentRestaurantsItemBinding;
+import com.bumptech.glide.Glide;
 
 public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, RestaurantsAdapter.ViewHolder> {
 
@@ -36,14 +38,19 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
             this.binding = binding;
         }
 
-        public void bind(@NonNull RestaurantsItemViewState restaurantsItemViewState) {
-            binding.restaurantsItemName.setText(restaurantsItemViewState.getName());
-            binding.restaurantsItemLocation.setText(restaurantsItemViewState.getLocation());
-            binding.restaurantsItemIsOpen.setText(restaurantsItemViewState.getIsOpen());
-            binding.restaurantsItemDistance.setText(restaurantsItemViewState.getDistance());
-            binding.restaurantsItemAttendance.setText(restaurantsItemViewState.getAttendance());
-            binding.restaurantsItemRating.setRating(restaurantsItemViewState.getRating());
-            // TODO Photo
+        public void bind(@NonNull RestaurantsItemViewState viewState) {
+            binding.restaurantsItemName.setText(viewState.getName());
+            binding.restaurantsItemLocation.setText(viewState.getLocation());
+            binding.restaurantsItemIsOpen.setText(viewState.getIsOpen());
+            binding.restaurantsItemDistance.setText(viewState.getDistance());
+            binding.restaurantsItemAttendance.setText(viewState.getAttendance());
+            binding.restaurantsItemRating.setRating(viewState.getRating());
+
+            ImageView photo = binding.restaurantsItemPhoto;
+            Glide.with(photo.getContext())
+                .load(viewState.getPhotoUrl())
+                .centerCrop()
+                .into(photo);
         }
     }
 
