@@ -7,11 +7,15 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.DividerItemDecoration;
 
+import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.FragmentRestaurantsBinding;
+
+import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -39,6 +43,9 @@ public class RestaurantsFragment extends Fragment {
 
         RestaurantsAdapter adapter = new RestaurantsAdapter();
         binding.restaurantsRecyclerView.setAdapter(adapter);
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
+        itemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(requireContext(), R.drawable.custom_divider)));
+        binding.restaurantsRecyclerView.addItemDecoration(itemDecoration);
 
         viewModel.getRestaurantsViewState().observe(getViewLifecycleOwner(), restaurantsViewState ->
             adapter.submitList(restaurantsViewState.getRestaurantsItemViewStates()));

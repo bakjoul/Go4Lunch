@@ -122,7 +122,7 @@ public class RestaurantsViewModel extends ViewModel {
 
     @NonNull
     private String getPhotoUrl(List<Photo> photos) {
-        String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=100&photoreference=";
+        String url = RestaurantRepository.BASE_URL+"photo?maxwidth=100&photoreference=";
         String photoRef;
         if (photos != null) {
             photoRef = photos.get(0).getPhotoReference();
