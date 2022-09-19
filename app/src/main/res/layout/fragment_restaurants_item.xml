@@ -83,7 +83,7 @@
         app:layout_constraintEnd_toEndOf="@+id/restaurants_item_distance"
         app:layout_constraintTop_toBottomOf="@id/restaurants_item_distance"
         tools:drawableStartCompat="@drawable/ic_baseline_person_outline_16"
-        tools:text="(Nb)" />
+        tools:text="(6)" />
 
     <RatingBar
         android:id="@+id/restaurants_item_rating"
@@ -94,11 +94,10 @@
         android:numStars="3"
         android:paddingTop="2.5dp"
         android:progressBackgroundTint="@android:color/transparent"
-        android:rotationY="180"
-        android:stepSize="1"
+        android:stepSize="0.5"
         app:layout_constraintBottom_toBottomOf="@id/restaurants_item_is_open"
         app:layout_constraintEnd_toEndOf="@+id/restaurants_item_attendance"
         app:layout_constraintTop_toTopOf="@+id/restaurants_item_is_open"
-        tools:rating="1" />
+        tools:rating="1.5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

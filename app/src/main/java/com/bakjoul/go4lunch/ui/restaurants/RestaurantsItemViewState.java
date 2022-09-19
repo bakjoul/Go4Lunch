@@ -24,12 +24,12 @@ public class RestaurantsItemViewState {
     @NonNull
     private final String attendance;
 
-    private final int rating;
+    private final float rating;
 
     @NonNull
     private final String photoUrl;
 
-    public RestaurantsItemViewState(@NonNull String id, @NonNull String name, @NonNull String location, @NonNull String isOpen, @NonNull String distance, @NonNull String attendance, int rating, @NonNull String photoUrl) {
+    public RestaurantsItemViewState(@NonNull String id, @NonNull String name, @NonNull String location, @NonNull String isOpen, @NonNull String distance, @NonNull String attendance, float rating, @NonNull String photoUrl) {
         this.id = id;
         this.name = name;
         this.location = location;
@@ -70,7 +70,7 @@ public class RestaurantsItemViewState {
         return attendance;
     }
 
-    public int getRating() {
+    public float getRating() {
         return rating;
     }
 

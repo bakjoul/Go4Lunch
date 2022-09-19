@@ -31,6 +31,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class RestaurantsViewModel extends ViewModel {
 
     private static final String RADIUS = "2000";
+    private static final String RANKBY = "distance";
     private static final String TYPE = "restaurant";
 
     private final LiveData<RestaurantsViewState> restaurantsViewState;
@@ -45,7 +46,7 @@ public class RestaurantsViewModel extends ViewModel {
                 if (location != null) {
                     nearbySearchResponseLiveData = restaurantRepository.getNearbySearchResponse(
                         getLocation(location),
-                        RADIUS,
+                        RANKBY,
                         TYPE,
                         BuildConfig.MAPS_API_KEY
                     );
@@ -83,7 +84,7 @@ public class RestaurantsViewModel extends ViewModel {
                         getIsOpen(r.getOpeningHours()),
                         getDistance(location, r.getGeometry().getLocation()),
                         "",
-                        3,
+                        getRating(r.getRating()),
                         getPhotoUrl(r.getPhotos())
                     )
                 );
@@ -120,9 +121,13 @@ public class RestaurantsViewModel extends ViewModel {
         return String.format(Locale.getDefault(), "%.0fm", distance);
     }
 
+    private float getRating(double restaurantRating) {
+        return (float) Math.round(((restaurantRating * 3 / 5) / 0.5) * 0.5);
+    }
+
     @NonNull
     private String getPhotoUrl(List<Photo> photos) {
-        String url = RestaurantRepository.BASE_URL+"photo?maxwidth=100&photoreference=";
+        String url = RestaurantRepository.BASE_URL + "photo?maxwidth=100&photoreference=";
         String photoRef;
         if (photos != null) {
             photoRef = photos.get(0).getPhotoReference();

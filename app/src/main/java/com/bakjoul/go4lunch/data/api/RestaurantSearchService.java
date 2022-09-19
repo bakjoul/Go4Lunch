@@ -10,7 +10,7 @@ public interface RestaurantSearchService {
     @GET("nearbysearch/json")
     Call<NearbySearchResponse> getRestaurants(
         @Query("location") String location,
-        @Query("radius") String radius,
+        @Query("rankby") String rankby,
         @Query("type") String type,
         @Query("key") String key
     );

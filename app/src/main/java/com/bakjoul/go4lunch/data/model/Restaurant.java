@@ -31,7 +31,7 @@ public class Restaurant {
 
     @SerializedName("rating")
     @Expose
-    private final Double rating;
+    private final double rating;
 
     @SerializedName("photos")
     @Expose
@@ -41,7 +41,7 @@ public class Restaurant {
     @Expose
     private final String business_status;
 
-    public Restaurant(String placeId, String name, String vicinity, OpeningHours openingHours, Geometry geometry, Double rating, List<Photo> photos, String business_status) {
+    public Restaurant(String placeId, String name, String vicinity, OpeningHours openingHours, Geometry geometry, double rating, List<Photo> photos, String business_status) {
         this.placeId = placeId;
         this.name = name;
         this.vicinity = vicinity;
@@ -72,7 +72,7 @@ public class Restaurant {
         return geometry;
     }
 
-    public Double getRating() {
+    public double getRating() {
         return rating;
     }
 

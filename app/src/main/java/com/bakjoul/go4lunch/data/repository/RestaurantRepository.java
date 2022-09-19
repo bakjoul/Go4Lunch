@@ -33,11 +33,11 @@ public class RestaurantRepository {
 
     public LiveData<NearbySearchResponse> getNearbySearchResponse(
         String location,
-        String radius,
+        String rankBy,
         String type,
         String key
     ) {
-        Call<NearbySearchResponse> call = restaurantSearchService.getRestaurants(location, radius, type, key);
+        Call<NearbySearchResponse> call = restaurantSearchService.getRestaurants(location, rankBy, type, key);
 
         final MutableLiveData<NearbySearchResponse> restaurantsData = new MutableLiveData<>();
         call.enqueue(new Callback<NearbySearchResponse>() {
