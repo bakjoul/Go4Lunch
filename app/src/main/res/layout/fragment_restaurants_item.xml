@@ -93,7 +93,6 @@
         android:isIndicator="true"
         android:numStars="3"
         android:paddingTop="2.5dp"
-        android:progressBackgroundTint="@android:color/transparent"
         android:stepSize="0.5"
         app:layout_constraintBottom_toBottomOf="@id/restaurants_item_is_open"
         app:layout_constraintEnd_toEndOf="@+id/restaurants_item_attendance"

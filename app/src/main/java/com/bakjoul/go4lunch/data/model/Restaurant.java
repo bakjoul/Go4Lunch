@@ -39,9 +39,13 @@ public class Restaurant {
 
     @SerializedName("business_status")
     @Expose
-    private final String business_status;
+    private final String businessStatus;
 
-    public Restaurant(String placeId, String name, String vicinity, OpeningHours openingHours, Geometry geometry, double rating, List<Photo> photos, String business_status) {
+    @SerializedName("user_ratings_total")
+    @Expose
+    private final int userRatingsTotal;
+
+    public Restaurant(String placeId, String name, String vicinity, OpeningHours openingHours, Geometry geometry, double rating, List<Photo> photos, String businessStatus, int userRatingsTotal) {
         this.placeId = placeId;
         this.name = name;
         this.vicinity = vicinity;
@@ -49,7 +53,8 @@ public class Restaurant {
         this.geometry = geometry;
         this.rating = rating;
         this.photos = photos;
-        this.business_status = business_status;
+        this.businessStatus = businessStatus;
+        this.userRatingsTotal = userRatingsTotal;
     }
 
     public String getPlaceId() {
@@ -76,12 +81,16 @@ public class Restaurant {
         return rating;
     }
 
+    public int getUserRatingsTotal() {
+        return userRatingsTotal;
+    }
+
     public List<Photo> getPhotos() {
         return photos;
     }
 
-    public String getBusiness_status() {
-        return business_status;
+    public String getBusinessStatus() {
+        return businessStatus;
     }
 
     @Override
@@ -89,12 +98,12 @@ public class Restaurant {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Restaurant that = (Restaurant) o;
-        return Objects.equals(placeId, that.placeId) && Objects.equals(name, that.name) && Objects.equals(vicinity, that.vicinity) && Objects.equals(openingHours, that.openingHours) && Objects.equals(geometry, that.geometry) && Objects.equals(rating, that.rating) && Objects.equals(photos, that.photos) && Objects.equals(business_status, that.business_status);
+        return Objects.equals(placeId, that.placeId) && Objects.equals(name, that.name) && Objects.equals(vicinity, that.vicinity) && Objects.equals(openingHours, that.openingHours) && Objects.equals(geometry, that.geometry) && Objects.equals(rating, that.rating) && Objects.equals(photos, that.photos) && Objects.equals(businessStatus, that.businessStatus);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(placeId, name, vicinity, openingHours, geometry, rating, photos, business_status);
+        return Objects.hash(placeId, name, vicinity, openingHours, geometry, rating, photos, businessStatus, userRatingsTotal);
     }
 
     @NonNull
@@ -108,7 +117,8 @@ public class Restaurant {
             ", geometry=" + geometry +
             ", rating=" + rating +
             ", photos=" + photos +
-            ", business_status='" + business_status + '\'' +
+            ", business_status='" + businessStatus + '\'' +
+            ", user_ratings_total='" + userRatingsTotal + '\'' +
             '}';
     }
 }

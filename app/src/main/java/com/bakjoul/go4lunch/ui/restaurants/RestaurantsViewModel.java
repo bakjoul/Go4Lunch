@@ -75,16 +75,17 @@ public class RestaurantsViewModel extends ViewModel {
 
     private void mapData(@NonNull NearbySearchResponse response, List<RestaurantsItemViewState> restaurantsItemViewStateList, Location location) {
         for (Restaurant r : response.getResults()) {
-            if (r.getBusiness_status().equals("OPERATIONAL")) {
+            if (r.getBusinessStatus().equals("OPERATIONAL")) {
                 restaurantsItemViewStateList.add(
                     new RestaurantsItemViewState(
                         r.getPlaceId(),
                         r.getName(),
                         r.getVicinity(),
-                        getIsOpen(r.getOpeningHours()),
+                        checkIfOpen(r.getOpeningHours()),
                         getDistance(location, r.getGeometry().getLocation()),
                         "",
                         getRating(r.getRating()),
+                        checkIfRated(r.getUserRatingsTotal()),
                         getPhotoUrl(r.getPhotos())
                     )
                 );
@@ -98,7 +99,7 @@ public class RestaurantsViewModel extends ViewModel {
     }
 
     @NonNull
-    private String getIsOpen(OpeningHours openingHours) {
+    private String checkIfOpen(OpeningHours openingHours) {
         String isOpen;
         if (openingHours != null) {
             if (openingHours.getOpenNow()) {
@@ -123,6 +124,16 @@ public class RestaurantsViewModel extends ViewModel {
 
     private float getRating(double restaurantRating) {
         return (float) Math.round(((restaurantRating * 3 / 5) / 0.5) * 0.5);
+    }
+
+    private int checkIfRated(int userRatingsTotal) {
+        int visibility;
+        if (userRatingsTotal > 0) {
+            visibility = 0;
+        } else {
+            visibility = 4;
+        }
+        return visibility;
     }
 
     @NonNull
