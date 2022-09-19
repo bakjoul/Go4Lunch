@@ -47,7 +47,7 @@ public class RestaurantsViewModel extends ViewModel {
                     );
                     restaurantsViewStateLiveData = Transformations.switchMap(
                         nearbySearchResponseLiveData, new Function<NearbySearchResponse, LiveData<RestaurantsViewState>>() {
-                            MutableLiveData<RestaurantsViewState> viewState = new MutableLiveData<>();
+                            final MutableLiveData<RestaurantsViewState> viewState = new MutableLiveData<>();
 
                             @Override
                             public LiveData<RestaurantsViewState> apply(NearbySearchResponse response) {
@@ -68,20 +68,22 @@ public class RestaurantsViewModel extends ViewModel {
         );
     }
 
-    private void mapData(NearbySearchResponse response, List<RestaurantsItemViewState> restaurantsItemViewStateList) {
+    private void mapData(@NonNull NearbySearchResponse response, List<RestaurantsItemViewState> restaurantsItemViewStateList) {
         for (Restaurant r : response.getResults()) {
-            restaurantsItemViewStateList.add(
-                new RestaurantsItemViewState(
-                    r.getPlaceId(),
-                    r.getName(),
-                    r.getVicinity(),
-                    getIsOpen(r.getOpeningHours()),
-                    "",
-                    "",
-                    2,
-                    null
-                )
-            );
+            if (r.getBusiness_status().equals("OPERATIONAL")) {
+                restaurantsItemViewStateList.add(
+                    new RestaurantsItemViewState(
+                        r.getPlaceId(),
+                        r.getName(),
+                        r.getVicinity(),
+                        getIsOpen(r.getOpeningHours()),
+                        "",
+                        "",
+                        2,
+                        null
+                    )
+                );
+            }
         }
     }
 
@@ -100,7 +102,7 @@ public class RestaurantsViewModel extends ViewModel {
                 isOpen = "Fermé";
             }
         } else {
-            isOpen = "";
+            isOpen = "Information indisponible";
         }
         return isOpen;
     }

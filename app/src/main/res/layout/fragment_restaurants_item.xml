@@ -12,8 +12,9 @@
         android:layout_marginStart="10dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="10dp"
-        android:autoSizeTextType="uniform"
+        android:ellipsize="end"
         android:lines="1"
+        android:textSize="15sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toStartOf="@id/restaurants_item_rating"
         app:layout_constraintStart_toStartOf="parent"
@@ -24,15 +25,16 @@
         android:id="@+id/restaurants_item_location"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:autoSizeTextType="uniform"
-        android:lines="1"
+        android:ellipsize="end"
+        android:lines="2"
+        android:textSize="13sp"
         app:layout_constraintEnd_toEndOf="@id/restaurants_item_name"
         app:layout_constraintStart_toStartOf="@id/restaurants_item_name"
         app:layout_constraintTop_toBottomOf="@id/restaurants_item_name"
         tools:text="Location" />
 
     <TextView
-        android:id="@+id/restaurants_item_opening_times"
+        android:id="@+id/restaurants_item_is_open"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginBottom="5dp"
@@ -47,11 +49,11 @@
 
     <ImageView
         android:id="@+id/restaurants_item_photo"
-        android:layout_width="60dp"
+        android:layout_width="70dp"
         android:layout_height="0dp"
         android:layout_marginEnd="5dp"
         android:importantForAccessibility="no"
-        app:layout_constraintBottom_toBottomOf="@id/restaurants_item_opening_times"
+        app:layout_constraintBottom_toBottomOf="@id/restaurants_item_is_open"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@id/restaurants_item_name"
         tools:background="@color/black" />
@@ -70,8 +72,10 @@
         android:id="@+id/restaurants_item_attendance"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:gravity="bottom"
         android:textSize="11sp"
         android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@id/restaurants_item_location"
         app:layout_constraintEnd_toEndOf="@+id/restaurants_item_distance"
         app:layout_constraintStart_toStartOf="@id/restaurants_item_distance"
         app:layout_constraintTop_toBottomOf="@id/restaurants_item_distance"
@@ -85,12 +89,13 @@
         android:layout_height="0dp"
         android:isIndicator="true"
         android:numStars="3"
-        android:paddingTop="5dp"
+        android:paddingTop="2.5dp"
+        android:progressBackgroundTint="@android:color/transparent"
         android:rotationY="180"
         android:stepSize="1"
-        app:layout_constraintBottom_toBottomOf="@id/restaurants_item_opening_times"
+        app:layout_constraintBottom_toBottomOf="@id/restaurants_item_is_open"
         app:layout_constraintEnd_toEndOf="@+id/restaurants_item_attendance"
-        app:layout_constraintTop_toBottomOf="@id/restaurants_item_attendance"
+        app:layout_constraintTop_toTopOf="@+id/restaurants_item_is_open"
         tools:rating="1" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

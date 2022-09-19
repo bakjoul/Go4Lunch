@@ -39,7 +39,7 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
         public void bind(@NonNull RestaurantsItemViewState restaurantsItemViewState) {
             binding.restaurantsItemName.setText(restaurantsItemViewState.getName());
             binding.restaurantsItemLocation.setText(restaurantsItemViewState.getLocation());
-            binding.restaurantsItemOpeningTimes.setText(restaurantsItemViewState.getIsOpen());
+            binding.restaurantsItemIsOpen.setText(restaurantsItemViewState.getIsOpen());
             binding.restaurantsItemDistance.setText(restaurantsItemViewState.getDistance());
             binding.restaurantsItemAttendance.setText(restaurantsItemViewState.getAttendance());
             binding.restaurantsItemRating.setRating(restaurantsItemViewState.getRating());
