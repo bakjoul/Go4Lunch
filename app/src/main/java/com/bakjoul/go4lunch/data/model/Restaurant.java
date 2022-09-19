@@ -25,6 +25,10 @@ public class Restaurant {
     @Expose
     private final OpeningHours openingHours;
 
+    @SerializedName("geometry")
+    @Expose
+    private final Geometry geometry;
+
     @SerializedName("rating")
     @Expose
     private final Double rating;
@@ -37,11 +41,12 @@ public class Restaurant {
     @Expose
     private final String business_status;
 
-    public Restaurant(String placeId, String name, String vicinity, OpeningHours openingHours, Double rating, List<Photo> photos, String business_status) {
+    public Restaurant(String placeId, String name, String vicinity, OpeningHours openingHours, Geometry geometry, Double rating, List<Photo> photos, String business_status) {
         this.placeId = placeId;
         this.name = name;
         this.vicinity = vicinity;
         this.openingHours = openingHours;
+        this.geometry = geometry;
         this.rating = rating;
         this.photos = photos;
         this.business_status = business_status;
@@ -63,6 +68,10 @@ public class Restaurant {
         return openingHours;
     }
 
+    public Geometry getGeometry() {
+        return geometry;
+    }
+
     public Double getRating() {
         return rating;
     }
@@ -80,12 +89,12 @@ public class Restaurant {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Restaurant that = (Restaurant) o;
-        return Objects.equals(placeId, that.placeId) && Objects.equals(name, that.name) && Objects.equals(vicinity, that.vicinity) && Objects.equals(openingHours, that.openingHours) && Objects.equals(rating, that.rating) && Objects.equals(photos, that.photos) && Objects.equals(business_status, that.business_status);
+        return Objects.equals(placeId, that.placeId) && Objects.equals(name, that.name) && Objects.equals(vicinity, that.vicinity) && Objects.equals(openingHours, that.openingHours) && Objects.equals(geometry, that.geometry) && Objects.equals(rating, that.rating) && Objects.equals(photos, that.photos) && Objects.equals(business_status, that.business_status);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(placeId, name, vicinity, openingHours, rating, photos, business_status);
+        return Objects.hash(placeId, name, vicinity, openingHours, geometry, rating, photos, business_status);
     }
 
     @NonNull
@@ -96,6 +105,7 @@ public class Restaurant {
             ", name='" + name + '\'' +
             ", vicinity='" + vicinity + '\'' +
             ", openingHours=" + openingHours +
+            ", geometry=" + geometry +
             ", rating=" + rating +
             ", photos=" + photos +
             ", business_status='" + business_status + '\'' +

@@ -15,9 +15,12 @@ import com.bakjoul.go4lunch.data.model.OpeningHours;
 import com.bakjoul.go4lunch.data.model.Restaurant;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -53,7 +56,7 @@ public class RestaurantsViewModel extends ViewModel {
                             public LiveData<RestaurantsViewState> apply(NearbySearchResponse response) {
                                 List<RestaurantsItemViewState> restaurantsItemViewStateList = new ArrayList<>();
                                 if (response != null) {
-                                    mapData(response, restaurantsItemViewStateList);
+                                    mapData(response, restaurantsItemViewStateList, location);
                                     viewState.setValue(new RestaurantsViewState(restaurantsItemViewStateList, restaurantsItemViewStateList.isEmpty()));
                                 }
                                 return viewState;
@@ -68,7 +71,7 @@ public class RestaurantsViewModel extends ViewModel {
         );
     }
 
-    private void mapData(@NonNull NearbySearchResponse response, List<RestaurantsItemViewState> restaurantsItemViewStateList) {
+    private void mapData(@NonNull NearbySearchResponse response, List<RestaurantsItemViewState> restaurantsItemViewStateList, Location location) {
         for (Restaurant r : response.getResults()) {
             if (r.getBusiness_status().equals("OPERATIONAL")) {
                 restaurantsItemViewStateList.add(
@@ -77,14 +80,23 @@ public class RestaurantsViewModel extends ViewModel {
                         r.getName(),
                         r.getVicinity(),
                         getIsOpen(r.getOpeningHours()),
+                        getDistance(location, r.getGeometry().getLocation()),
                         "",
-                        "",
-                        2,
+                        3,
                         null
                     )
                 );
             }
         }
+    }
+
+    @NonNull
+    private String getDistance(@NonNull Location currentLocation, @NonNull com.bakjoul.go4lunch.data.model.Location restaurantLocation) {
+        double distance = SphericalUtil.computeDistanceBetween(
+            new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+            new LatLng(restaurantLocation.getLat(), restaurantLocation.getLng())
+        );
+        return String.format(Locale.getDefault(), "%.0fm", distance);
     }
 
     @NonNull

@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class NearbySearchResponse {
-
     @SerializedName("results")
     @Expose
     private final List<Restaurant> results;

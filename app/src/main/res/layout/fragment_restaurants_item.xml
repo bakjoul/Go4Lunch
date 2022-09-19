@@ -60,24 +60,26 @@
 
     <TextView
         android:id="@+id/restaurants_item_distance"
-        android:layout_width="40dp"
-        android:layout_height="wrap_content"
+        android:layout_width="50dp"
+        android:layout_height="0dp"
         android:layout_marginEnd="5dp"
+        android:gravity="end"
         android:textColor="@color/grey"
+        android:textSize="13sp"
+        app:layout_constraintBottom_toBottomOf="@id/restaurants_item_name"
         app:layout_constraintEnd_toStartOf="@+id/restaurants_item_photo"
         app:layout_constraintTop_toTopOf="@id/restaurants_item_name"
-        tools:text="Dist." />
+        tools:text="9999m" />
 
     <TextView
         android:id="@+id/restaurants_item_attendance"
-        android:layout_width="0dp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="bottom"
         android:textSize="11sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/restaurants_item_location"
         app:layout_constraintEnd_toEndOf="@+id/restaurants_item_distance"
-        app:layout_constraintStart_toStartOf="@id/restaurants_item_distance"
         app:layout_constraintTop_toBottomOf="@id/restaurants_item_distance"
         tools:drawableStartCompat="@drawable/ic_baseline_person_outline_16"
         tools:text="(Nb)" />

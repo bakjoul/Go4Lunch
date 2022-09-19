@@ -1,7 +1,5 @@
 package com.bakjoul.go4lunch.data.model;
 
-import android.location.Location;
-
 import androidx.annotation.NonNull;
 
 import com.google.gson.annotations.Expose;
@@ -12,7 +10,7 @@ import java.util.Objects;
 public class Geometry {
     @SerializedName("location")
     @Expose
-    private final Location location;
+    private final com.bakjoul.go4lunch.data.model.Location location;
 
     public Geometry(Location location) {
         this.location = location;
