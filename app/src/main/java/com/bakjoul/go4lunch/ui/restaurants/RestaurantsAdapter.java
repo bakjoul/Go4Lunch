@@ -45,12 +45,13 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
             binding.restaurantsItemDistance.setText(viewState.getDistance());
             binding.restaurantsItemAttendance.setText(viewState.getAttendance());
             binding.restaurantsItemRating.setRating(viewState.getRating());
-
-            ImageView photo = binding.restaurantsItemPhoto;
-            Glide.with(photo.getContext())
-                .load(viewState.getPhotoUrl())
-                .centerCrop()
-                .into(photo);
+            if (!viewState.getPhotoUrl().isEmpty()) {
+                ImageView photo = binding.restaurantsItemPhoto;
+                Glide.with(photo.getContext())
+                    .load(viewState.getPhotoUrl())
+                    .centerCrop()
+                    .into(photo);
+            }
         }
     }
 
