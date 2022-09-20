@@ -1,7 +1,6 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
 import android.location.Location;
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -150,7 +149,6 @@ public class RestaurantsViewModel extends ViewModel {
                 return restaurantImageMapper.getImageUrl(photoRef);
             }
         }
-
         return null;
     }
 

@@ -19,10 +19,11 @@ public class RestaurantImageMapper {
     public String getImageUrl(String photoRef) {
         return new Uri.Builder()
             .scheme("https")
-            .authority("maps.googleapis.com/maps/api/place/photo")
+            .authority("maps.googleapis.com")
+            .path("/maps/api/place/photo")
             .appendQueryParameter("maxwidth", "100")
-            .appendQueryParameter("key", BuildConfig.MAPS_API_KEY)
             .appendQueryParameter("photoreference", photoRef)
+            .appendQueryParameter("key", BuildConfig.MAPS_API_KEY)
             .toString();
     }
 }
