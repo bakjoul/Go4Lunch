@@ -2,6 +2,7 @@ package com.bakjoul.go4lunch.ui.restaurants;
 
 import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
@@ -39,7 +40,6 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
             this.binding = binding;
         }
 
-        @SuppressLint("WrongConstant")
         public void bind(@NonNull RestaurantsItemViewState viewState) {
             binding.restaurantsItemName.setText(viewState.getName());
             binding.restaurantsItemLocation.setText(viewState.getLocation());
@@ -47,14 +47,16 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
             binding.restaurantsItemDistance.setText(viewState.getDistance());
             binding.restaurantsItemAttendance.setText(viewState.getAttendance());
             binding.restaurantsItemRating.setRating(viewState.getRating());
-            binding.restaurantsItemRating.setVisibility(viewState.getRatingBarVisibility());
-            if (!viewState.getPhotoUrl().isEmpty()) {
-                ImageView photo = binding.restaurantsItemPhoto;
-                Glide.with(photo.getContext())
-                    .load(viewState.getPhotoUrl())
-                    .centerCrop()
-                    .into(photo);
+            if (viewState.isRatingBarVisible()) {
+                binding.restaurantsItemRating.setVisibility(View.VISIBLE);
+            } else {
+                binding.restaurantsItemRating.setVisibility(View.GONE);
             }
+            ImageView photo = binding.restaurantsItemPhoto;
+            Glide.with(photo.getContext())
+                .load(viewState.getPhotoUrl())
+                .centerCrop()
+                .into(photo);
         }
     }
 

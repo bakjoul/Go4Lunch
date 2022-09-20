@@ -1,6 +1,7 @@
 package com.bakjoul.go4lunch.data.model;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -8,7 +9,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import java.util.Objects;
 
-public class Restaurant {
+public class RestaurantResponse {
     @SerializedName("place_id")
     @Expose
     private final String placeId;
@@ -23,11 +24,11 @@ public class Restaurant {
 
     @SerializedName("opening_hours")
     @Expose
-    private final OpeningHours openingHours;
+    private final OpeningHoursResponse openingHoursResponse;
 
     @SerializedName("geometry")
     @Expose
-    private final Geometry geometry;
+    private final GeometryResponse geometryResponse;
 
     @SerializedName("rating")
     @Expose
@@ -35,7 +36,7 @@ public class Restaurant {
 
     @SerializedName("photos")
     @Expose
-    private final List<Photo> photos;
+    private final List<PhotoResponse> photoResponses;
 
     @SerializedName("business_status")
     @Expose
@@ -45,14 +46,14 @@ public class Restaurant {
     @Expose
     private final int userRatingsTotal;
 
-    public Restaurant(String placeId, String name, String vicinity, OpeningHours openingHours, Geometry geometry, double rating, List<Photo> photos, String businessStatus, int userRatingsTotal) {
+    public RestaurantResponse(String placeId, String name, String vicinity, OpeningHoursResponse openingHoursResponse, GeometryResponse geometryResponse, double rating, List<PhotoResponse> photoResponses, String businessStatus, int userRatingsTotal) {
         this.placeId = placeId;
         this.name = name;
         this.vicinity = vicinity;
-        this.openingHours = openingHours;
-        this.geometry = geometry;
+        this.openingHoursResponse = openingHoursResponse;
+        this.geometryResponse = geometryResponse;
         this.rating = rating;
-        this.photos = photos;
+        this.photoResponses = photoResponses;
         this.businessStatus = businessStatus;
         this.userRatingsTotal = userRatingsTotal;
     }
@@ -69,12 +70,12 @@ public class Restaurant {
         return vicinity;
     }
 
-    public OpeningHours getOpeningHours() {
-        return openingHours;
+    public OpeningHoursResponse getOpeningHours() {
+        return openingHoursResponse;
     }
 
-    public Geometry getGeometry() {
-        return geometry;
+    public GeometryResponse getGeometry() {
+        return geometryResponse;
     }
 
     public double getRating() {
@@ -85,10 +86,11 @@ public class Restaurant {
         return userRatingsTotal;
     }
 
-    public List<Photo> getPhotos() {
-        return photos;
+    public List<PhotoResponse> getPhotos() {
+        return photoResponses;
     }
 
+    @Nullable
     public String getBusinessStatus() {
         return businessStatus;
     }
@@ -97,13 +99,13 @@ public class Restaurant {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Restaurant that = (Restaurant) o;
-        return Objects.equals(placeId, that.placeId) && Objects.equals(name, that.name) && Objects.equals(vicinity, that.vicinity) && Objects.equals(openingHours, that.openingHours) && Objects.equals(geometry, that.geometry) && Objects.equals(rating, that.rating) && Objects.equals(photos, that.photos) && Objects.equals(businessStatus, that.businessStatus);
+        RestaurantResponse that = (RestaurantResponse) o;
+        return Objects.equals(placeId, that.placeId) && Objects.equals(name, that.name) && Objects.equals(vicinity, that.vicinity) && Objects.equals(openingHoursResponse, that.openingHoursResponse) && Objects.equals(geometryResponse, that.geometryResponse) && Objects.equals(rating, that.rating) && Objects.equals(photoResponses, that.photoResponses) && Objects.equals(businessStatus, that.businessStatus);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(placeId, name, vicinity, openingHours, geometry, rating, photos, businessStatus, userRatingsTotal);
+        return Objects.hash(placeId, name, vicinity, openingHoursResponse, geometryResponse, rating, photoResponses, businessStatus, userRatingsTotal);
     }
 
     @NonNull
@@ -113,10 +115,10 @@ public class Restaurant {
             "placeId='" + placeId + '\'' +
             ", name='" + name + '\'' +
             ", vicinity='" + vicinity + '\'' +
-            ", openingHours=" + openingHours +
-            ", geometry=" + geometry +
+            ", openingHours=" + openingHoursResponse +
+            ", geometry=" + geometryResponse +
             ", rating=" + rating +
-            ", photos=" + photos +
+            ", photos=" + photoResponses +
             ", business_status='" + businessStatus + '\'' +
             ", user_ratings_total='" + userRatingsTotal + '\'' +
             '}';

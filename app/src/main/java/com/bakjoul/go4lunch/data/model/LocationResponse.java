@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
-public class Location {
+public class LocationResponse {
     @SerializedName("lat")
     @Expose
     private final Double lat;
@@ -16,7 +16,7 @@ public class Location {
     @Expose
     private final Double lng;
 
-    public Location(Double lat, Double lng) {
+    public LocationResponse(Double lat, Double lng) {
         this.lat = lat;
         this.lng = lng;
     }
@@ -33,7 +33,7 @@ public class Location {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Location location = (Location) o;
+        LocationResponse location = (LocationResponse) o;
         return Objects.equals(lat, location.lat) && Objects.equals(lng, location.lng);
     }
 

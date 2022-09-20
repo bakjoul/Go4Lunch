@@ -7,37 +7,37 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
-public class Geometry {
-    @SerializedName("location")
+public class OpeningHoursResponse {
+    @SerializedName("open_now")
     @Expose
-    private final com.bakjoul.go4lunch.data.model.Location location;
+    private final Boolean openNow;
 
-    public Geometry(Location location) {
-        this.location = location;
+    public Boolean getOpenNow() {
+        return openNow;
     }
 
-    public Location getLocation() {
-        return location;
+    public OpeningHoursResponse(Boolean openNow) {
+        this.openNow = openNow;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Geometry geometry = (Geometry) o;
-        return Objects.equals(location, geometry.location);
+        OpeningHoursResponse that = (OpeningHoursResponse) o;
+        return Objects.equals(openNow, that.openNow);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(location);
+        return Objects.hash(openNow);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "Geometry{" +
-            "location=" + location +
+        return "OpeningHours{" +
+            "openNow=" + openNow +
             '}';
     }
 }

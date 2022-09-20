@@ -7,12 +7,12 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Objects;
 
-public class Photo {
+public class PhotoResponse {
     @SerializedName("photo_reference")
     @Expose
     private final String photoReference;
 
-    public Photo(String photoReference) {
+    public PhotoResponse(String photoReference) {
         this.photoReference = photoReference;
     }
 
@@ -24,8 +24,8 @@ public class Photo {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Photo photo = (Photo) o;
-        return Objects.equals(photoReference, photo.photoReference);
+        PhotoResponse photoResponse = (PhotoResponse) o;
+        return Objects.equals(photoReference, photoResponse.photoReference);
     }
 
     @Override
