@@ -32,7 +32,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class RestaurantsViewModel extends ViewModel {
 
-    private static final String RANKBY = "distance";
+    private static final String RANK_BY = "distance";
     private static final String TYPE = "restaurant";
     private static final String BUSINESS_STATUS_OPERATIONAL = "OPERATIONAL";
 
@@ -54,7 +54,7 @@ public class RestaurantsViewModel extends ViewModel {
                 if (location != null) {
                     LiveData<NearbySearchResponse> nearbySearchResponseLiveData = restaurantRepository.getNearbySearchResponse(
                         getLocation(location),
-                        RANKBY,
+                        RANK_BY,
                         TYPE,
                         BuildConfig.MAPS_API_KEY
                     );
