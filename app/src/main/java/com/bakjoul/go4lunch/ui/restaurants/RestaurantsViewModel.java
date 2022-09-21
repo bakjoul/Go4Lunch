@@ -17,13 +17,11 @@ import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
+import com.bakjoul.go4lunch.ui.utils.RestaurantDistanceComputer;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.maps.android.SphericalUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -37,6 +35,9 @@ public class RestaurantsViewModel extends ViewModel {
     private static final String BUSINESS_STATUS_OPERATIONAL = "OPERATIONAL";
 
     @NonNull
+    private final RestaurantDistanceComputer restaurantDistanceComputer;
+
+    @NonNull
     private final RestaurantImageMapper restaurantImageMapper;
 
     private final LiveData<RestaurantsViewState> restaurantsViewState;
@@ -45,8 +46,10 @@ public class RestaurantsViewModel extends ViewModel {
     public RestaurantsViewModel(
         @NonNull RestaurantRepository restaurantRepository,
         @NonNull LocationRepository locationRepository,
+        @NonNull RestaurantDistanceComputer restaurantDistanceComputer,
         @NonNull RestaurantImageMapper restaurantImageMapper
     ) {
+        this.restaurantDistanceComputer = restaurantDistanceComputer;
         this.restaurantImageMapper = restaurantImageMapper;
 
         restaurantsViewState = Transformations.switchMap(
@@ -77,6 +80,7 @@ public class RestaurantsViewModel extends ViewModel {
         );
     }
 
+    @NonNull
     private List<RestaurantsItemViewState> mapData(
         @NonNull NearbySearchResponse response,
         Location location
@@ -126,11 +130,7 @@ public class RestaurantsViewModel extends ViewModel {
 
     @NonNull
     private String getDistance(@NonNull Location currentLocation, @NonNull LocationResponse restaurantLocationResponse) {
-        double distance = SphericalUtil.computeDistanceBetween(
-            new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-            new LatLng(restaurantLocationResponse.getLat(), restaurantLocationResponse.getLng())
-        );
-        return String.format(Locale.getDefault(), "%.0fm", distance);
+        return restaurantDistanceComputer.getDistance(currentLocation, restaurantLocationResponse);
     }
 
     private float getRating(double restaurantRating) {
