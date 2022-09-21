@@ -1,6 +1,5 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
-import android.annotation.SuppressLint;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +41,7 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
 
         public void bind(@NonNull RestaurantsItemViewState viewState) {
             binding.restaurantsItemName.setText(viewState.getName());
-            binding.restaurantsItemLocation.setText(viewState.getLocation());
+            binding.restaurantsItemLocation.setText(viewState.getAddress());
             binding.restaurantsItemIsOpen.setText(viewState.getIsOpen());
             binding.restaurantsItemDistance.setText(viewState.getDistance());
             binding.restaurantsItemAttendance.setText(viewState.getAttendance());

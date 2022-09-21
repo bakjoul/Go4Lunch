@@ -1,7 +1,7 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
-
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.junit.Assert.assertEquals;
 
 import android.location.Location;
 import android.location.LocationManager;
@@ -17,16 +17,20 @@ import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
+import com.bakjoul.go4lunch.ui.utils.RestaurantDistanceComputer;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
+import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.junit.Before;
 import org.junit.Rule;
+import org.junit.Test;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-
+import java.util.List;
 
 public class RestaurantsViewModelTest {
 
@@ -39,7 +43,7 @@ public class RestaurantsViewModelTest {
         "RESTAURANT_1_ADDRESS",
         new OpeningHoursResponse(true),
         new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
-        3.0,
+        5.0,
         null,
         "OPERATIONAL",
         75);
@@ -49,7 +53,7 @@ public class RestaurantsViewModelTest {
         "RESTAURANT_2_ADDRESS",
         new OpeningHoursResponse(true),
         new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
-        2.5,
+        4.4,
         null,
         "OPERATIONAL",
         75);
@@ -59,7 +63,7 @@ public class RestaurantsViewModelTest {
         "RESTAURANT_3_ADDRESS",
         new OpeningHoursResponse(true),
         new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
-        2.0,
+        2.2,
         null,
         "OPERATIONAL",
         75);
@@ -70,10 +74,13 @@ public class RestaurantsViewModelTest {
 
     private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
     private final LocationRepository locationRepository = Mockito.mock(LocationRepository.class);
+    private final RestaurantDistanceComputer restaurantDistanceComputer = Mockito.mock(RestaurantDistanceComputer.class);
     private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
 
     private final MutableLiveData<NearbySearchResponse> nearbySearchResponseLiveData = new MutableLiveData<>();
     private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
+    private String distance;
+    private String url;
 
     private RestaurantsViewModel viewModel;
 
@@ -81,16 +88,30 @@ public class RestaurantsViewModelTest {
     public void setUp() {
         Mockito.doReturn(nearbySearchResponseLiveData).when(restaurantRepository).getNearbySearchResponse(anyString(), anyString(), anyString(), anyString());
         Mockito.doReturn(locationLiveData).when(locationRepository).getCurrentLocation();
+        Mockito.doReturn(distance).when(restaurantDistanceComputer).getDistance(ArgumentMatchers.any(Location.class), ArgumentMatchers.any(LocationResponse.class));
+        Mockito.doReturn(url).when(restaurantImageMapper).getImageUrl(anyString());
 
         nearbySearchResponseLiveData.setValue(getDefaultNearbySearchResponse());
         locationLiveData.setValue(getDefaultLocation());
+        distance = "";
+        url = "";
 
-        viewModel = new RestaurantsViewModel(restaurantRepository, locationRepository, restaurantImageMapper);
+        viewModel = new RestaurantsViewModel(restaurantRepository, locationRepository, restaurantDistanceComputer, restaurantImageMapper);
 
-        Mockito.verify(restaurantRepository).getNearbySearchResponse(anyString(), anyString(), anyString(), anyString());
+/*        Mockito.verify(restaurantRepository).getNearbySearchResponse(anyString(), anyString(), anyString(), anyString());
         Mockito.verify(locationRepository).getCurrentLocation();
+        Mockito.verify(restaurantDistanceComputer).getDistance(ArgumentMatchers.any(Location.class), ArgumentMatchers.any(LocationResponse.class));
+        Mockito.verify(restaurantImageMapper).getImageUrl(anyString());*/
     }
 
+    @Test
+    public void nominal_case() {
+        // When
+        RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
+
+        // Then
+        assertEquals(getDefaultRestaurantViewState(), result);
+    }
 
     // region IN
     @NonNull
@@ -108,6 +129,71 @@ public class RestaurantsViewModelTest {
         location.setLongitude(DEFAULT_LOCATION.longitude);
         return location;
     }
+    // endregion
 
+    // region OUT
+    @NonNull
+    private RestaurantsViewState getDefaultRestaurantViewState() {
+        List<RestaurantsItemViewState> restaurantsItemViewStateList = new ArrayList<>();
+        restaurantsItemViewStateList.add(
+            new RestaurantsItemViewState(
+                RESTAURANT_RESPONSE_1.getPlaceId(),
+                RESTAURANT_RESPONSE_1.getName(),
+                RESTAURANT_RESPONSE_1.getVicinity(),
+                checkIfOpen(RESTAURANT_RESPONSE_1.getOpeningHours().getOpenNow()),
+                restaurantDistanceComputer.getDistance(getDefaultLocation(), RESTAURANT_RESPONSE_1.getGeometry().getLocation()),
+                "",
+                convertRating(RESTAURANT_RESPONSE_1.getRating()),
+                isRatingBarVisble(RESTAURANT_RESPONSE_1.getUserRatingsTotal()),
+                null
+            )
+        );
+        restaurantsItemViewStateList.add(
+            new RestaurantsItemViewState(
+                RESTAURANT_RESPONSE_2.getPlaceId(),
+                RESTAURANT_RESPONSE_2.getName(),
+                RESTAURANT_RESPONSE_2.getVicinity(),
+                checkIfOpen(RESTAURANT_RESPONSE_2.getOpeningHours().getOpenNow()),
+                restaurantDistanceComputer.getDistance(getDefaultLocation(), RESTAURANT_RESPONSE_2.getGeometry().getLocation()),
+                "",
+                convertRating(RESTAURANT_RESPONSE_2.getRating()),
+                isRatingBarVisble(RESTAURANT_RESPONSE_2.getUserRatingsTotal()),
+                null
+            )
+        );
+        restaurantsItemViewStateList.add(
+            new RestaurantsItemViewState(
+                RESTAURANT_RESPONSE_3.getPlaceId(),
+                RESTAURANT_RESPONSE_3.getName(),
+                RESTAURANT_RESPONSE_3.getVicinity(),
+                checkIfOpen(RESTAURANT_RESPONSE_3.getOpeningHours().getOpenNow()),
+                restaurantDistanceComputer.getDistance(getDefaultLocation(), RESTAURANT_RESPONSE_3.getGeometry().getLocation()),
+                "",
+                convertRating(RESTAURANT_RESPONSE_3.getRating()),
+                isRatingBarVisble(RESTAURANT_RESPONSE_3.getUserRatingsTotal()),
+                null
+            )
+        );
+        return new RestaurantsViewState(restaurantsItemViewStateList, false);
+    }
+
+    @NonNull
+    private String checkIfOpen(boolean isOpen) {
+        String result;
+        if (isOpen) {
+            result = "Ouvert";
+        } else {
+            result = "Fermé";
+        }
+        return result;
+    }
+
+    private float convertRating(double restaurantRating) {
+        return (float) Math.round(((restaurantRating * 3 / 5) / 0.5) * 0.5);
+    }
+
+    private boolean isRatingBarVisble(int userRatingsTotal) {
+        return userRatingsTotal > 0;
+    }
     // endregion
 }

@@ -27,8 +27,8 @@ public class RestaurantsViewState {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        RestaurantsViewState that = (RestaurantsViewState) o;
-        return isEmptyStateVisible == that.isEmptyStateVisible && Objects.equals(restaurantsItemViewStates, that.restaurantsItemViewStates);
+        RestaurantsViewState viewState = (RestaurantsViewState) o;
+        return isEmptyStateVisible == viewState.isEmptyStateVisible && Objects.equals(restaurantsItemViewStates, viewState.restaurantsItemViewStates);
     }
 
     @Override

@@ -97,7 +97,7 @@ public class RestaurantsViewModel extends ViewModel {
                         checkIfOpen(r.getOpeningHours()),
                         getDistance(location, r.getGeometry().getLocation()),
                         "",
-                        getRating(r.getRating()),
+                        convertRating(r.getRating()),
                         isRatingBarVisible(r.getUserRatingsTotal()),
                         getPhotoUrl(r.getPhotos())
                     )
@@ -133,7 +133,7 @@ public class RestaurantsViewModel extends ViewModel {
         return restaurantDistanceComputer.getDistance(currentLocation, restaurantLocationResponse);
     }
 
-    private float getRating(double restaurantRating) {
+    private float convertRating(double restaurantRating) {
         return (float) Math.round(((restaurantRating * 3 / 5) / 0.5) * 0.5);
     }
 
