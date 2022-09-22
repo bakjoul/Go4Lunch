@@ -1,8 +1,10 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.anyString;
 
+import android.app.Application;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
@@ -73,6 +75,7 @@ public class RestaurantsViewModelTest {
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
+    private final Application application = Mockito.mock(Application.class);
     private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
     private final LocationRepository locationRepository = Mockito.mock(LocationRepository.class);
     private final RestaurantDistanceComputer restaurantDistanceComputer = Mockito.mock(RestaurantDistanceComputer.class);
@@ -97,7 +100,7 @@ public class RestaurantsViewModelTest {
         distance = "";
         url = "";
 
-        viewModel = new RestaurantsViewModel(restaurantRepository, locationRepository, restaurantDistanceComputer, restaurantImageMapper);
+        viewModel = new RestaurantsViewModel(application, restaurantRepository, locationRepository, restaurantDistanceComputer, restaurantImageMapper);
 
 /*        Mockito.verify(restaurantRepository).getNearbySearchResponse(anyString(), anyString(), anyString(), anyString());
         Mockito.verify(locationRepository).getCurrentLocation();
@@ -111,6 +114,8 @@ public class RestaurantsViewModelTest {
         RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
 
         // Then
+        assertNotNull(getDefaultRestaurantViewState());
+        assertNotNull(result);
         assertEquals(getDefaultRestaurantViewState(), result);
     }
 

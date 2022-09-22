@@ -19,7 +19,6 @@ import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bakjoul.go4lunch.R;
@@ -73,12 +72,7 @@ public class MainActivity extends AppCompatActivity {
             email.setText(mainViewState.getEmail());
         });
 
-        viewModel.getFragmentToDisplaySingleLiveEvent().observe(this, new Observer<FragmentToDisplay>() {
-            @Override
-            public void onChanged(FragmentToDisplay fragmentToDisplay) {
-                displayFragment(fragmentToDisplay);
-            }
-        });
+        viewModel.getFragmentToDisplaySingleLiveEvent().observe(this, this::displayFragment);
     }
 
     @Override
@@ -202,10 +196,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void showRequestPermissionRationale() {
         new AlertDialog.Builder(this)
-            .setTitle("Localisation requise")
-            .setMessage("Pour continuer, activez la localisation de l'appareil.")
-            .setPositiveButton("OK", (dialogInterface, i) -> requestLocationPermission())
-            .setNegativeButton("Annuler", (dialogInterface, i) -> dialogInterface.dismiss())
+            .setTitle(getString(R.string.permission_rationale_title))
+            .setMessage(getString(R.string.permission_rationale_message))
+            .setPositiveButton(getString(R.string.permission_rationale_positive_button), (dialogInterface, i) -> requestLocationPermission())
+            .setNegativeButton(getString(R.string.permission_rationale_negative_button), (dialogInterface, i) -> dialogInterface.dismiss())
             .create()
             .show();
     }

@@ -20,5 +20,12 @@
     <string name="restaurants_item_rating_cs">Rating</string>
     <string name="no_permission_message">Localisation requise</string>
     <string name="no_permission_submessage">Appuyez n\'importe où pour continuer</string>
+    <string name="restaurant_item_is_open">Ouvert</string>
+    <string name="restaurant_item_is_closed">Fermé</string>
+    <string name="restaurant_item_info_not_available">Information indisponible</string>
+    <string name="permission_rationale_title">Localisation requise</string>
+    <string name="permission_rationale_message">Pour continuer, activez la localisation de l\'appareil.</string>
+    <string name="permission_rationale_positive_button">OK</string>
+    <string name="permission_rationale_negative_button">Annuler</string>
 
 </resources>

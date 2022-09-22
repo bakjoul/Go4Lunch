@@ -1,5 +1,6 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
+import android.app.Application;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
@@ -10,6 +11,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.BuildConfig;
+import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
@@ -35,6 +37,9 @@ public class RestaurantsViewModel extends ViewModel {
     private static final String BUSINESS_STATUS_OPERATIONAL = "OPERATIONAL";
 
     @NonNull
+    private final Application application;
+
+    @NonNull
     private final RestaurantDistanceComputer restaurantDistanceComputer;
 
     @NonNull
@@ -44,11 +49,13 @@ public class RestaurantsViewModel extends ViewModel {
 
     @Inject
     public RestaurantsViewModel(
+        @NonNull Application application,
         @NonNull RestaurantRepository restaurantRepository,
         @NonNull LocationRepository locationRepository,
         @NonNull RestaurantDistanceComputer restaurantDistanceComputer,
         @NonNull RestaurantImageMapper restaurantImageMapper
     ) {
+        this.application = application;
         this.restaurantDistanceComputer = restaurantDistanceComputer;
         this.restaurantImageMapper = restaurantImageMapper;
 
@@ -118,12 +125,12 @@ public class RestaurantsViewModel extends ViewModel {
         String isOpen;
         if (openingHoursResponse != null) {
             if (openingHoursResponse.getOpenNow()) {
-                isOpen = "Ouvert";
+                isOpen = application.getString(R.string.restaurant_item_is_open);
             } else {
-                isOpen = "Fermé";
+                isOpen = application.getString(R.string.restaurant_item_is_closed);
             }
         } else {
-            isOpen = "Information indisponible";
+            isOpen = application.getString(R.string.restaurant_item_info_not_available);
         }
         return isOpen;
     }
