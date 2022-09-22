@@ -1,12 +1,12 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.anyString;
 
 import android.location.Location;
-import android.location.LocationManager;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
@@ -31,6 +31,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 
 public class RestaurantsViewModelTest {
 
@@ -124,7 +125,7 @@ public class RestaurantsViewModelTest {
 
     @NonNull
     private Location getDefaultLocation() {
-        Location location = new Location(LocationManager.GPS_PROVIDER);
+        Location location = new Location("test");
         location.setLatitude(DEFAULT_LOCATION.latitude);
         location.setLongitude(DEFAULT_LOCATION.longitude);
         return location;
@@ -145,7 +146,7 @@ public class RestaurantsViewModelTest {
                 "",
                 convertRating(RESTAURANT_RESPONSE_1.getRating()),
                 isRatingBarVisble(RESTAURANT_RESPONSE_1.getUserRatingsTotal()),
-                null
+                restaurantImageMapper.getImageUrl(getPhotoRef(RESTAURANT_RESPONSE_1))
             )
         );
         restaurantsItemViewStateList.add(
@@ -175,6 +176,16 @@ public class RestaurantsViewModelTest {
             )
         );
         return new RestaurantsViewState(restaurantsItemViewStateList, false);
+    }
+
+    private String getPhotoRef(@Nullable RestaurantResponse response) {
+        String ref;
+        if (response != null && response.getPhotos() != null) {
+            ref = response.getPhotos().get(0).getPhotoReference();
+        } else {
+            ref = null;
+        }
+        return ref;
     }
 
     @NonNull
