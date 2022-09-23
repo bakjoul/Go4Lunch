@@ -70,6 +70,7 @@ public class RestaurantResponse {
         return vicinity;
     }
 
+    @Nullable
     public OpeningHoursResponse getOpeningHours() {
         return openingHoursResponse;
     }
@@ -100,7 +101,7 @@ public class RestaurantResponse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         RestaurantResponse that = (RestaurantResponse) o;
-        return Objects.equals(placeId, that.placeId) && Objects.equals(name, that.name) && Objects.equals(vicinity, that.vicinity) && Objects.equals(openingHoursResponse, that.openingHoursResponse) && Objects.equals(geometryResponse, that.geometryResponse) && Objects.equals(rating, that.rating) && Objects.equals(photoResponses, that.photoResponses) && Objects.equals(businessStatus, that.businessStatus);
+        return Double.compare(that.rating, rating) == 0 && userRatingsTotal == that.userRatingsTotal && Objects.equals(placeId, that.placeId) && Objects.equals(name, that.name) && Objects.equals(vicinity, that.vicinity) && Objects.equals(openingHoursResponse, that.openingHoursResponse) && Objects.equals(geometryResponse, that.geometryResponse) && Objects.equals(photoResponses, that.photoResponses) && Objects.equals(businessStatus, that.businessStatus);
     }
 
     @Override

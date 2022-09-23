@@ -41,7 +41,7 @@ public class MapFragment extends SupportMapFragment {
                                     mapViewState.getLatitude(),
                                     mapViewState.getLongitude()
                                 ),
-                            13.5F
+                                13.5F
                             )
                         );
                         googleMap.setMyLocationEnabled(true);
@@ -51,7 +51,7 @@ public class MapFragment extends SupportMapFragment {
                         RelativeLayout.LayoutParams rlp = (RelativeLayout.LayoutParams) locationButton.getLayoutParams();
                         rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
                         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
-                        rlp.setMargins(0,0,30,30);
+                        rlp.setMargins(0, 0, 30, 30);
                     });
                 } else {
                     Log.d(TAG, "Location permission is not allowed. Map will not update.");
