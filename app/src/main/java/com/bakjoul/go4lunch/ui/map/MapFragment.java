@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -33,13 +34,13 @@ public class MapFragment extends SupportMapFragment {
 
         MapViewModel viewModel = new ViewModelProvider(this).get(MapViewModel.class);
 
-        viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), mapViewState -> {
-                if (mapViewState != null) {
+        viewModel.getMapViewStateMediatorLiveData().observe(getViewLifecycleOwner(), viewState -> {
+                if (viewState != null) {
                     MapFragment.this.getMapAsync(googleMap -> {
                         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                                 new LatLng(
-                                    mapViewState.getLatitude(),
-                                    mapViewState.getLongitude()
+                                    viewState.getLocation().getLatitude(),
+                                    viewState.getLocation().getLongitude()
                                 ),
                                 13.5F
                             )
@@ -52,6 +53,10 @@ public class MapFragment extends SupportMapFragment {
                         rlp.addRule(RelativeLayout.ALIGN_PARENT_TOP, 0);
                         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
                         rlp.setMargins(0, 0, 30, 30);
+
+                        for (MarkerOptions m : viewState.getRestaurantsMarkers()) {
+                            googleMap.addMarker(m);
+                        }
                     });
                 } else {
                     Log.d(TAG, "Location permission is not allowed. Map will not update.");
