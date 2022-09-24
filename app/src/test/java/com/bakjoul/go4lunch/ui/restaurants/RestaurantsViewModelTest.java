@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 import android.app.Application;
 import android.location.Location;
@@ -123,7 +124,7 @@ public class RestaurantsViewModelTest {
 
         viewModel = new RestaurantsViewModel(application, restaurantRepository, locationRepository, restaurantDistanceComputer, restaurantImageMapper);
 
-        // verify
+        verify(locationRepository).getCurrentLocation();
     }
 
     @Test
