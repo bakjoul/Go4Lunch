@@ -12,7 +12,6 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -37,11 +36,8 @@ public class MapFragment extends SupportMapFragment {
         viewModel.getMapViewStateMediatorLiveData().observe(getViewLifecycleOwner(), viewState -> {
                 if (viewState != null) {
                     MapFragment.this.getMapAsync(googleMap -> {
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                                new LatLng(
-                                    viewState.getLocation().getLatitude(),
-                                    viewState.getLocation().getLongitude()
-                                ),
+                        googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                                viewState.getLatLng(),
                                 13.5F
                             )
                         );
@@ -54,8 +50,10 @@ public class MapFragment extends SupportMapFragment {
                         rlp.addRule(RelativeLayout.ALIGN_PARENT_BOTTOM, RelativeLayout.TRUE);
                         rlp.setMargins(0, 0, 30, 30);
 
-                        for (MarkerOptions m : viewState.getRestaurantsMarkers()) {
-                            googleMap.addMarker(m);
+                        if (!viewState.getRestaurantsMarkers().isEmpty()) {
+                            for (MarkerOptions m : viewState.getRestaurantsMarkers()) {
+                                googleMap.addMarker(m);
+                            }
                         }
                     });
                 } else {

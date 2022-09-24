@@ -65,15 +65,18 @@ public class MapViewModel extends ViewModel {
                                     for (RestaurantResponse r : response.getResults()) {
                                         if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
                                             restaurantsMarkers.add(
-                                                new MarkerOptions().position(
-                                                    new LatLng(
-                                                        r.getGeometry().getLocation().getLat(),
-                                                        r.getGeometry().getLocation().getLng()
+                                                new MarkerOptions()
+                                                    .position(
+                                                        new LatLng(
+                                                            r.getGeometry().getLocation().getLat(),
+                                                            r.getGeometry().getLocation().getLng()
+                                                        )
                                                     )
-                                                )
                                             );
                                         }
                                     }
+                                } else {
+                                    return restaurantsMarkers;
                                 }
                                 return restaurantsMarkers;
                             }
@@ -87,20 +90,33 @@ public class MapViewModel extends ViewModel {
             }
         );
 
-        mapViewStateMediatorLiveData.addSource(restaurantsMarkersLiveData, this::combine);
+        mapViewStateMediatorLiveData.addSource(locationLiveData, location ->
+            combine(location, restaurantsMarkersLiveData.getValue()));
+        mapViewStateMediatorLiveData.addSource(restaurantsMarkersLiveData, markerOptions ->
+            combine(locationLiveData.getValue(), markerOptions));
     }
 
-    private void combine(@Nullable List<MarkerOptions> markerOptions) {
-        if (markerOptions == null) {
+    private void combine(@Nullable Location location, @Nullable List<MarkerOptions> markerOptions) {
+        if (location == null) {
             return;
         }
 
-        mapViewStateMediatorLiveData.setValue(
-            new MapViewState(
-                locationLiveData.getValue(),
-                markerOptions
-            )
-        );
+        if (markerOptions == null) {
+            List<MarkerOptions> emptyList = new ArrayList<>();
+            mapViewStateMediatorLiveData.setValue(
+                new MapViewState(
+                    new LatLng(location.getLatitude(), location.getLongitude()),
+                    emptyList
+                )
+            );
+        } else {
+            mapViewStateMediatorLiveData.setValue(
+                new MapViewState(
+                    new LatLng(location.getLatitude(), location.getLongitude()),
+                    markerOptions
+                )
+            );
+        }
     }
 
     public MediatorLiveData<MapViewState> getMapViewStateMediatorLiveData() {
