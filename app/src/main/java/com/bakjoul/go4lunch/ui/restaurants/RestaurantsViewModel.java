@@ -19,7 +19,7 @@ import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
-import com.bakjoul.go4lunch.ui.utils.RestaurantDistanceComputer;
+import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtils;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 
 import java.util.ArrayList;
@@ -40,7 +40,7 @@ public class RestaurantsViewModel extends ViewModel {
     private final Application application;
 
     @NonNull
-    private final RestaurantDistanceComputer restaurantDistanceComputer;
+    private final LocationDistanceUtils locationDistanceUtils;
 
     @NonNull
     private final RestaurantImageMapper restaurantImageMapper;
@@ -52,11 +52,11 @@ public class RestaurantsViewModel extends ViewModel {
         @NonNull Application application,
         @NonNull RestaurantRepository restaurantRepository,
         @NonNull LocationRepository locationRepository,
-        @NonNull RestaurantDistanceComputer restaurantDistanceComputer,
+        @NonNull LocationDistanceUtils locationDistanceUtils,
         @NonNull RestaurantImageMapper restaurantImageMapper
     ) {
         this.application = application;
-        this.restaurantDistanceComputer = restaurantDistanceComputer;
+        this.locationDistanceUtils = locationDistanceUtils;
         this.restaurantImageMapper = restaurantImageMapper;
 
         restaurantsViewState = Transformations.switchMap(
@@ -137,7 +137,7 @@ public class RestaurantsViewModel extends ViewModel {
 
     @NonNull
     private String getDistance(@NonNull Location currentLocation, @NonNull LocationResponse restaurantLocationResponse) {
-        return restaurantDistanceComputer.getDistance(currentLocation, restaurantLocationResponse);
+        return locationDistanceUtils.getDistance(currentLocation, restaurantLocationResponse);
     }
 
     private float convertRating(double restaurantRating) {
