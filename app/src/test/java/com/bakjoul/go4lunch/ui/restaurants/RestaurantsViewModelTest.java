@@ -1,7 +1,6 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.BDDMockito.given;
@@ -12,7 +11,6 @@ import android.app.Application;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
@@ -44,6 +42,7 @@ public class RestaurantsViewModelTest {
 
     // region Constants
     private static final LatLng DEFAULT_LOCATION = new LatLng(48.841577, 2.253059);
+    private static final LatLng FAKE_LOCATION = new LatLng(43.21, 12.34);
 
     private static final String OPEN = "Ouvert";
     private static final String CLOSED = "Fermé";
@@ -56,7 +55,7 @@ public class RestaurantsViewModelTest {
         new OpeningHoursResponse(true),
         new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
         5.0,
-        new ArrayList<>(Collections.singletonList(new PhotoResponse("fake"))),
+        new ArrayList<>(Collections.singletonList(new PhotoResponse("fakePhotoReference"))),
         "OPERATIONAL",
         75);
     private static final RestaurantResponse RESTAURANT_RESPONSE_2 = new RestaurantResponse(
@@ -89,7 +88,7 @@ public class RestaurantsViewModelTest {
         null,
         "CLOSED_TEMPORARILY",
         75);
-    // endregion
+    // endregion Constants
 
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
@@ -113,13 +112,13 @@ public class RestaurantsViewModelTest {
         given(application.getString(R.string.restaurant_item_is_closed)).willReturn(CLOSED);
         given(application.getString(R.string.restaurant_item_info_not_available)).willReturn(NOT_AVAILABLE);
 
-        doReturn(nearbySearchResponseLiveData).when(restaurantRepository).getNearbySearchResponse(eq("43.21,12.34"), eq("distance"), eq("restaurant"), anyString());
+        doReturn(nearbySearchResponseLiveData).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
         doReturn(locationLiveData).when(locationRepository).getCurrentLocation();
         doReturn("50m").when(locationDistanceUtils).getDistance(location, new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude));
-        doReturn("ImageUrl").when(restaurantImageMapper).getImageUrl("fake");
+        doReturn("ImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference");
 
-        doReturn("43.21").when(location).getLatitude();
-        doReturn("12.34").when(location).getLongitude();
+        doReturn(FAKE_LOCATION.latitude).when(location).getLatitude();
+        doReturn(FAKE_LOCATION.longitude).when(location).getLongitude();
 
         locationLiveData.setValue(location);
 
@@ -173,6 +172,11 @@ public class RestaurantsViewModelTest {
             "OK"
         );
     }
+
+    @NonNull
+    private String getLatLngToString(LatLng latLng) {
+        return latLng.latitude + "," + latLng.longitude;
+    }
     // endregion IN
 
     // region OUT
@@ -197,10 +201,10 @@ public class RestaurantsViewModelTest {
                 RESTAURANT_RESPONSE_2.getPlaceId(),
                 RESTAURANT_RESPONSE_2.getName(),
                 RESTAURANT_RESPONSE_2.getVicinity(),
-                false,
+                CLOSED,
                 locationDistanceUtils.getDistance(location, RESTAURANT_RESPONSE_2.getGeometry().getLocation()),
                 "",
-                convertRating(RESTAURANT_RESPONSE_2.getRating()),
+                3,
                 true,
                 null
             )
@@ -210,10 +214,10 @@ public class RestaurantsViewModelTest {
                 RESTAURANT_RESPONSE_3.getPlaceId(),
                 RESTAURANT_RESPONSE_3.getName(),
                 RESTAURANT_RESPONSE_3.getVicinity(),
-                false,
+                NOT_AVAILABLE,
                 locationDistanceUtils.getDistance(location, RESTAURANT_RESPONSE_3.getGeometry().getLocation()),
                 "",
-                convertRating(RESTAURANT_RESPONSE_3.getRating()),
+                0,
                 false,
                 null
             )
@@ -225,5 +229,5 @@ public class RestaurantsViewModelTest {
     private RestaurantsViewState getEmptyRestaurantViewState() {
         return new RestaurantsViewState(new ArrayList<>(), true);
     }
-    // endregion
+    // endregion OUT
 }

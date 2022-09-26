@@ -101,7 +101,7 @@ public class RestaurantsViewModel extends ViewModel {
                         r.getPlaceId(),
                         r.getName(),
                         r.getVicinity(),
-                        checkIfOpen(r.getOpeningHours()),
+                        isOpen(r.getOpeningHours()),
                         getDistance(location, r.getGeometry().getLocation()),
                         "",
                         convertRating(r.getRating()),
@@ -121,7 +121,7 @@ public class RestaurantsViewModel extends ViewModel {
     }
 
     @NonNull
-    private String checkIfOpen(OpeningHoursResponse openingHoursResponse) {
+    private String isOpen(OpeningHoursResponse openingHoursResponse) {
         String isOpen;
         if (openingHoursResponse != null) {
             if (openingHoursResponse.getOpenNow()) {
