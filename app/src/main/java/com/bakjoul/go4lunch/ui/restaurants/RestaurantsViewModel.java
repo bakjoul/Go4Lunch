@@ -1,5 +1,8 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
+import static com.bakjoul.go4lunch.data.repository.RestaurantRepository.RANK_BY;
+import static com.bakjoul.go4lunch.data.repository.RestaurantRepository.TYPE;
+
 import android.app.Application;
 import android.location.Location;
 
@@ -32,8 +35,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class RestaurantsViewModel extends ViewModel {
 
-    private static final String RANK_BY = "distance";
-    private static final String TYPE = "restaurant";
     private static final String BUSINESS_STATUS_OPERATIONAL = "OPERATIONAL";
 
     @NonNull

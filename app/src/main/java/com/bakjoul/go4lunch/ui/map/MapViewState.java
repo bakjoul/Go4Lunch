@@ -2,24 +2,28 @@ package com.bakjoul.go4lunch.ui.map;
 
 import androidx.annotation.NonNull;
 
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.util.List;
 import java.util.Objects;
 
 public class MapViewState {
 
-    private final double latitude;
-    private final double longitude;
+    private final LatLng latLng;
+    private final List<MarkerOptions> restaurantsMarkers;
 
-    public MapViewState(double latitude, double longitude) {
-        this.latitude = latitude;
-        this.longitude = longitude;
+    public MapViewState(LatLng latLng, List<MarkerOptions> restaurantsMarkers) {
+        this.latLng = latLng;
+        this.restaurantsMarkers = restaurantsMarkers;
     }
 
-    public double getLatitude() {
-        return latitude;
+    public LatLng getLatLng() {
+        return latLng;
     }
 
-    public double getLongitude() {
-        return longitude;
+    public List<MarkerOptions> getRestaurantsMarkers() {
+        return restaurantsMarkers;
     }
 
     @Override
@@ -27,20 +31,20 @@ public class MapViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MapViewState that = (MapViewState) o;
-        return Double.compare(that.latitude, latitude) == 0 && Double.compare(that.longitude, longitude) == 0;
+        return Objects.equals(latLng, that.latLng) && Objects.equals(restaurantsMarkers, that.restaurantsMarkers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(latitude, longitude);
+        return Objects.hash(latLng, restaurantsMarkers);
     }
 
     @NonNull
     @Override
     public String toString() {
         return "MapViewState{" +
-            "latitude=" + latitude +
-            ", longitude=" + longitude +
+            "latLng=" + latLng +
+            ", restaurantsMarkers=" + restaurantsMarkers +
             '}';
     }
 }
