@@ -3,6 +3,8 @@ package com.bakjoul.go4lunch.ui.map;
 import static com.bakjoul.go4lunch.data.repository.RestaurantRepository.RANK_BY;
 import static com.bakjoul.go4lunch.data.repository.RestaurantRepository.TYPE;
 
+import android.app.Application;
+import android.graphics.Bitmap;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
@@ -15,10 +17,13 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.BuildConfig;
+import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
+import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -36,11 +41,12 @@ public class MapViewModel extends ViewModel {
 
     private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
 
-
     @Inject
     public MapViewModel(
         @NonNull LocationRepository locationRepository,
-        @NonNull RestaurantRepository restaurantRepository) {
+        @NonNull RestaurantRepository restaurantRepository,
+        @NonNull Application application,
+        @NonNull SvgToBitmap svgToBitmap) {
 
         LiveData<List<MarkerOptions>> restaurantsMarkersLiveData = Transformations.switchMap(
             locationRepository.getCurrentLocation(), new Function<Location, LiveData<List<MarkerOptions>>>() {
@@ -62,6 +68,8 @@ public class MapViewModel extends ViewModel {
                             nearbySearchResponseLiveData, response -> {
                                 List<MarkerOptions> restaurantsMarkers = new ArrayList<>();
                                 if (response != null) {
+                                    Bitmap greenMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_green_marker);
+                                    Bitmap redMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_red_marker);
                                     for (RestaurantResponse r : response.getResults()) {
                                         if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
                                             restaurantsMarkers.add(
@@ -72,6 +80,7 @@ public class MapViewModel extends ViewModel {
                                                             r.getGeometry().getLocation().getLng()
                                                         )
                                                     )
+                                                    .icon(BitmapDescriptorFactory.fromBitmap(greenMarker))
                                             );
                                         }
                                     }

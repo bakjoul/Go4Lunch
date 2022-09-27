@@ -174,7 +174,7 @@ public class RestaurantsViewModelTest {
     }
 
     @NonNull
-    private String getLatLngToString(LatLng latLng) {
+    private String getLatLngToString(@NonNull LatLng latLng) {
         return latLng.latitude + "," + latLng.longitude;
     }
     // endregion IN
