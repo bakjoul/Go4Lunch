@@ -23,7 +23,7 @@ import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
-import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtils;
+import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 import com.google.android.gms.maps.model.LatLng;
@@ -96,7 +96,7 @@ public class RestaurantsViewModelTest {
     private final Application application = Mockito.mock(Application.class);
     private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
     private final LocationRepository locationRepository = Mockito.mock(LocationRepository.class);
-    private final LocationDistanceUtils locationDistanceUtils = Mockito.mock(LocationDistanceUtils.class);
+    private final LocationDistanceUtil locationDistanceUtils = Mockito.mock(LocationDistanceUtil.class);
     private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
 
     private final Location location = Mockito.mock(Location.class);

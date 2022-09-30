@@ -27,5 +27,9 @@
     <string name="permission_rationale_message">Pour continuer, activez la localisation de l\'appareil.</string>
     <string name="permission_rationale_positive_button">OK</string>
     <string name="permission_rationale_negative_button">Annuler</string>
+    <string name="details_select_restaurant_desc">Choisir ce restaurant</string>
+    <string name="details_button_call">CALL</string>
+    <string name="details_button_like">LIKE</string>
+    <string name="details_button_website">WEBSITE</string>
 
 </resources>

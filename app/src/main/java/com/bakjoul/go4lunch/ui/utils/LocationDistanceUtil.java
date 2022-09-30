@@ -12,10 +12,10 @@ import java.util.Locale;
 
 import javax.inject.Inject;
 
-public class LocationDistanceUtils {
+public class LocationDistanceUtil {
 
     @Inject
-    public LocationDistanceUtils() {
+    public LocationDistanceUtil() {
     }
 
     public String getDistance(@NonNull Location currentLocation, @NonNull LocationResponse restaurantLocationResponse) {

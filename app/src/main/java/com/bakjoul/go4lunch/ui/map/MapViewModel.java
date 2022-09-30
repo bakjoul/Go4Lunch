@@ -80,6 +80,8 @@ public class MapViewModel extends ViewModel {
                                                             r.getGeometry().getLocation().getLng()
                                                         )
                                                     )
+                                                    .title(r.getName())
+                                                    .snippet(r.getVicinity())
                                                     .icon(BitmapDescriptorFactory.fromBitmap(greenMarker))
                                             );
                                         }
