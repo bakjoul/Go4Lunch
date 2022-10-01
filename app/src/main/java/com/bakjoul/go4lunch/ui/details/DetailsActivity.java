@@ -1,7 +1,9 @@
 package com.bakjoul.go4lunch.ui.details;
 
 import android.animation.ObjectAnimator;
+import android.animation.PropertyValuesHolder;
 import android.os.Bundle;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -24,15 +26,17 @@ public class DetailsActivity extends AppCompatActivity {
 
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                ObjectAnimator slideDownAnimation = ObjectAnimator.ofFloat(binding.detailsFabSelect, "translationY", 0, binding.detailsToolbar.getHeight());
-                slideDownAnimation.setDuration(125);
+                PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("translationY", 0, binding.detailsToolbar.getHeight());
+                PropertyValuesHolder pvhAlpha = PropertyValuesHolder.ofFloat("alpha", 1, 0.75f);
+                ObjectAnimator animation = ObjectAnimator.ofPropertyValuesHolder(binding.detailsFabSelect, pvhY, pvhAlpha);
+                animation.setDuration(125);
 
                 if (verticalOffset == 0 && isFabDown) {
-                    slideDownAnimation.setInterpolator(new ReverseInterpolator());
-                    slideDownAnimation.start();
+                    animation.setInterpolator(new ReverseInterpolator());
+                    animation.start();
                     isFabDown = false;
                 } else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange() && !isFabDown) {
-                    slideDownAnimation.start();
+                    animation.start();
                     isFabDown = true;
                 }
             }
