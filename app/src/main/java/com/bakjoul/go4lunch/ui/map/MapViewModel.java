@@ -81,7 +81,6 @@ public class MapViewModel extends ViewModel {
                                                         )
                                                     )
                                                     .title(r.getName())
-                                                    .snippet(r.getVicinity())
                                                     .icon(BitmapDescriptorFactory.fromBitmap(greenMarker))
                                             );
                                         }

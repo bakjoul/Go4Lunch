@@ -26,15 +26,20 @@ public class DetailsActivity extends AppCompatActivity {
 
             @Override
             public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+                // Translate animation
                 PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("translationY", 0, binding.detailsToolbar.getHeight());
+                // Alpha animation
                 PropertyValuesHolder pvhAlpha = PropertyValuesHolder.ofFloat("alpha", 1, 0.75f);
+                // Animation object
                 ObjectAnimator animation = ObjectAnimator.ofPropertyValuesHolder(binding.detailsFabSelect, pvhY, pvhAlpha);
-                animation.setDuration(125);
+                animation.setDuration(250);
 
+                // Collapsed
                 if (verticalOffset == 0 && isFabDown) {
                     animation.setInterpolator(new ReverseInterpolator());
                     animation.start();
                     isFabDown = false;
+                // Expanded
                 } else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange() && !isFabDown) {
                     animation.start();
                     isFabDown = true;

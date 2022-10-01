@@ -28,9 +28,9 @@
                 android:layout_height="250dp"
                 android:importantForAccessibility="no"
                 android:scaleType="centerCrop"
-                android:src="@drawable/bkg_lunch"
                 app:layout_collapseMode="parallax"
-                app:layout_collapseParallaxMultiplier="0.7" />
+                app:layout_collapseParallaxMultiplier="0.7"
+                tools:src="@drawable/bkg_lunch" />
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/details_toolbar"
@@ -69,9 +69,9 @@
                                 android:ellipsize="end"
                                 android:lines="1"
                                 android:maxEms="10"
-                                tools:text="Restaurant"
                                 android:textColor="@color/white"
-                                android:textSize="17sp" />
+                                android:textSize="17sp"
+                                tools:text="Restaurant" />
 
                             <RatingBar
                                 android:id="@+id/details_restaurant_rating"
@@ -93,8 +93,8 @@
                             android:layout_marginTop="4dp"
                             android:layout_marginEnd="10dp"
                             android:lines="2"
-                            tools:text="Address"
-                            android:textColor="@color/white" />
+                            android:textColor="@color/white"
+                            tools:text="Address" />
                     </LinearLayout>
 
                     <LinearLayout
