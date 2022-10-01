@@ -27,8 +27,8 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -48,13 +48,13 @@ public class MapViewModel extends ViewModel {
         @NonNull Application application,
         @NonNull SvgToBitmap svgToBitmap) {
 
-        LiveData<List<MarkerOptions>> restaurantsMarkersLiveData = Transformations.switchMap(
-            locationRepository.getCurrentLocation(), new Function<Location, LiveData<List<MarkerOptions>>>() {
+        LiveData<Map<MarkerOptions, String>> restaurantsMarkersLiveData = Transformations.switchMap(
+            locationRepository.getCurrentLocation(), new Function<Location, LiveData<Map<MarkerOptions, String>>>() {
                 LiveData<NearbySearchResponse> nearbySearchResponseLiveData;
-                LiveData<List<MarkerOptions>> markersLiveData;
+                LiveData<Map<MarkerOptions, String>> markersLiveData;
 
                 @Override
-                public LiveData<List<MarkerOptions>> apply(Location location) {
+                public LiveData<Map<MarkerOptions, String>> apply(Location location) {
                     if (location != null) {
                         locationLiveData.setValue(location);
                         nearbySearchResponseLiveData = restaurantRepository.getNearbySearchResponse(
@@ -66,13 +66,13 @@ public class MapViewModel extends ViewModel {
 
                         markersLiveData = Transformations.map(
                             nearbySearchResponseLiveData, response -> {
-                                List<MarkerOptions> restaurantsMarkers = new ArrayList<>();
+                                Map<MarkerOptions, String> restaurantsMarkers = new HashMap<>();
                                 if (response != null) {
                                     Bitmap greenMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_green_marker);
                                     Bitmap redMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_red_marker);
                                     for (RestaurantResponse r : response.getResults()) {
                                         if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
-                                            restaurantsMarkers.add(
+                                            restaurantsMarkers.put(
                                                 new MarkerOptions()
                                                     .position(
                                                         new LatLng(
@@ -81,7 +81,8 @@ public class MapViewModel extends ViewModel {
                                                         )
                                                     )
                                                     .title(r.getName())
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(greenMarker))
+                                                    .icon(BitmapDescriptorFactory.fromBitmap(greenMarker)),
+                                                r.getPlaceId()
                                             );
                                         }
                                     }
@@ -106,13 +107,14 @@ public class MapViewModel extends ViewModel {
             combine(locationLiveData.getValue(), markerOptions));
     }
 
-    private void combine(@Nullable Location location, @Nullable List<MarkerOptions> markerOptions) {
+
+    private void combine(@Nullable Location location, @Nullable Map<MarkerOptions, String> markerOptions) {
         if (location == null) {
             return;
         }
 
         if (markerOptions == null) {
-            List<MarkerOptions> emptyList = new ArrayList<>();
+            Map<MarkerOptions, String> emptyList = new HashMap<>();
             mapViewStateMediatorLiveData.setValue(
                 new MapViewState(
                     new LatLng(location.getLatitude(), location.getLongitude()),

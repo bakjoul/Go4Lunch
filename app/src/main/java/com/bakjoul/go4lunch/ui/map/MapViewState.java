@@ -5,15 +5,15 @@ import androidx.annotation.NonNull;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class MapViewState {
 
     private final LatLng latLng;
-    private final List<MarkerOptions> restaurantsMarkers;
+    private final Map<MarkerOptions, String> restaurantsMarkers;
 
-    public MapViewState(LatLng latLng, List<MarkerOptions> restaurantsMarkers) {
+    public MapViewState(LatLng latLng, Map<MarkerOptions, String> restaurantsMarkers) {
         this.latLng = latLng;
         this.restaurantsMarkers = restaurantsMarkers;
     }
@@ -22,7 +22,7 @@ public class MapViewState {
         return latLng;
     }
 
-    public List<MarkerOptions> getRestaurantsMarkers() {
+    public Map<MarkerOptions, String> getRestaurantsMarkers() {
         return restaurantsMarkers;
     }
 
