@@ -5,19 +5,15 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.RelativeLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bakjoul.go4lunch.ui.details.DetailsActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -58,13 +54,13 @@ public class MapFragment extends SupportMapFragment {
 
                         if (!viewState.getRestaurantsMarkers().isEmpty()) {
                             for (MarkerOptions m : viewState.getRestaurantsMarkers().keySet()) {
-                                Objects.requireNonNull(googleMap
-                                        .addMarker(m))
+                                googleMap
+                                    .addMarker(m)
                                     .setTag(viewState.getRestaurantsMarkers().get(m));
                             }
 
                             googleMap.setOnMarkerClickListener(marker -> {
-                                Toast.makeText(requireContext(), "Clicked placeId is " + marker.getTag(), Toast.LENGTH_SHORT).show();
+                                DetailsActivity.navigate((String) marker.getTag(), getActivity());
                                 return true;
                             });
                         }

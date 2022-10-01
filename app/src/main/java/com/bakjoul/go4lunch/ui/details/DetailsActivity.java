@@ -2,8 +2,9 @@ package com.bakjoul.go4lunch.ui.details;
 
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -14,6 +15,14 @@ import com.google.android.material.appbar.AppBarLayout;
 public class DetailsActivity extends AppCompatActivity {
 
     private ActivityDetailsBinding binding;
+
+    public static void navigate(String restaurantId, Activity sourceActivity) {
+        Bundle arg = new Bundle();
+        arg.putString("restaurantId", restaurantId);
+        Intent intent = new Intent(sourceActivity, DetailsActivity.class);
+        intent.putExtras(arg);
+        sourceActivity.startActivity(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,7 +48,7 @@ public class DetailsActivity extends AppCompatActivity {
                     animation.setInterpolator(new ReverseInterpolator());
                     animation.start();
                     isFabDown = false;
-                // Expanded
+                    // Expanded
                 } else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange() && !isFabDown) {
                     animation.start();
                     isFabDown = true;
