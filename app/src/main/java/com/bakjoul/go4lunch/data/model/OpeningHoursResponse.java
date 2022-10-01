@@ -5,6 +5,8 @@ import androidx.annotation.NonNull;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.time.Period;
+import java.util.List;
 import java.util.Objects;
 
 public class OpeningHoursResponse {
@@ -12,12 +14,30 @@ public class OpeningHoursResponse {
     @Expose
     private final Boolean openNow;
 
+    @SerializedName("periods")
+    @Expose
+    private final List<Period> periods;
+
+    @SerializedName("weekday_text")
+    @Expose
+    private final List<String> weekdayText;
+
+    public OpeningHoursResponse(Boolean openNow, List<Period> periods, List<String> weekdayText) {
+        this.openNow = openNow;
+        this.periods = periods;
+        this.weekdayText = weekdayText;
+    }
+
     public Boolean getOpenNow() {
         return openNow;
     }
 
-    public OpeningHoursResponse(Boolean openNow) {
-        this.openNow = openNow;
+    public List<Period> getPeriods() {
+        return periods;
+    }
+
+    public List<String> getWeekdayText() {
+        return weekdayText;
     }
 
     @Override
@@ -25,19 +45,21 @@ public class OpeningHoursResponse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OpeningHoursResponse that = (OpeningHoursResponse) o;
-        return Objects.equals(openNow, that.openNow);
+        return Objects.equals(openNow, that.openNow) && Objects.equals(periods, that.periods) && Objects.equals(weekdayText, that.weekdayText);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(openNow);
+        return Objects.hash(openNow, periods, weekdayText);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "OpeningHours{" +
+        return "OpeningHoursResponse{" +
             "openNow=" + openNow +
+            ", periods=" + periods +
+            ", weekdayText=" + weekdayText +
             '}';
     }
 }

@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 
 import com.bakjoul.go4lunch.data.api.RestaurantSearchService;
 import com.bakjoul.go4lunch.data.repository.PermissionRepository;
-import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,6 +23,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @Module
 @InstallIn(SingletonComponent.class)
 public class DataModule {
+
+    private static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/";
 
     @Provides
     @Singleton
@@ -47,7 +48,7 @@ public class DataModule {
     @Singleton
     public Retrofit provideRetrofit() {
         return new Retrofit.Builder()
-            .baseUrl(RestaurantRepository.BASE_URL)
+            .baseUrl(BASE_URL)
             .addConverterFactory(GsonConverterFactory.create())
             .build();
     }

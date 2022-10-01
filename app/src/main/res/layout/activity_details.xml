@@ -92,9 +92,20 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:layout_marginEnd="10dp"
-                            android:lines="2"
+                            android:lines="1"
                             android:textColor="@color/white"
                             tools:text="Address" />
+
+                        <TextView
+                            android:id="@+id/details_restaurant_opening_status"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:layout_marginEnd="10dp"
+                            android:lines="1"
+                            android:textColor="@color/white"
+                            android:textStyle="italic"
+                            tools:text="Open" />
                     </LinearLayout>
 
                     <LinearLayout

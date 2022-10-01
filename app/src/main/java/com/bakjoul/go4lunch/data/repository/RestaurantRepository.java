@@ -24,8 +24,6 @@ public class RestaurantRepository {
     public static final String RANK_BY = "distance";
     public static final String TYPE = "restaurant";
 
-    public static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/";
-
     @NonNull
     private final RestaurantSearchService restaurantSearchService;
 
