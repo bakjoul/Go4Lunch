@@ -13,14 +13,14 @@ import com.bakjoul.go4lunch.databinding.FragmentWorkmatesBinding;
 
 public class WorkmatesFragment extends Fragment {
 
-    public static WorkmatesFragment newInstance() {
-        return new WorkmatesFragment();
-    }
+   public static WorkmatesFragment newInstance() {
+      return new WorkmatesFragment();
+   }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        FragmentWorkmatesBinding binding = FragmentWorkmatesBinding.inflate(inflater, container, false);
-        return binding.getRoot();
-    }
+   @Nullable
+   @Override
+   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+      FragmentWorkmatesBinding binding = FragmentWorkmatesBinding.inflate(inflater, container, false);
+      return binding.getRoot();
+   }
 }

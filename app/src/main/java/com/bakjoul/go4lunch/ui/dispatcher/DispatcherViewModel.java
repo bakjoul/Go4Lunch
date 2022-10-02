@@ -13,20 +13,20 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class DispatcherViewModel extends ViewModel {
 
-    @NonNull
-    private final SingleLiveEvent<DispatcherViewAction> viewActionSingleLiveEvent = new SingleLiveEvent<>();
+   @NonNull
+   private final SingleLiveEvent<DispatcherViewAction> viewActionSingleLiveEvent = new SingleLiveEvent<>();
 
-    @Inject
-    public DispatcherViewModel(@NonNull FirebaseAuth firebaseAuth) {
-        if (firebaseAuth.getCurrentUser() == null) {
-            viewActionSingleLiveEvent.setValue(DispatcherViewAction.GO_TO_CONNECT_SCREEN);
-        } else {
-            viewActionSingleLiveEvent.setValue(DispatcherViewAction.GO_TO_MAIN_SCREEN);
-        }
-    }
+   @Inject
+   public DispatcherViewModel(@NonNull FirebaseAuth firebaseAuth) {
+      if (firebaseAuth.getCurrentUser() == null) {
+         viewActionSingleLiveEvent.setValue(DispatcherViewAction.GO_TO_CONNECT_SCREEN);
+      } else {
+         viewActionSingleLiveEvent.setValue(DispatcherViewAction.GO_TO_MAIN_SCREEN);
+      }
+   }
 
-    @NonNull
-    public SingleLiveEvent<DispatcherViewAction> getViewActionSingleLiveEvent() {
-        return viewActionSingleLiveEvent;
-    }
+   @NonNull
+   public SingleLiveEvent<DispatcherViewAction> getViewActionSingleLiveEvent() {
+      return viewActionSingleLiveEvent;
+   }
 }

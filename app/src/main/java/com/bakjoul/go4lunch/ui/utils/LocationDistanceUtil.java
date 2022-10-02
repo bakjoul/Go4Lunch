@@ -14,18 +14,18 @@ import javax.inject.Inject;
 
 public class LocationDistanceUtil {
 
-    @Inject
-    public LocationDistanceUtil() {
-    }
+   @Inject
+   public LocationDistanceUtil() {
+   }
 
-    public String getDistance(@NonNull Location currentLocation, @NonNull LocationResponse restaurantLocationResponse) {
-        return String.format(
-            Locale.getDefault(),
-            "%.0fm",
-            SphericalUtil.computeDistanceBetween(
-                new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-                new LatLng(restaurantLocationResponse.getLat(), restaurantLocationResponse.getLng())
-            )
-        );
-    }
+   public String getDistance(@NonNull Location currentLocation, @NonNull LocationResponse restaurantLocationResponse) {
+      return String.format(
+          Locale.getDefault(),
+          "%.0fm",
+          SphericalUtil.computeDistanceBetween(
+              new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+              new LatLng(restaurantLocationResponse.getLat(), restaurantLocationResponse.getLng())
+          )
+      );
+   }
 }

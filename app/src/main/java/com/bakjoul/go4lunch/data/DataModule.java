@@ -24,37 +24,37 @@ import retrofit2.converter.gson.GsonConverterFactory;
 @InstallIn(SingletonComponent.class)
 public class DataModule {
 
-    private static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/";
+   private static final String BASE_URL = "https://maps.googleapis.com/maps/api/place/";
 
-    @Provides
-    @Singleton
-    public FirebaseAuth provideFirebaseAuth() {
-        return FirebaseAuth.getInstance();
-    }
+   @Provides
+   @Singleton
+   public FirebaseAuth provideFirebaseAuth() {
+      return FirebaseAuth.getInstance();
+   }
 
-    @Provides
-    @Singleton
-    public FusedLocationProviderClient provideFusedLocationProviderClient(@ApplicationContext Context context) {
-        return LocationServices.getFusedLocationProviderClient(context);
-    }
+   @Provides
+   @Singleton
+   public FusedLocationProviderClient provideFusedLocationProviderClient(@ApplicationContext Context context) {
+      return LocationServices.getFusedLocationProviderClient(context);
+   }
 
-    @Provides
-    @Singleton
-    public PermissionRepository providePermissionRepository(@ApplicationContext Context context) {
-        return new PermissionRepository(context);
-    }
+   @Provides
+   @Singleton
+   public PermissionRepository providePermissionRepository(@ApplicationContext Context context) {
+      return new PermissionRepository(context);
+   }
 
-    @Provides
-    @Singleton
-    public Retrofit provideRetrofit() {
-        return new Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build();
-    }
+   @Provides
+   @Singleton
+   public Retrofit provideRetrofit() {
+      return new Retrofit.Builder()
+          .baseUrl(BASE_URL)
+          .addConverterFactory(GsonConverterFactory.create())
+          .build();
+   }
 
-    @Provides
-    public RestaurantApi provideRestaurantApi(@NonNull Retrofit retrofit) {
-        return retrofit.create(RestaurantApi.class);
-    }
+   @Provides
+   public RestaurantApi provideRestaurantApi(@NonNull Retrofit retrofit) {
+      return retrofit.create(RestaurantApi.class);
+   }
 }

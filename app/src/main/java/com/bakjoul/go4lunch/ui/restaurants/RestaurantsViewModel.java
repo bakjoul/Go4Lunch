@@ -35,132 +35,132 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class RestaurantsViewModel extends ViewModel {
 
-    private static final String BUSINESS_STATUS_OPERATIONAL = "OPERATIONAL";
+   private static final String BUSINESS_STATUS_OPERATIONAL = "OPERATIONAL";
 
-    @NonNull
-    private final Application application;
+   @NonNull
+   private final Application application;
 
-    @NonNull
-    private final LocationDistanceUtil locationDistanceUtils;
+   @NonNull
+   private final LocationDistanceUtil locationDistanceUtils;
 
-    @NonNull
-    private final RestaurantImageMapper restaurantImageMapper;
+   @NonNull
+   private final RestaurantImageMapper restaurantImageMapper;
 
-    private final LiveData<RestaurantsViewState> restaurantsViewState;
+   private final LiveData<RestaurantsViewState> restaurantsViewState;
 
-    @Inject
-    public RestaurantsViewModel(
-        @NonNull Application application,
-        @NonNull RestaurantRepository restaurantRepository,
-        @NonNull LocationRepository locationRepository,
-        @NonNull LocationDistanceUtil locationDistanceUtils,
-        @NonNull RestaurantImageMapper restaurantImageMapper
-    ) {
-        this.application = application;
-        this.locationDistanceUtils = locationDistanceUtils;
-        this.restaurantImageMapper = restaurantImageMapper;
+   @Inject
+   public RestaurantsViewModel(
+       @NonNull Application application,
+       @NonNull RestaurantRepository restaurantRepository,
+       @NonNull LocationRepository locationRepository,
+       @NonNull LocationDistanceUtil locationDistanceUtils,
+       @NonNull RestaurantImageMapper restaurantImageMapper
+   ) {
+      this.application = application;
+      this.locationDistanceUtils = locationDistanceUtils;
+      this.restaurantImageMapper = restaurantImageMapper;
 
-        restaurantsViewState = Transformations.switchMap(
-            locationRepository.getCurrentLocation(), location -> {
-                if (location != null) {
-                    LiveData<NearbySearchResponse> nearbySearchResponseLiveData = restaurantRepository.getNearbySearchResponse(
-                        RestaurantsViewModel.this.getLocation(location),
-                        RANK_BY,
-                        TYPE,
-                        BuildConfig.MAPS_API_KEY
-                    );
-                    return Transformations.map(
-                        nearbySearchResponseLiveData,
-                        response -> {
-                            List<RestaurantsItemViewState> restaurantsItemViewStateList;
-                            if (response != null) {
-                                restaurantsItemViewStateList = RestaurantsViewModel.this.mapData(response, location);
-                            } else {
-                                restaurantsItemViewStateList = new ArrayList<>();
-                            }
-                            return new RestaurantsViewState(restaurantsItemViewStateList, restaurantsItemViewStateList.isEmpty());
-                        }
-                    );
-                } else {
-                    return new MutableLiveData<>(new RestaurantsViewState(new ArrayList<>(), true));
-                }
-            }
-        );
-    }
-
-    @NonNull
-    private List<RestaurantsItemViewState> mapData(
-        @NonNull NearbySearchResponse response,
-        Location location
-    ) {
-        List<RestaurantsItemViewState> restaurantsItemViewStateList = new ArrayList<>();
-
-        for (RestaurantResponse r : response.getResults()) {
-            if (BUSINESS_STATUS_OPERATIONAL.equals(r.getBusinessStatus())) {
-                restaurantsItemViewStateList.add(
-                    new RestaurantsItemViewState(
-                        r.getPlaceId(),
-                        r.getName(),
-                        r.getVicinity(),
-                        isOpen(r.getOpeningHours()),
-                        getDistance(location, r.getGeometry().getLocation()),
-                        "",
-                        convertRating(r.getRating()),
-                        isRatingBarVisible(r.getUserRatingsTotal()),
-                        getPhotoUrl(r.getPhotos())
-                    )
+      restaurantsViewState = Transformations.switchMap(
+          locationRepository.getCurrentLocation(), location -> {
+             if (location != null) {
+                LiveData<NearbySearchResponse> nearbySearchResponseLiveData = restaurantRepository.getNearbySearchResponse(
+                    RestaurantsViewModel.this.getLocation(location),
+                    RANK_BY,
+                    TYPE,
+                    BuildConfig.MAPS_API_KEY
                 );
-            }
-        }
+                return Transformations.map(
+                    nearbySearchResponseLiveData,
+                    response -> {
+                       List<RestaurantsItemViewState> restaurantsItemViewStateList;
+                       if (response != null) {
+                          restaurantsItemViewStateList = RestaurantsViewModel.this.mapData(response, location);
+                       } else {
+                          restaurantsItemViewStateList = new ArrayList<>();
+                       }
+                       return new RestaurantsViewState(restaurantsItemViewStateList, restaurantsItemViewStateList.isEmpty());
+                    }
+                );
+             } else {
+                return new MutableLiveData<>(new RestaurantsViewState(new ArrayList<>(), true));
+             }
+          }
+      );
+   }
 
-        return restaurantsItemViewStateList;
-    }
+   @NonNull
+   private List<RestaurantsItemViewState> mapData(
+       @NonNull NearbySearchResponse response,
+       Location location
+   ) {
+      List<RestaurantsItemViewState> restaurantsItemViewStateList = new ArrayList<>();
 
-    @NonNull
-    private String getLocation(@NonNull Location location) {
-        return location.getLatitude() + "," + location.getLongitude();
-    }
+      for (RestaurantResponse r : response.getResults()) {
+         if (BUSINESS_STATUS_OPERATIONAL.equals(r.getBusinessStatus())) {
+            restaurantsItemViewStateList.add(
+                new RestaurantsItemViewState(
+                    r.getPlaceId(),
+                    r.getName(),
+                    r.getVicinity(),
+                    isOpen(r.getOpeningHours()),
+                    getDistance(location, r.getGeometry().getLocation()),
+                    "",
+                    getRating(r.getRating()),
+                    isRatingBarVisible(r.getUserRatingsTotal()),
+                    getPhotoUrl(r.getPhotos())
+                )
+            );
+         }
+      }
 
-    @NonNull
-    private String isOpen(OpeningHoursResponse openingHoursResponse) {
-        String isOpen;
-        if (openingHoursResponse != null) {
-            if (openingHoursResponse.getOpenNow()) {
-                isOpen = application.getString(R.string.restaurant_item_is_open);
-            } else {
-                isOpen = application.getString(R.string.restaurant_item_is_closed);
-            }
-        } else {
-            isOpen = application.getString(R.string.restaurant_item_info_not_available);
-        }
-        return isOpen;
-    }
+      return restaurantsItemViewStateList;
+   }
 
-    @NonNull
-    private String getDistance(@NonNull Location currentLocation, @NonNull LocationResponse restaurantLocationResponse) {
-        return locationDistanceUtils.getDistance(currentLocation, restaurantLocationResponse);
-    }
+   @NonNull
+   private String getLocation(@NonNull Location location) {
+      return location.getLatitude() + "," + location.getLongitude();
+   }
 
-    private float convertRating(double restaurantRating) {
-        return (float) Math.round(((restaurantRating * 3 / 5) / 0.5) * 0.5);
-    }
+   @NonNull
+   private String isOpen(OpeningHoursResponse response) {
+      String isOpen;
+      if (response != null) {
+         if (response.getOpenNow()) {
+            isOpen = application.getString(R.string.restaurant_item_is_open);
+         } else {
+            isOpen = application.getString(R.string.restaurant_item_is_closed);
+         }
+      } else {
+         isOpen = application.getString(R.string.restaurant_item_info_not_available);
+      }
+      return isOpen;
+   }
 
-    private boolean isRatingBarVisible(int userRatingsTotal) {
-        return userRatingsTotal > 0;
-    }
+   @NonNull
+   private String getDistance(@NonNull Location currentLocation, @NonNull LocationResponse restaurantLocationResponse) {
+      return locationDistanceUtils.getDistance(currentLocation, restaurantLocationResponse);
+   }
 
-    @Nullable
-    private String getPhotoUrl(List<PhotoResponse> photoResponses) {
-        if (photoResponses != null) {
-            String photoRef = photoResponses.get(0).getPhotoReference();
-            if (photoRef != null) {
-                return restaurantImageMapper.getImageUrl(photoRef);
-            }
-        }
-        return null;
-    }
+   private float getRating(double restaurantRating) {
+      return (float) Math.round(((restaurantRating * 3 / 5) / 0.5) * 0.5);
+   }
 
-    public LiveData<RestaurantsViewState> getRestaurantsViewState() {
-        return restaurantsViewState;
-    }
+   private boolean isRatingBarVisible(int userRatingsTotal) {
+      return userRatingsTotal > 0;
+   }
+
+   @Nullable
+   private String getPhotoUrl(List<PhotoResponse> photoResponses) {
+      if (photoResponses != null) {
+         String photoRef = photoResponses.get(0).getPhotoReference();
+         if (photoRef != null) {
+            return restaurantImageMapper.getImageUrl(photoRef, false);
+         }
+      }
+      return null;
+   }
+
+   public LiveData<RestaurantsViewState> getRestaurantsViewState() {
+      return restaurantsViewState;
+   }
 }

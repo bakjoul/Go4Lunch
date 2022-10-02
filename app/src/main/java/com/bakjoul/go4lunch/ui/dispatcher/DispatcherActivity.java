@@ -14,23 +14,23 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class DispatcherActivity extends AppCompatActivity {
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+   @Override
+   protected void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
 
-        DispatcherViewModel viewModel = new ViewModelProvider(this).get(DispatcherViewModel.class);
+      DispatcherViewModel viewModel = new ViewModelProvider(this).get(DispatcherViewModel.class);
 
-        viewModel.getViewActionSingleLiveEvent().observe(this, dispatcherViewAction -> {
-            switch (dispatcherViewAction) {
-                case GO_TO_CONNECT_SCREEN:
-                    startActivity(new Intent(DispatcherActivity.this, LoginActivity.class));
-                    finish();
-                    break;
-                case GO_TO_MAIN_SCREEN:
-                    startActivity(new Intent(DispatcherActivity.this, MainActivity.class));
-                    finish();
-                    break;
-            }
-        });
-    }
+      viewModel.getViewActionSingleLiveEvent().observe(this, dispatcherViewAction -> {
+         switch (dispatcherViewAction) {
+            case GO_TO_CONNECT_SCREEN:
+               startActivity(new Intent(DispatcherActivity.this, LoginActivity.class));
+               finish();
+               break;
+            case GO_TO_MAIN_SCREEN:
+               startActivity(new Intent(DispatcherActivity.this, MainActivity.class));
+               finish();
+               break;
+         }
+      });
+   }
 }

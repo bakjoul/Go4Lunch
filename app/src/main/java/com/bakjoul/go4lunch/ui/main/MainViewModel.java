@@ -30,156 +30,156 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 @HiltViewModel
 public class MainViewModel extends ViewModel {
 
-    private static final String TAG = "MainViewModel";
+   private static final String TAG = "MainViewModel";
 
-    @SuppressLint("StaticFieldLeak")
-    @NonNull
-    private final Context context;
+   @SuppressLint("StaticFieldLeak")
+   @NonNull
+   private final Context context;
 
-    @NonNull
-    private final FirebaseAuth firebaseAuth;
+   @NonNull
+   private final FirebaseAuth firebaseAuth;
 
-    @NonNull
-    private final LocationRepository locationRepository;
+   @NonNull
+   private final LocationRepository locationRepository;
 
-    @NonNull
-    private final PermissionRepository permissionRepository;
+   @NonNull
+   private final PermissionRepository permissionRepository;
 
-    private final MutableLiveData<MainViewState> mainActivityViewStateLiveData = new MutableLiveData<>();
+   private final MutableLiveData<MainViewState> mainActivityViewStateLiveData = new MutableLiveData<>();
 
-    private final MutableLiveData<BottomNavigationViewButton> bottomNavigationViewButtonMutableLiveData = new MutableLiveData<>(
-        BottomNavigationViewButton.MAP
-    );
+   private final MutableLiveData<BottomNavigationViewButton> bottomNavigationViewButtonMutableLiveData = new MutableLiveData<>(
+       BottomNavigationViewButton.MAP
+   );
 
-    private final SingleLiveEvent<FragmentToDisplay> fragmentToDisplaySingleLiveEvent = new SingleLiveEvent<>();
+   private final SingleLiveEvent<FragmentToDisplay> fragmentToDisplaySingleLiveEvent = new SingleLiveEvent<>();
 
-    @Inject
-    public MainViewModel(
-        @ApplicationContext @NonNull Context context,
-        @NonNull FirebaseAuth firebaseAuth,
-        @NonNull LocationRepository locationRepository,
-        @NonNull PermissionRepository permissionRepository
-    ) {
-        this.context = context;
-        this.firebaseAuth = firebaseAuth;
-        this.locationRepository = locationRepository;
-        this.permissionRepository = permissionRepository;
+   @Inject
+   public MainViewModel(
+       @ApplicationContext @NonNull Context context,
+       @NonNull FirebaseAuth firebaseAuth,
+       @NonNull LocationRepository locationRepository,
+       @NonNull PermissionRepository permissionRepository
+   ) {
+      this.context = context;
+      this.firebaseAuth = firebaseAuth;
+      this.locationRepository = locationRepository;
+      this.permissionRepository = permissionRepository;
 
-        if (firebaseAuth.getCurrentUser() != null) {
-            mainActivityViewStateLiveData.setValue(
-                new MainViewState(
-                    firebaseAuth.getCurrentUser().getPhotoUrl(),
-                    firebaseAuth.getCurrentUser().getDisplayName(),
-                    firebaseAuth.getCurrentUser().getEmail()
-                )
-            );
-        }
+      if (firebaseAuth.getCurrentUser() != null) {
+         mainActivityViewStateLiveData.setValue(
+             new MainViewState(
+                 firebaseAuth.getCurrentUser().getPhotoUrl(),
+                 firebaseAuth.getCurrentUser().getDisplayName(),
+                 firebaseAuth.getCurrentUser().getEmail()
+             )
+         );
+      }
 
-        LiveData<Boolean> isLocationPermissionEnabledLiveData = permissionRepository.getLocationPermissionLiveData();
+      LiveData<Boolean> isLocationPermissionEnabledLiveData = permissionRepository.getLocationPermissionLiveData();
 
-        fragmentToDisplaySingleLiveEvent.addSource(bottomNavigationViewButtonMutableLiveData, bottomNavigationViewButton ->
-            combine(bottomNavigationViewButton, isLocationPermissionEnabledLiveData.getValue()));
+      fragmentToDisplaySingleLiveEvent.addSource(bottomNavigationViewButtonMutableLiveData, bottomNavigationViewButton ->
+          combine(bottomNavigationViewButton, isLocationPermissionEnabledLiveData.getValue()));
 
-        fragmentToDisplaySingleLiveEvent.addSource(isLocationPermissionEnabledLiveData, isLocationPermissionEnabled -> {
-            Log.d("Nino", "onChanged() called with: isLocationPermissionEnabled = [" + isLocationPermissionEnabled + "]");
-            combine(bottomNavigationViewButtonMutableLiveData.getValue(), isLocationPermissionEnabled);
-        });
-    }
+      fragmentToDisplaySingleLiveEvent.addSource(isLocationPermissionEnabledLiveData, isLocationPermissionEnabled -> {
+         Log.d("Nino", "onChanged() called with: isLocationPermissionEnabled = [" + isLocationPermissionEnabled + "]");
+         combine(bottomNavigationViewButtonMutableLiveData.getValue(), isLocationPermissionEnabled);
+      });
+   }
 
-    private void combine(@Nullable BottomNavigationViewButton bottomNavigationViewButton, @Nullable Boolean isLocationPermissionEnabled) {
-        if (bottomNavigationViewButton == null || isLocationPermissionEnabled == null) {
-            return;
-        }
+   private void combine(@Nullable BottomNavigationViewButton bottomNavigationViewButton, @Nullable Boolean isLocationPermissionEnabled) {
+      if (bottomNavigationViewButton == null || isLocationPermissionEnabled == null) {
+         return;
+      }
 
-        switch (bottomNavigationViewButton) {
-            case MAP:
-                if (isLocationPermissionEnabled) {
-                    fragmentToDisplaySingleLiveEvent.setValue(FragmentToDisplay.MAP);
-                } else {
-                    fragmentToDisplaySingleLiveEvent.setValue(FragmentToDisplay.NO_PERMISSION);
-                }
-                break;
-            case RESTAURANTS:
-                fragmentToDisplaySingleLiveEvent.setValue(FragmentToDisplay.RESTAURANT);
-                break;
-            case WORKMATES:
-                fragmentToDisplaySingleLiveEvent.setValue(FragmentToDisplay.WORKMATES);
-                break;
-        }
-    }
-
-    public LiveData<MainViewState> getMainActivityViewStateLiveData() {
-        return mainActivityViewStateLiveData;
-    }
-
-    public SingleLiveEvent<FragmentToDisplay> getFragmentToDisplaySingleLiveEvent() {
-        return fragmentToDisplaySingleLiveEvent;
-    }
-
-    public void logOut() {
-        firebaseAuth.signOut();
-
-        // Handles Facebook log out
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        boolean isLoggedInOnFacebook = accessToken != null && !accessToken.isExpired();
-        if (isLoggedInOnFacebook) {
-            LoginManager.getInstance().logOut();
-            Log.d(TAG, "logOut: logged out of facebook");
-        }
-    }
-
-    public void onResume() {
-        if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationRepository.startLocationUpdates();
-            permissionRepository.setLocationPermission(true);
-        } else {
-            locationRepository.stopLocationUpdates();
-            permissionRepository.setLocationPermission(false);
-        }
-    }
-
-    public void onBottomNavigationClicked(BottomNavigationViewButton button) {
-        bottomNavigationViewButtonMutableLiveData.setValue(button);
-    }
-
-    public enum BottomNavigationViewButton {
-        MAP(R.id.main_bottomNavigationView_menuItem_mapView),
-        RESTAURANTS(R.id.main_bottomNavigationView_menuItem_listView),
-        WORKMATES(R.id.main_bottomNavigationView_menuItem_workmates);
-
-        @IdRes
-        private final int menuId;
-
-        BottomNavigationViewButton(@IdRes int menuId) {
-            this.menuId = menuId;
-        }
-
-        @NonNull
-        public static BottomNavigationViewButton fromMenuId(@IdRes int menuId) {
-            for (BottomNavigationViewButton value : BottomNavigationViewButton.values()) {
-                if (value.menuId == menuId) {
-                    return value;
-                }
+      switch (bottomNavigationViewButton) {
+         case MAP:
+            if (isLocationPermissionEnabled) {
+               fragmentToDisplaySingleLiveEvent.setValue(FragmentToDisplay.MAP);
+            } else {
+               fragmentToDisplaySingleLiveEvent.setValue(FragmentToDisplay.NO_PERMISSION);
             }
+            break;
+         case RESTAURANTS:
+            fragmentToDisplaySingleLiveEvent.setValue(FragmentToDisplay.RESTAURANT);
+            break;
+         case WORKMATES:
+            fragmentToDisplaySingleLiveEvent.setValue(FragmentToDisplay.WORKMATES);
+            break;
+      }
+   }
 
-            throw new IllegalStateException("Unknown menuId: " + menuId);
-        }
-    }
+   public LiveData<MainViewState> getMainActivityViewStateLiveData() {
+      return mainActivityViewStateLiveData;
+   }
 
-    public enum FragmentToDisplay {
-        MAP(R.id.main_bottomNavigationView_menuItem_mapView),
-        RESTAURANT(R.id.main_bottomNavigationView_menuItem_listView),
-        WORKMATES(R.id.main_bottomNavigationView_menuItem_workmates),
-        NO_PERMISSION(R.id.main_bottomNavigationView_menuItem_mapView);
+   public SingleLiveEvent<FragmentToDisplay> getFragmentToDisplaySingleLiveEvent() {
+      return fragmentToDisplaySingleLiveEvent;
+   }
 
-        private final int menuItemId;
+   public void logOut() {
+      firebaseAuth.signOut();
 
-        FragmentToDisplay(int menuItemId) {
-            this.menuItemId = menuItemId;
-        }
+      // Handles Facebook log out
+      AccessToken accessToken = AccessToken.getCurrentAccessToken();
+      boolean isLoggedInOnFacebook = accessToken != null && !accessToken.isExpired();
+      if (isLoggedInOnFacebook) {
+         LoginManager.getInstance().logOut();
+         Log.d(TAG, "logOut: logged out of facebook");
+      }
+   }
 
-        public int getMenuItemId() {
-            return menuItemId;
-        }
-    }
+   public void onResume() {
+      if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+         locationRepository.startLocationUpdates();
+         permissionRepository.setLocationPermission(true);
+      } else {
+         locationRepository.stopLocationUpdates();
+         permissionRepository.setLocationPermission(false);
+      }
+   }
+
+   public void onBottomNavigationClicked(BottomNavigationViewButton button) {
+      bottomNavigationViewButtonMutableLiveData.setValue(button);
+   }
+
+   public enum BottomNavigationViewButton {
+      MAP(R.id.main_bottomNavigationView_menuItem_mapView),
+      RESTAURANTS(R.id.main_bottomNavigationView_menuItem_listView),
+      WORKMATES(R.id.main_bottomNavigationView_menuItem_workmates);
+
+      @IdRes
+      private final int menuId;
+
+      BottomNavigationViewButton(@IdRes int menuId) {
+         this.menuId = menuId;
+      }
+
+      @NonNull
+      public static BottomNavigationViewButton fromMenuId(@IdRes int menuId) {
+         for (BottomNavigationViewButton value : BottomNavigationViewButton.values()) {
+            if (value.menuId == menuId) {
+               return value;
+            }
+         }
+
+         throw new IllegalStateException("Unknown menuId: " + menuId);
+      }
+   }
+
+   public enum FragmentToDisplay {
+      MAP(R.id.main_bottomNavigationView_menuItem_mapView),
+      RESTAURANT(R.id.main_bottomNavigationView_menuItem_listView),
+      WORKMATES(R.id.main_bottomNavigationView_menuItem_workmates),
+      NO_PERMISSION(R.id.main_bottomNavigationView_menuItem_mapView);
+
+      private final int menuItemId;
+
+      FragmentToDisplay(int menuItemId) {
+         this.menuItemId = menuItemId;
+      }
+
+      public int getMenuItemId() {
+         return menuItemId;
+      }
+   }
 }

@@ -40,194 +40,194 @@ import java.util.List;
 
 public class RestaurantsViewModelTest {
 
-    // region Constants
-    private static final LatLng DEFAULT_LOCATION = new LatLng(48.841577, 2.253059);
-    private static final LatLng FAKE_LOCATION = new LatLng(43.21, 12.34);
+   // region Constants
+   private static final LatLng DEFAULT_LOCATION = new LatLng(48.841577, 2.253059);
+   private static final LatLng FAKE_LOCATION = new LatLng(43.21, 12.34);
 
-    private static final String OPEN = "Ouvert";
-    private static final String CLOSED = "Fermé";
-    private static final String NOT_AVAILABLE = "Information non disponible";
+   private static final String OPEN = "Ouvert";
+   private static final String CLOSED = "Fermé";
+   private static final String NOT_AVAILABLE = "Information non disponible";
 
-    private static final RestaurantResponse RESTAURANT_RESPONSE_1 = new RestaurantResponse(
-        "1",
-        "RESTAURANT_1_NAME",
-        "RESTAURANT_1_ADDRESS",
-        new OpeningHoursResponse(true, null, null),
-        new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
-        5.0,
-        new ArrayList<>(Collections.singletonList(new PhotoResponse("fakePhotoReference"))),
-        "OPERATIONAL",
-        75);
-    private static final RestaurantResponse RESTAURANT_RESPONSE_2 = new RestaurantResponse(
-        "2",
-        "RESTAURANT_2_NAME",
-        "RESTAURANT_2_ADDRESS",
-        new OpeningHoursResponse(false, null, null),
-        new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
-        4.4,
-        new ArrayList<>(Collections.singletonList(new PhotoResponse(null))),
-        "OPERATIONAL",
-        75);
-    private static final RestaurantResponse RESTAURANT_RESPONSE_3 = new RestaurantResponse(
-        "3",
-        "RESTAURANT_3_NAME",
-        "RESTAURANT_3_ADDRESS",
-        null,
-        new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
-        0.0,
-        null,
-        "OPERATIONAL",
-        0);
-    private static final RestaurantResponse RESTAURANT_RESPONSE_4 = new RestaurantResponse(
-        "4",
-        "RESTAURANT_4_NAME",
-        "RESTAURANT_4_ADDRESS",
-        null,
-        new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
-        1.2,
-        null,
-        "CLOSED_TEMPORARILY",
-        75);
-    // endregion Constants
+   private static final RestaurantResponse RESTAURANT_RESPONSE_1 = new RestaurantResponse(
+       "1",
+       "RESTAURANT_1_NAME",
+       "RESTAURANT_1_ADDRESS",
+       new OpeningHoursResponse(true, null, null),
+       new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
+       5.0,
+       new ArrayList<>(Collections.singletonList(new PhotoResponse("fakePhotoReference"))),
+       "OPERATIONAL",
+       75);
+   private static final RestaurantResponse RESTAURANT_RESPONSE_2 = new RestaurantResponse(
+       "2",
+       "RESTAURANT_2_NAME",
+       "RESTAURANT_2_ADDRESS",
+       new OpeningHoursResponse(false, null, null),
+       new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
+       4.4,
+       new ArrayList<>(Collections.singletonList(new PhotoResponse(null))),
+       "OPERATIONAL",
+       75);
+   private static final RestaurantResponse RESTAURANT_RESPONSE_3 = new RestaurantResponse(
+       "3",
+       "RESTAURANT_3_NAME",
+       "RESTAURANT_3_ADDRESS",
+       null,
+       new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
+       0.0,
+       null,
+       "OPERATIONAL",
+       0);
+   private static final RestaurantResponse RESTAURANT_RESPONSE_4 = new RestaurantResponse(
+       "4",
+       "RESTAURANT_4_NAME",
+       "RESTAURANT_4_ADDRESS",
+       null,
+       new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
+       1.2,
+       null,
+       "CLOSED_TEMPORARILY",
+       75);
+   // endregion Constants
 
-    @Rule
-    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+   @Rule
+   public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-    private final Application application = Mockito.mock(Application.class);
-    private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
-    private final LocationRepository locationRepository = Mockito.mock(LocationRepository.class);
-    private final LocationDistanceUtil locationDistanceUtils = Mockito.mock(LocationDistanceUtil.class);
-    private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
+   private final Application application = Mockito.mock(Application.class);
+   private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
+   private final LocationRepository locationRepository = Mockito.mock(LocationRepository.class);
+   private final LocationDistanceUtil locationDistanceUtils = Mockito.mock(LocationDistanceUtil.class);
+   private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
 
-    private final Location location = Mockito.mock(Location.class);
+   private final Location location = Mockito.mock(Location.class);
 
-    private final MutableLiveData<NearbySearchResponse> nearbySearchResponseLiveData = new MutableLiveData<>();
-    private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
+   private final MutableLiveData<NearbySearchResponse> nearbySearchResponseLiveData = new MutableLiveData<>();
+   private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
-    private RestaurantsViewModel viewModel;
+   private RestaurantsViewModel viewModel;
 
-    @Before
-    public void setUp() {
-        given(application.getString(R.string.restaurant_item_is_open)).willReturn(OPEN);
-        given(application.getString(R.string.restaurant_item_is_closed)).willReturn(CLOSED);
-        given(application.getString(R.string.restaurant_item_info_not_available)).willReturn(NOT_AVAILABLE);
+   @Before
+   public void setUp() {
+      given(application.getString(R.string.restaurant_item_is_open)).willReturn(OPEN);
+      given(application.getString(R.string.restaurant_item_is_closed)).willReturn(CLOSED);
+      given(application.getString(R.string.restaurant_item_info_not_available)).willReturn(NOT_AVAILABLE);
 
-        doReturn(nearbySearchResponseLiveData).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
-        doReturn(locationLiveData).when(locationRepository).getCurrentLocation();
-        doReturn("50m").when(locationDistanceUtils).getDistance(location, new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude));
-        doReturn("ImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference");
+      doReturn(nearbySearchResponseLiveData).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+      doReturn(locationLiveData).when(locationRepository).getCurrentLocation();
+      doReturn("50m").when(locationDistanceUtils).getDistance(location, new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude));
+      doReturn("ImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", false);
 
-        doReturn(FAKE_LOCATION.latitude).when(location).getLatitude();
-        doReturn(FAKE_LOCATION.longitude).when(location).getLongitude();
+      doReturn(FAKE_LOCATION.latitude).when(location).getLatitude();
+      doReturn(FAKE_LOCATION.longitude).when(location).getLongitude();
 
-        locationLiveData.setValue(location);
+      locationLiveData.setValue(location);
 
-        viewModel = new RestaurantsViewModel(application, restaurantRepository, locationRepository, locationDistanceUtils, restaurantImageMapper);
+      viewModel = new RestaurantsViewModel(application, restaurantRepository, locationRepository, locationDistanceUtils, restaurantImageMapper);
 
-        verify(locationRepository).getCurrentLocation();
-    }
+      verify(locationRepository).getCurrentLocation();
+   }
 
-    @Test
-    public void nominal_case() {
-        // Given
-        nearbySearchResponseLiveData.setValue(getDefaultNearbySearchResponse());
+   @Test
+   public void nominal_case() {
+      // Given
+      nearbySearchResponseLiveData.setValue(getDefaultNearbySearchResponse());
 
-        // When
-        RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
+      // When
+      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
 
-        // Then
-        assertEquals(getDefaultRestaurantViewState(), result);
-    }
+      // Then
+      assertEquals(getDefaultRestaurantViewState(), result);
+   }
 
-    @Test
-    public void nearbysearchresponse_is_null_should_expose_empty_viewstate() {
-        // Given
-        nearbySearchResponseLiveData.setValue(null);
+   @Test
+   public void nearbysearchresponse_is_null_should_expose_empty_viewstate() {
+      // Given
+      nearbySearchResponseLiveData.setValue(null);
 
-        // When
-        RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
+      // When
+      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
 
-        // Then
-        assertEquals(getEmptyRestaurantViewState(), result);
-    }
+      // Then
+      assertEquals(getEmptyRestaurantViewState(), result);
+   }
 
-    @Test
-    public void location_is_null_should_expose_empty_viewState() {
-        // Given
-        locationLiveData.setValue(null);
+   @Test
+   public void location_is_null_should_expose_empty_viewState() {
+      // Given
+      locationLiveData.setValue(null);
 
-        // When
-        RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
+      // When
+      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
 
-        // Then
-        assertEquals(getEmptyRestaurantViewState(), result);
-    }
+      // Then
+      assertEquals(getEmptyRestaurantViewState(), result);
+   }
 
 
-    // region IN
-    @NonNull
-    private NearbySearchResponse getDefaultNearbySearchResponse() {
-        return new NearbySearchResponse(
-            new ArrayList<>(Arrays.asList(RESTAURANT_RESPONSE_1, RESTAURANT_RESPONSE_2, RESTAURANT_RESPONSE_3, RESTAURANT_RESPONSE_4)),
-            "OK"
-        );
-    }
+   // region IN
+   @NonNull
+   private NearbySearchResponse getDefaultNearbySearchResponse() {
+      return new NearbySearchResponse(
+          new ArrayList<>(Arrays.asList(RESTAURANT_RESPONSE_1, RESTAURANT_RESPONSE_2, RESTAURANT_RESPONSE_3, RESTAURANT_RESPONSE_4)),
+          "OK"
+      );
+   }
 
-    @NonNull
-    private String getLatLngToString(@NonNull LatLng latLng) {
-        return latLng.latitude + "," + latLng.longitude;
-    }
-    // endregion IN
+   @NonNull
+   private String getLatLngToString(@NonNull LatLng latLng) {
+      return latLng.latitude + "," + latLng.longitude;
+   }
+   // endregion IN
 
-    // region OUT
-    @NonNull
-    private RestaurantsViewState getDefaultRestaurantViewState() {
-        List<RestaurantsItemViewState> restaurantsItemViewStateList = new ArrayList<>();
-        restaurantsItemViewStateList.add(
-            new RestaurantsItemViewState(
-                RESTAURANT_RESPONSE_1.getPlaceId(),
-                RESTAURANT_RESPONSE_1.getName(),
-                RESTAURANT_RESPONSE_1.getVicinity(),
-                OPEN,
-                "50m",
-                "",
-                3,
-                true,
-                "ImageUrl"
-            )
-        );
-        restaurantsItemViewStateList.add(
-            new RestaurantsItemViewState(
-                RESTAURANT_RESPONSE_2.getPlaceId(),
-                RESTAURANT_RESPONSE_2.getName(),
-                RESTAURANT_RESPONSE_2.getVicinity(),
-                CLOSED,
-                locationDistanceUtils.getDistance(location, RESTAURANT_RESPONSE_2.getGeometry().getLocation()),
-                "",
-                3,
-                true,
-                null
-            )
-        );
-        restaurantsItemViewStateList.add(
-            new RestaurantsItemViewState(
-                RESTAURANT_RESPONSE_3.getPlaceId(),
-                RESTAURANT_RESPONSE_3.getName(),
-                RESTAURANT_RESPONSE_3.getVicinity(),
-                NOT_AVAILABLE,
-                locationDistanceUtils.getDistance(location, RESTAURANT_RESPONSE_3.getGeometry().getLocation()),
-                "",
-                0,
-                false,
-                null
-            )
-        );
-        return new RestaurantsViewState(restaurantsItemViewStateList, false);
-    }
+   // region OUT
+   @NonNull
+   private RestaurantsViewState getDefaultRestaurantViewState() {
+      List<RestaurantsItemViewState> restaurantsItemViewStateList = new ArrayList<>();
+      restaurantsItemViewStateList.add(
+          new RestaurantsItemViewState(
+              RESTAURANT_RESPONSE_1.getPlaceId(),
+              RESTAURANT_RESPONSE_1.getName(),
+              RESTAURANT_RESPONSE_1.getVicinity(),
+              OPEN,
+              "50m",
+              "",
+              3,
+              true,
+              "ImageUrl"
+          )
+      );
+      restaurantsItemViewStateList.add(
+          new RestaurantsItemViewState(
+              RESTAURANT_RESPONSE_2.getPlaceId(),
+              RESTAURANT_RESPONSE_2.getName(),
+              RESTAURANT_RESPONSE_2.getVicinity(),
+              CLOSED,
+              locationDistanceUtils.getDistance(location, RESTAURANT_RESPONSE_2.getGeometry().getLocation()),
+              "",
+              3,
+              true,
+              null
+          )
+      );
+      restaurantsItemViewStateList.add(
+          new RestaurantsItemViewState(
+              RESTAURANT_RESPONSE_3.getPlaceId(),
+              RESTAURANT_RESPONSE_3.getName(),
+              RESTAURANT_RESPONSE_3.getVicinity(),
+              NOT_AVAILABLE,
+              locationDistanceUtils.getDistance(location, RESTAURANT_RESPONSE_3.getGeometry().getLocation()),
+              "",
+              0,
+              false,
+              null
+          )
+      );
+      return new RestaurantsViewState(restaurantsItemViewStateList, false);
+   }
 
-    @NonNull
-    private RestaurantsViewState getEmptyRestaurantViewState() {
-        return new RestaurantsViewState(new ArrayList<>(), true);
-    }
-    // endregion OUT
+   @NonNull
+   private RestaurantsViewState getEmptyRestaurantViewState() {
+      return new RestaurantsViewState(new ArrayList<>(), true);
+   }
+   // endregion OUT
 }

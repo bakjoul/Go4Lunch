@@ -37,106 +37,106 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class MapViewModel extends ViewModel {
 
-    private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
+   private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
-    private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
+   private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
 
-    @Inject
-    public MapViewModel(
-        @NonNull LocationRepository locationRepository,
-        @NonNull RestaurantRepository restaurantRepository,
-        @NonNull Application application,
-        @NonNull SvgToBitmap svgToBitmap) {
+   @Inject
+   public MapViewModel(
+       @NonNull LocationRepository locationRepository,
+       @NonNull RestaurantRepository restaurantRepository,
+       @NonNull Application application,
+       @NonNull SvgToBitmap svgToBitmap) {
 
-        LiveData<Map<MarkerOptions, String>> restaurantsMarkersLiveData = Transformations.switchMap(
-            locationRepository.getCurrentLocation(), new Function<Location, LiveData<Map<MarkerOptions, String>>>() {
-                LiveData<NearbySearchResponse> nearbySearchResponseLiveData;
-                LiveData<Map<MarkerOptions, String>> markersLiveData;
+      LiveData<Map<MarkerOptions, String>> restaurantsMarkersLiveData = Transformations.switchMap(
+          locationRepository.getCurrentLocation(), new Function<Location, LiveData<Map<MarkerOptions, String>>>() {
+             LiveData<NearbySearchResponse> nearbySearchResponseLiveData;
+             LiveData<Map<MarkerOptions, String>> markersLiveData;
 
-                @Override
-                public LiveData<Map<MarkerOptions, String>> apply(Location location) {
-                    if (location != null) {
-                        locationLiveData.setValue(location);
-                        nearbySearchResponseLiveData = restaurantRepository.getNearbySearchResponse(
-                            getLocation(location),
-                            RANK_BY,
-                            TYPE,
-                            BuildConfig.MAPS_API_KEY
-                        );
+             @Override
+             public LiveData<Map<MarkerOptions, String>> apply(Location location) {
+                if (location != null) {
+                   locationLiveData.setValue(location);
+                   nearbySearchResponseLiveData = restaurantRepository.getNearbySearchResponse(
+                       getLocation(location),
+                       RANK_BY,
+                       TYPE,
+                       BuildConfig.MAPS_API_KEY
+                   );
 
-                        markersLiveData = Transformations.map(
-                            nearbySearchResponseLiveData, response -> {
-                                Map<MarkerOptions, String> restaurantsMarkers = new HashMap<>();
-                                if (response != null) {
-                                    Bitmap greenMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_green_marker);
-                                    Bitmap redMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_red_marker);
-                                    for (RestaurantResponse r : response.getResults()) {
-                                        if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
-                                            restaurantsMarkers.put(
-                                                new MarkerOptions()
-                                                    .position(
-                                                        new LatLng(
-                                                            r.getGeometry().getLocation().getLat(),
-                                                            r.getGeometry().getLocation().getLng()
-                                                        )
-                                                    )
-                                                    .title(r.getName())
-                                                    .icon(BitmapDescriptorFactory.fromBitmap(greenMarker)),
-                                                r.getPlaceId()
-                                            );
-                                        }
-                                    }
-                                } else {
-                                    return restaurantsMarkers;
+                   markersLiveData = Transformations.map(
+                       nearbySearchResponseLiveData, response -> {
+                          Map<MarkerOptions, String> restaurantsMarkers = new HashMap<>();
+                          if (response != null) {
+                             Bitmap greenMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_green_marker);
+                             Bitmap redMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_red_marker);
+                             for (RestaurantResponse r : response.getResults()) {
+                                if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
+                                   restaurantsMarkers.put(
+                                       new MarkerOptions()
+                                           .position(
+                                               new LatLng(
+                                                   r.getGeometry().getLocation().getLat(),
+                                                   r.getGeometry().getLocation().getLng()
+                                               )
+                                           )
+                                           .title(r.getName())
+                                           .icon(BitmapDescriptorFactory.fromBitmap(greenMarker)),
+                                       r.getPlaceId()
+                                   );
                                 }
-                                return restaurantsMarkers;
-                            }
-                        );
-                    } else {
-                        locationLiveData.setValue(null);
-                        return null;
-                    }
-                    return markersLiveData;
+                             }
+                          } else {
+                             return restaurantsMarkers;
+                          }
+                          return restaurantsMarkers;
+                       }
+                   );
+                } else {
+                   locationLiveData.setValue(null);
+                   return null;
                 }
-            }
-        );
+                return markersLiveData;
+             }
+          }
+      );
 
-        mapViewStateMediatorLiveData.addSource(locationLiveData, location ->
-            combine(location, restaurantsMarkersLiveData.getValue()));
-        mapViewStateMediatorLiveData.addSource(restaurantsMarkersLiveData, markerOptions ->
-            combine(locationLiveData.getValue(), markerOptions));
-    }
+      mapViewStateMediatorLiveData.addSource(locationLiveData, location ->
+          combine(location, restaurantsMarkersLiveData.getValue()));
+      mapViewStateMediatorLiveData.addSource(restaurantsMarkersLiveData, markerOptions ->
+          combine(locationLiveData.getValue(), markerOptions));
+   }
 
 
-    private void combine(@Nullable Location location, @Nullable Map<MarkerOptions, String> markerOptions) {
-        if (location == null) {
-            return;
-        }
+   private void combine(@Nullable Location location, @Nullable Map<MarkerOptions, String> markerOptions) {
+      if (location == null) {
+         return;
+      }
 
-        if (markerOptions == null) {
-            Map<MarkerOptions, String> emptyList = new HashMap<>();
-            mapViewStateMediatorLiveData.setValue(
-                new MapViewState(
-                    new LatLng(location.getLatitude(), location.getLongitude()),
-                    emptyList
-                )
-            );
-        } else {
-            mapViewStateMediatorLiveData.setValue(
-                new MapViewState(
-                    new LatLng(location.getLatitude(), location.getLongitude()),
-                    markerOptions
-                )
-            );
-        }
-    }
+      if (markerOptions == null) {
+         Map<MarkerOptions, String> emptyList = new HashMap<>();
+         mapViewStateMediatorLiveData.setValue(
+             new MapViewState(
+                 new LatLng(location.getLatitude(), location.getLongitude()),
+                 emptyList
+             )
+         );
+      } else {
+         mapViewStateMediatorLiveData.setValue(
+             new MapViewState(
+                 new LatLng(location.getLatitude(), location.getLongitude()),
+                 markerOptions
+             )
+         );
+      }
+   }
 
-    public MediatorLiveData<MapViewState> getMapViewStateMediatorLiveData() {
-        return mapViewStateMediatorLiveData;
-    }
+   public MediatorLiveData<MapViewState> getMapViewStateMediatorLiveData() {
+      return mapViewStateMediatorLiveData;
+   }
 
-    @NonNull
-    private String getLocation(@NonNull Location location) {
-        return location.getLatitude() + "," + location.getLongitude();
-    }
+   @NonNull
+   private String getLocation(@NonNull Location location) {
+      return location.getLatitude() + "," + location.getLongitude();
+   }
 }

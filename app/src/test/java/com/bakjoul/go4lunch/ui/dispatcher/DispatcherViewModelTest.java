@@ -10,16 +10,16 @@ import org.mockito.Mockito;
 
 public class DispatcherViewModelTest {
 
-    @Rule
-    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+   @Rule
+   public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-    private final FirebaseAuth firebaseAuth = Mockito.mock(FirebaseAuth.class);
+   private final FirebaseAuth firebaseAuth = Mockito.mock(FirebaseAuth.class);
 
-    private DispatcherViewModel viewModel;
+   private DispatcherViewModel viewModel;
 
-    @Before
-    public void setUp() {
-        viewModel = new DispatcherViewModel(firebaseAuth);
-    }
+   @Before
+   public void setUp() {
+      viewModel = new DispatcherViewModel(firebaseAuth);
+   }
 
 }

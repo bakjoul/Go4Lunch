@@ -7,41 +7,41 @@ import java.util.Objects;
 
 public class RestaurantsViewState {
 
-    private final List<RestaurantsItemViewState> restaurantsItemViewStates;
-    private final boolean isEmptyStateVisible;
+   private final List<RestaurantsItemViewState> restaurantsItemViewStates;
+   private final boolean isEmptyStateVisible;
 
-    public RestaurantsViewState(List<RestaurantsItemViewState> restaurantsItemViewStates, boolean isEmptyStateVisible) {
-        this.restaurantsItemViewStates = restaurantsItemViewStates;
-        this.isEmptyStateVisible = isEmptyStateVisible;
-    }
+   public RestaurantsViewState(List<RestaurantsItemViewState> restaurantsItemViewStates, boolean isEmptyStateVisible) {
+      this.restaurantsItemViewStates = restaurantsItemViewStates;
+      this.isEmptyStateVisible = isEmptyStateVisible;
+   }
 
-    public List<RestaurantsItemViewState> getRestaurantsItemViewStates() {
-        return restaurantsItemViewStates;
-    }
+   public List<RestaurantsItemViewState> getRestaurantsItemViewStates() {
+      return restaurantsItemViewStates;
+   }
 
-    public boolean isEmptyStateVisible() {
-        return isEmptyStateVisible;
-    }
+   public boolean isEmptyStateVisible() {
+      return isEmptyStateVisible;
+   }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        RestaurantsViewState viewState = (RestaurantsViewState) o;
-        return isEmptyStateVisible == viewState.isEmptyStateVisible && Objects.equals(restaurantsItemViewStates, viewState.restaurantsItemViewStates);
-    }
+   @Override
+   public boolean equals(Object o) {
+      if (this == o) return true;
+      if (o == null || getClass() != o.getClass()) return false;
+      RestaurantsViewState viewState = (RestaurantsViewState) o;
+      return isEmptyStateVisible == viewState.isEmptyStateVisible && Objects.equals(restaurantsItemViewStates, viewState.restaurantsItemViewStates);
+   }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(restaurantsItemViewStates, isEmptyStateVisible);
-    }
+   @Override
+   public int hashCode() {
+      return Objects.hash(restaurantsItemViewStates, isEmptyStateVisible);
+   }
 
-    @NonNull
-    @Override
-    public String toString() {
-        return "RestaurantsViewState{" +
-            "restaurantsItemViewStates=" + restaurantsItemViewStates +
-            ", isEmptyStateVisible=" + isEmptyStateVisible +
-            '}';
-    }
+   @NonNull
+   @Override
+   public String toString() {
+      return "RestaurantsViewState{" +
+          "restaurantsItemViewStates=" + restaurantsItemViewStates +
+          ", isEmptyStateVisible=" + isEmptyStateVisible +
+          '}';
+   }
 }

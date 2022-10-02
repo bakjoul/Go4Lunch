@@ -15,24 +15,24 @@ import com.bakjoul.go4lunch.databinding.FragmentNoPermissionBinding;
 
 public class NoPermissionFragment extends Fragment {
 
-    private FragmentNoPermissionBinding binding;
+   private FragmentNoPermissionBinding binding;
 
-    public static NoPermissionFragment newInstance() {
-        return new NoPermissionFragment();
-    }
+   public static NoPermissionFragment newInstance() {
+      return new NoPermissionFragment();
+   }
 
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        binding = FragmentNoPermissionBinding.inflate(inflater, container, false);
-        return binding.getRoot();
-    }
+   @Nullable
+   @Override
+   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+      binding = FragmentNoPermissionBinding.inflate(inflater, container, false);
+      return binding.getRoot();
+   }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
+   @Override
+   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+      super.onViewCreated(view, savedInstanceState);
 
-        binding.fragmentNoPermission.setOnClickListener(v ->
-            ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1));
-    }
+      binding.fragmentNoPermission.setOnClickListener(v ->
+          ActivityCompat.requestPermissions(requireActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1));
+   }
 }
