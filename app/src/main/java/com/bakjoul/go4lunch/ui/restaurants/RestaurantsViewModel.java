@@ -64,7 +64,7 @@ public class RestaurantsViewModel extends ViewModel {
             locationRepository.getCurrentLocation(), location -> {
                 if (location != null) {
                     LiveData<NearbySearchResponse> nearbySearchResponseLiveData = restaurantRepository.getNearbySearchResponse(
-                        getLocation(location),
+                        RestaurantsViewModel.this.getLocation(location),
                         RANK_BY,
                         TYPE,
                         BuildConfig.MAPS_API_KEY
@@ -74,7 +74,7 @@ public class RestaurantsViewModel extends ViewModel {
                         response -> {
                             List<RestaurantsItemViewState> restaurantsItemViewStateList;
                             if (response != null) {
-                                restaurantsItemViewStateList = mapData(response, location);
+                                restaurantsItemViewStateList = RestaurantsViewModel.this.mapData(response, location);
                             } else {
                                 restaurantsItemViewStateList = new ArrayList<>();
                             }
