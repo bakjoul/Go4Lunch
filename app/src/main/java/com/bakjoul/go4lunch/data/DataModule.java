@@ -4,7 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.bakjoul.go4lunch.data.api.RestaurantSearchService;
+import com.bakjoul.go4lunch.data.api.RestaurantApi;
 import com.bakjoul.go4lunch.data.repository.PermissionRepository;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -54,7 +54,7 @@ public class DataModule {
     }
 
     @Provides
-    public RestaurantSearchService provideRestaurantSearchService(@NonNull Retrofit retrofit) {
-        return retrofit.create(RestaurantSearchService.class);
+    public RestaurantApi provideRestaurantApi(@NonNull Retrofit retrofit) {
+        return retrofit.create(RestaurantApi.class);
     }
 }

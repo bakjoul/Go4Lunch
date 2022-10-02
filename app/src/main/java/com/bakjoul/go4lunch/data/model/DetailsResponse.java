@@ -10,17 +10,17 @@ import java.util.Objects;
 public class DetailsResponse {
     @SerializedName("result")
     @Expose
-    private final ResultResponse result;
+    private final RestaurantDetailsResponse result;
     @SerializedName("status")
     @Expose
     private final String status;
 
-    public DetailsResponse(ResultResponse result, String status) {
+    public DetailsResponse(RestaurantDetailsResponse result, String status) {
         this.result = result;
         this.status = status;
     }
 
-    public ResultResponse getResult() {
+    public RestaurantDetailsResponse getResult() {
         return result;
     }
 

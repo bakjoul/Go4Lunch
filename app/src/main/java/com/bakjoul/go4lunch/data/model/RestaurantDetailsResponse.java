@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
 import java.util.List;
 import java.util.Objects;
 
-public class ResultResponse {
+public class RestaurantDetailsResponse {
     @SerializedName("place_id")
     @Expose
     private final String placeId;
@@ -41,7 +41,7 @@ public class ResultResponse {
     @Expose
     private final String website;
 
-    public ResultResponse(String placeId, String name, double rating, String formattedAddress, OpeningHoursResponse openingHoursResponse, List<PhotoResponse> photoResponses, String formattedPhoneNumber, String website) {
+    public RestaurantDetailsResponse(String placeId, String name, double rating, String formattedAddress, OpeningHoursResponse openingHoursResponse, List<PhotoResponse> photoResponses, String formattedPhoneNumber, String website) {
         this.placeId = placeId;
         this.name = name;
         this.rating = rating;
@@ -88,7 +88,7 @@ public class ResultResponse {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ResultResponse that = (ResultResponse) o;
+        RestaurantDetailsResponse that = (RestaurantDetailsResponse) o;
         return Double.compare(that.rating, rating) == 0 && Objects.equals(placeId, that.placeId) && Objects.equals(name, that.name) && Objects.equals(formattedAddress, that.formattedAddress) && Objects.equals(openingHoursResponse, that.openingHoursResponse) && Objects.equals(photoResponses, that.photoResponses) && Objects.equals(formattedPhoneNumber, that.formattedPhoneNumber) && Objects.equals(website, that.website);
     }
 

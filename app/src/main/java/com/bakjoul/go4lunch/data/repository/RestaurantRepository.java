@@ -6,7 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.bakjoul.go4lunch.data.api.RestaurantSearchService;
+import com.bakjoul.go4lunch.data.api.RestaurantApi;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 
 import javax.inject.Inject;
@@ -25,11 +25,11 @@ public class RestaurantRepository {
     public static final String TYPE = "restaurant";
 
     @NonNull
-    private final RestaurantSearchService restaurantSearchService;
+    private final RestaurantApi restaurantApi;
 
     @Inject
-    public RestaurantRepository(@NonNull RestaurantSearchService restaurantSearchService) {
-        this.restaurantSearchService = restaurantSearchService;
+    public RestaurantRepository(@NonNull RestaurantApi restaurantApi) {
+        this.restaurantApi = restaurantApi;
     }
 
     public LiveData<NearbySearchResponse> getNearbySearchResponse(
@@ -38,21 +38,19 @@ public class RestaurantRepository {
         String type,
         String key
     ) {
-        Call<NearbySearchResponse> call = restaurantSearchService.getRestaurants(location, rankBy, type, key);
-
-        final MutableLiveData<NearbySearchResponse> restaurantsData = new MutableLiveData<>();
-        call.enqueue(new Callback<NearbySearchResponse>() {
+        MutableLiveData<NearbySearchResponse> restaurantResponseMutableLiveData = new MutableLiveData<>();
+        restaurantApi.getRestaurants(location, rankBy, type, key).enqueue(new Callback<NearbySearchResponse>() {
             @Override
             public void onResponse(@NonNull Call<NearbySearchResponse> call, @NonNull Response<NearbySearchResponse> response) {
-                restaurantsData.setValue(response.body());
+                restaurantResponseMutableLiveData.setValue(response.body());
             }
 
             @Override
             public void onFailure(@NonNull Call<NearbySearchResponse> call, @NonNull Throwable t) {
                 Log.d(TAG, "onFailure: ");
-                restaurantsData.setValue(null);
+                restaurantResponseMutableLiveData.setValue(null);
             }
         });
-        return restaurantsData;
+        return restaurantResponseMutableLiveData;
     }
 }
