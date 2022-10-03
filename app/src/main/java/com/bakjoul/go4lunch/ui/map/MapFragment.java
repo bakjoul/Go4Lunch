@@ -40,7 +40,7 @@ public class MapFragment extends SupportMapFragment {
                    googleMap.clear();
                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                            viewState.getLatLng(),
-                           13.25f
+                           13.5f
                        )
                    );
                    googleMap.setMyLocationEnabled(true);
