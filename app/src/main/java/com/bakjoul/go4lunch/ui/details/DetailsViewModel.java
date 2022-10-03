@@ -21,14 +21,19 @@ import com.bakjoul.go4lunch.data.repository.RestaurantDetailsRepository;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 
 import java.time.DayOfWeek;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.Objects;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
 
+@RequiresApi(api = Build.VERSION_CODES.O)
 @HiltViewModel
 public class DetailsViewModel extends ViewModel {
 
@@ -132,8 +137,16 @@ public class DetailsViewModel extends ViewModel {
    private String getOpeningStatus(OpeningHoursResponse response) {
       StringBuilder status;
       if (response != null) {
-         LocalDate localDate = LocalDate.now();
-         int dayOfWeek = DayOfWeek.from(localDate).getValue() - 1;
+         LocalDateTime localDateTime = LocalDateTime.now();
+         Locale locale = Locale.getDefault();
+         DateTimeFormatter apiTimeFormatter = DateTimeFormatter.ofPattern("HHmm", Locale.getDefault());
+         int dayOfWeek;
+         // Make days of week between API and Java method match
+         if (DayOfWeek.from(localDateTime).getValue() == 7) {
+            dayOfWeek = 0;
+         } else {
+            dayOfWeek = DayOfWeek.from(localDateTime).getValue();
+         }
 
          if (response.getOpenNow()) {
             status = new StringBuilder("Ouvert");
@@ -153,19 +166,58 @@ public class DetailsViewModel extends ViewModel {
          } else {
             status = new StringBuilder("Fermé");
 
-/*            if (response.getPeriods() != null) {
-               for (PeriodResponse p : response.getPeriods()) {
-                  if (p.getOpen().getDay() != null && p.getOpen().getDay() > dayOfWeek) {
-                     Log.d("test", "getOpeningStatus: jour ouverture suivant");
-                     status
-                         .append("⋅ Ouvre à ")
-                         .append(p.getOpen().getTime(), 0, 2)
-                         .append("h")
-                         .append(p.getOpen().getTime(),2, 4);
+            if (response.getPeriods() != null) {
+               // Chronologically orders days of week starting from today
+               List<Integer> orderedDays = new ArrayList<>();
+               int dayToAdd = dayOfWeek;
+               while (!orderedDays.contains(0)
+                   || !orderedDays.contains(1)
+                   || !orderedDays.contains(2)
+                   || !orderedDays.contains(3)
+                   || !orderedDays.contains(4)
+                   || !orderedDays.contains(5)
+                   || !orderedDays.contains(6)
+               ) {
+                  if (dayToAdd > 6) {
+                     dayToAdd = 0;
+                  }
+                  orderedDays.add(dayToAdd);
+                  dayToAdd++;
+               }
+
+
+               boolean nextOpeningFound = false;
+               // Check opening periods from today included until next 6 days
+               for (Integer i : orderedDays) {
+                  for (PeriodResponse p : response.getPeriods()) {
+                     // If current day and day of period match
+                     if (Objects.equals(i, p.getOpen().getDay())) {
+                        // If it's today, check that the closing time has not passed
+                        if (Objects.equals(i, orderedDays.get(0)) && Long.parseLong(p.getClose().getTime()) < Long.parseLong(localDateTime.format(apiTimeFormatter))) {
+                           // If it has, skip to next period
+                           continue;
+                        }
+                        nextOpeningFound = true;
+                        // Get the index of the next opening day
+                        int daysUntilNextOpening = orderedDays.indexOf(i);
+                        // Add the days until the next opening to today's date to know the next opening day
+                        String nextOpeningDay = localDateTime.plusDays(daysUntilNextOpening).getDayOfWeek().getDisplayName(TextStyle.SHORT, locale);
+                        status
+                            .append("⋅ Ouvre à ")
+                            .append(p.getOpen().getTime(), 0, 2)
+                            .append("h")
+                            .append(p.getOpen().getTime(), 2, 4)
+                            .append(" ")
+                            .append(nextOpeningDay);
+                        break;
+                     }
+                  }
+                  // Stop iterating if the next opening day was found
+                  if (nextOpeningFound) {
                      break;
                   }
                }
-            }*/
+            }
          }
       } else {
          status = new StringBuilder("Information non disponible");

@@ -68,7 +68,7 @@
                                 android:layout_height="wrap_content"
                                 android:ellipsize="end"
                                 android:lines="1"
-                                android:maxEms="10"
+                                android:maxEms="12"
                                 android:textColor="@color/white"
                                 android:textSize="17sp"
                                 tools:text="Restaurant" />
