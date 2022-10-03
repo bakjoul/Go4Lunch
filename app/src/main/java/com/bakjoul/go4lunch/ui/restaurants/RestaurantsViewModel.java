@@ -126,12 +126,12 @@ public class RestaurantsViewModel extends ViewModel {
       String isOpen;
       if (response != null) {
          if (response.getOpenNow()) {
-            isOpen = application.getString(R.string.restaurant_item_is_open);
+            isOpen = application.getString(R.string.restaurant_is_open);
          } else {
-            isOpen = application.getString(R.string.restaurant_item_is_closed);
+            isOpen = application.getString(R.string.restaurant_is_closed);
          }
       } else {
-         isOpen = application.getString(R.string.restaurant_item_info_not_available);
+         isOpen = application.getString(R.string.information_not_available);
       }
       return isOpen;
    }

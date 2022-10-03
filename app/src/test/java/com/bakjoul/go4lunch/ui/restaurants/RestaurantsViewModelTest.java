@@ -108,9 +108,9 @@ public class RestaurantsViewModelTest {
 
    @Before
    public void setUp() {
-      given(application.getString(R.string.restaurant_item_is_open)).willReturn(OPEN);
-      given(application.getString(R.string.restaurant_item_is_closed)).willReturn(CLOSED);
-      given(application.getString(R.string.restaurant_item_info_not_available)).willReturn(NOT_AVAILABLE);
+      given(application.getString(R.string.restaurant_is_open)).willReturn(OPEN);
+      given(application.getString(R.string.restaurant_is_closed)).willReturn(CLOSED);
+      given(application.getString(R.string.information_not_available)).willReturn(NOT_AVAILABLE);
 
       doReturn(nearbySearchResponseLiveData).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
       doReturn(locationLiveData).when(locationRepository).getCurrentLocation();

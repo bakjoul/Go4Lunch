@@ -1,5 +1,6 @@
 package com.bakjoul.go4lunch.ui.details;
 
+import android.app.Application;
 import android.os.Build;
 
 import androidx.annotation.NonNull;
@@ -12,6 +13,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.BuildConfig;
+import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.model.DetailsResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PeriodResponse;
@@ -36,6 +38,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @RequiresApi(api = Build.VERSION_CODES.O)
 @HiltViewModel
 public class DetailsViewModel extends ViewModel {
+   
+   private static final String KEY = "restaurantId";
+
+   @NonNull
+   private final Application application;
 
    private final LiveData<DetailsViewState> detailsViewState;
 
@@ -45,11 +52,13 @@ public class DetailsViewModel extends ViewModel {
    @RequiresApi(api = Build.VERSION_CODES.O)
    @Inject
    public DetailsViewModel(
+       @NonNull Application application,
        @NonNull RestaurantDetailsRepository restaurantDetailsRepository,
        @NonNull SavedStateHandle savedStateHandle,
        @NonNull RestaurantImageMapper restaurantImageMapper) {
 
-      String restaurantId = savedStateHandle.get("restaurantId");
+      this.application = application;
+      String restaurantId = savedStateHandle.get(KEY);
       this.restaurantImageMapper = restaurantImageMapper;
 
       if (restaurantId != null) {
@@ -101,7 +110,7 @@ public class DetailsViewModel extends ViewModel {
           new DetailsViewState(
               "",
               null,
-              "An error occured",
+              application.getString(R.string.details_error_viewstate),
               0,
               false,
               "",
@@ -149,22 +158,22 @@ public class DetailsViewModel extends ViewModel {
          }
 
          if (response.getOpenNow()) {
-            status = new StringBuilder("Ouvert");
+            status = new StringBuilder(application.getString(R.string.restaurant_is_open));
 
             if (response.getPeriods() != null) {
                for (PeriodResponse p : response.getPeriods()) {
                   if (p.getOpen().getDay() != null && dayOfWeek == p.getOpen().getDay()) {
                      status
-                         .append(" jusqu'à ")
+                         .append(application.getString(R.string.details_opened_until))
                          .append(p.getClose().getTime(), 0, 2)
-                         .append("h")
+                         .append(application.getString(R.string.details_time_separator))
                          .append(p.getClose().getTime(), 2, 4);
                   }
                }
             }
 
          } else {
-            status = new StringBuilder("Fermé");
+            status = new StringBuilder(application.getString(R.string.restaurant_is_closed));
 
             if (response.getPeriods() != null) {
                // Chronologically orders days of week starting from today
@@ -203,9 +212,9 @@ public class DetailsViewModel extends ViewModel {
                         // Add the days until the next opening to today's date to know the next opening day
                         String nextOpeningDay = localDateTime.plusDays(daysUntilNextOpening).getDayOfWeek().getDisplayName(TextStyle.SHORT, locale);
                         status
-                            .append("⋅ Ouvre à ")
+                            .append(application.getString(R.string.details_open_at))
                             .append(p.getOpen().getTime(), 0, 2)
-                            .append("h")
+                            .append(application.getString(R.string.details_time_separator))
                             .append(p.getOpen().getTime(), 2, 4)
                             .append(" ")
                             .append(nextOpeningDay);
@@ -220,7 +229,7 @@ public class DetailsViewModel extends ViewModel {
             }
          }
       } else {
-         status = new StringBuilder("Information non disponible");
+         status = new StringBuilder(application.getString(R.string.information_not_available));
       }
       return status.toString();
    }
