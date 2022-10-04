@@ -34,6 +34,10 @@ public class LocationRepository {
    @NonNull
    private final FusedLocationProviderClient fusedLocationProvider;
 
+   private final LocationCallback locationCallback;
+
+   private final MutableLiveData<Location> locationMutableLiveData = new MutableLiveData<>(null);
+
    private final LocationRequest locationRequest = LocationRequest.create()
        .setInterval(INTERVAL)
        .setFastestInterval(FASTEST_INTERVAL)
@@ -43,26 +47,24 @@ public class LocationRepository {
    @Inject
    public LocationRepository(@NonNull FusedLocationProviderClient fusedLocationProvider) {
       this.fusedLocationProvider = fusedLocationProvider;
+      locationCallback = new LocationCallback() {
+         @Override
+         public void onLocationResult(@NonNull LocationResult locationResult) {
+            Log.d(TAG, "onLocationResult() called with: locationResult = [" + locationResult + "]");
+            locationMutableLiveData.setValue(locationResult.getLastLocation());
+         }
+      };
    }
 
    @SuppressLint("MissingPermission")
    public LiveData<Location> getCurrentLocation() {
       return Transformations.switchMap(isLocationPermissionAllowedLiveData, isLocationPermissionAllowed -> {
          Log.d(TAG, "switchMap() called with: isLocationPermissionAllowed = [" + isLocationPermissionAllowed + "]");
-         MutableLiveData<Location> locationMutableLiveData = new MutableLiveData<>();
 
          if (isLocationPermissionAllowed) {
-            final LocationCallback locationCallback = new LocationCallback() {
-               @Override
-               public void onLocationResult(@NonNull LocationResult locationResult) {
-                  Log.d(TAG, "onLocationResult() called with: locationResult = [" + locationResult + "]");
-                  locationMutableLiveData.setValue(locationResult.getLastLocation());
-               }
-            };
-
             fusedLocationProvider.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
          } else {
-            locationMutableLiveData.setValue(null);
+            fusedLocationProvider.removeLocationUpdates(locationCallback);
          }
 
          return locationMutableLiveData;

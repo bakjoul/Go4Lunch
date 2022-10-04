@@ -205,7 +205,7 @@ public class DetailsViewModel extends ViewModel {
                   for (PeriodResponse p : response.getPeriods()) {
                      // If current day and day of period match
                      if (Objects.equals(i, p.getOpen().getDay())) {
-                        // If it's today, check that the closing time has not passed
+                        // If it's today, ensures that the closing time has not passed
                         if (Objects.equals(i, orderedDays.get(0)) && Long.parseLong(p.getClose().getTime()) < Long.parseLong(localDateTime.format(apiTimeFormatter))) {
                            // If it has, skip to next period
                            continue;
