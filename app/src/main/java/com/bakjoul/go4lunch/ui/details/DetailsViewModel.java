@@ -2,6 +2,7 @@ package com.bakjoul.go4lunch.ui.details;
 
 import android.app.Application;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -176,7 +177,7 @@ public class DetailsViewModel extends ViewModel {
             status = new StringBuilder(application.getString(R.string.restaurant_is_closed));
 
             if (response.getPeriods() != null) {
-               // Chronologically orders days of week starting from today
+               // Chronologically orders the 8 next days of week starting from today
                List<Integer> orderedDays = new ArrayList<>();
                int dayToAdd = dayOfWeek;
                while (!orderedDays.contains(0)
@@ -193,7 +194,10 @@ public class DetailsViewModel extends ViewModel {
                   orderedDays.add(dayToAdd);
                   dayToAdd++;
                }
-
+               if (dayToAdd > 6) {
+                  dayToAdd = 0;
+               }
+               orderedDays.add(dayToAdd);
 
                boolean nextOpeningFound = false;
                // Check opening periods from today included until next 6 days
