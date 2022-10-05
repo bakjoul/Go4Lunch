@@ -2,6 +2,7 @@ package com.bakjoul.go4lunch.ui.details;
 
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
+import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,6 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bakjoul.go4lunch.databinding.ActivityDetailsBinding;
+import com.bakjoul.go4lunch.ui.utils.DensityUtil;
 import com.bakjoul.go4lunch.ui.utils.ReverseInterpolator;
 import com.bumptech.glide.Glide;
 import com.google.android.material.appbar.AppBarLayout;
@@ -40,6 +42,8 @@ public class DetailsActivity extends AppCompatActivity {
 
       DetailsViewModel viewModel = new ViewModelProvider(this).get(DetailsViewModel.class);
 
+      binding.detailsFabBack.setOnClickListener(view -> onBackPressed());
+
       ImageView photo = binding.detailsRestaurantPhoto;
 
       viewModel.getDetailsViewState().observe(this, viewState -> {
@@ -60,20 +64,35 @@ public class DetailsActivity extends AppCompatActivity {
 
       binding.detailsAppbar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
          boolean isFabDown = false;
+         boolean isInfoPaddingChanged = false;
 
          @Override
          public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-            ObjectAnimator animation = getObjectAnimator();
+            ObjectAnimator fabAnimation = getFabAnimator();
+            ValueAnimator infoPaddingAnimation = getInfoPaddingAnimator();
 
-            // When expanded
+            // When expanded, fab will go up
             if (verticalOffset == 0 && isFabDown) {
-               animation.setInterpolator(new ReverseInterpolator());
-               animation.start();  // FAB will anchor to toolbar top end
+               fabAnimation.setInterpolator(new ReverseInterpolator());
+               fabAnimation.start();
                isFabDown = false;
-               // When collapsed
-            } else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange() && !isFabDown) {
-               animation.start();  // FAB will anchor to toolbar bottom end
+            }
+            // When collapsed, fab will go down
+            else if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange() && !isFabDown) {
+               fabAnimation.start();
                isFabDown = true;
+            }
+
+            // When collapsing, info padding will be increased
+            if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange() - binding.detailsFabBack.getHeight() && isInfoPaddingChanged) {
+               infoPaddingAnimation.start();
+               isInfoPaddingChanged = false;
+            }
+            // When expanding, info padding will be decreased
+            else if (Math.abs(verticalOffset) < appBarLayout.getTotalScrollRange() - binding.detailsFabBack.getHeight() && !isInfoPaddingChanged) {
+               infoPaddingAnimation.setInterpolator(new ReverseInterpolator());
+               infoPaddingAnimation.start();
+               isInfoPaddingChanged = true;
             }
          }
       });
@@ -81,14 +100,19 @@ public class DetailsActivity extends AppCompatActivity {
    }
 
    @NonNull
-   private ObjectAnimator getObjectAnimator() {
+   private ObjectAnimator getFabAnimator() {
       // Translate animation
       PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("translationY", 0, binding.detailsToolbar.getHeight());
       // Alpha animation
       PropertyValuesHolder pvhAlpha = PropertyValuesHolder.ofFloat("alpha", 1, 0.75f);
-      // Animation object
-      ObjectAnimator animation = ObjectAnimator.ofPropertyValuesHolder(binding.detailsFabSelect, pvhY, pvhAlpha);
-      animation.setDuration(250);
-      return animation;
+      return ObjectAnimator.ofPropertyValuesHolder(binding.detailsFabSelect, pvhY, pvhAlpha);
+   }
+
+   @NonNull
+   private ValueAnimator getInfoPaddingAnimator() {
+      ValueAnimator infoPaddingAnimation = ValueAnimator.ofInt(DensityUtil.dip2px(getApplicationContext(), 10), DensityUtil.dip2px(getApplicationContext(), 48));
+      infoPaddingAnimation.addUpdateListener(valueAnimator ->
+          binding.detailsRestaurantInfo.setPadding((Integer) valueAnimator.getAnimatedValue(), 0, 0, 0));
+      return infoPaddingAnimation;
    }
 }

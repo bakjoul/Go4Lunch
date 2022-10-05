@@ -35,5 +35,6 @@
     <string name="details_opened_until">\u0020jusqu\'à\u0020</string>
     <string name="details_time_separator">h</string>
     <string name="details_open_at">\u0020⋅ Ouvre à\u0020</string>
+    <string name="details_back_button_desc">Back button</string>
 
 </resources>
