@@ -9,6 +9,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.ui.details.DetailsActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -45,10 +46,14 @@ public class MapFragment extends SupportMapFragment {
                 googleMap.setMyLocationEnabled(true);
 
                 if (!viewState.getRestaurantsMarkers().isEmpty()) {
-                   for (MarkerOptions m : viewState.getRestaurantsMarkers().keySet()) {
+                   for (RestaurantMarker m : viewState.getRestaurantsMarkers()) {
+                      MarkerOptions marker = new MarkerOptions()
+                          .position(m.getPosition())
+                          .title(m.getTitle())
+                          .icon(m.getIcon());
                       googleMap
-                          .addMarker(m)
-                          .setTag(viewState.getRestaurantsMarkers().get(m));
+                          .addMarker(marker)
+                          .setTag(m.getId());
                    }
 
                    googleMap.setOnMarkerClickListener(marker -> {

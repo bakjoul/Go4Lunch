@@ -2,18 +2,18 @@ package com.bakjoul.go4lunch.ui.map;
 
 import androidx.annotation.NonNull;
 
+import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 public class MapViewState {
 
    private final LatLng latLng;
-   private final Map<MarkerOptions, String> restaurantsMarkers;
+   private final List<RestaurantMarker> restaurantsMarkers;
 
-   public MapViewState(LatLng latLng, Map<MarkerOptions, String> restaurantsMarkers) {
+   public MapViewState(LatLng latLng, List<RestaurantMarker> restaurantsMarkers) {
       this.latLng = latLng;
       this.restaurantsMarkers = restaurantsMarkers;
    }
@@ -22,7 +22,7 @@ public class MapViewState {
       return latLng;
    }
 
-   public Map<MarkerOptions, String> getRestaurantsMarkers() {
+   public List<RestaurantMarker> getRestaurantsMarkers() {
       return restaurantsMarkers;
    }
 
