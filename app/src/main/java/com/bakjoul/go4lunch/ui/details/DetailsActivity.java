@@ -110,7 +110,7 @@ public class DetailsActivity extends AppCompatActivity {
 
    @NonNull
    private ValueAnimator getInfoPaddingAnimator() {
-      ValueAnimator infoPaddingAnimation = ValueAnimator.ofInt(DensityUtil.dip2px(getApplicationContext(), 10), DensityUtil.dip2px(getApplicationContext(), 48));
+      ValueAnimator infoPaddingAnimation = ValueAnimator.ofInt(DensityUtil.dip2px(getApplicationContext(), 10), DensityUtil.dip2px(getApplicationContext(), 44));
       infoPaddingAnimation.addUpdateListener(valueAnimator ->
           binding.detailsRestaurantInfo.setPadding((Integer) valueAnimator.getAnimatedValue(), 0, 0, 0));
       return infoPaddingAnimation;
