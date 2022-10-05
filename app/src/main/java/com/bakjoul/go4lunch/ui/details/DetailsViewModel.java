@@ -2,7 +2,6 @@ package com.bakjoul.go4lunch.ui.details;
 
 import android.app.Application;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -36,10 +35,9 @@ import javax.inject.Inject;
 
 import dagger.hilt.android.lifecycle.HiltViewModel;
 
-@RequiresApi(api = Build.VERSION_CODES.O)
 @HiltViewModel
 public class DetailsViewModel extends ViewModel {
-   
+
    private static final String KEY = "restaurantId";
 
    @NonNull
@@ -142,8 +140,8 @@ public class DetailsViewModel extends ViewModel {
       return userRatingsTotal > 0;
    }
 
-   @NonNull
    @RequiresApi(api = Build.VERSION_CODES.O)
+   @NonNull
    private String getOpeningStatus(OpeningHoursResponse response) {
       StringBuilder status;
       if (response != null) {
