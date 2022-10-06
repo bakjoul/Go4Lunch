@@ -107,15 +107,15 @@ public class DetailsViewModel extends ViewModel {
    private MutableLiveData<DetailsViewState> getErrorDetailsViewState() {
       return new MutableLiveData<>(
           new DetailsViewState(
-              "",
+              null,
               null,
               application.getString(R.string.details_error_viewstate),
               0,
               false,
-              "",
-              "",
-              "",
-              "",
+              null,
+              null,
+              null,
+              null,
               null
           )
       );

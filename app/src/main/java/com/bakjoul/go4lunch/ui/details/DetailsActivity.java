@@ -5,6 +5,7 @@ import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -23,6 +24,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class DetailsActivity extends AppCompatActivity {
+
+   private static final long ANIMATION_DURATION = 250;
 
    private ActivityDetailsBinding binding;
 
@@ -60,6 +63,9 @@ public class DetailsActivity extends AppCompatActivity {
          }
          binding.detailsRestaurantAddress.setText(viewState.getAddress());
          binding.detailsRestaurantOpeningStatus.setText(viewState.getOpeningStatus());
+
+         setCallButton(viewState);
+         setWebsiteButton(viewState);
       });
 
       binding.detailsAppbar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
@@ -99,20 +105,47 @@ public class DetailsActivity extends AppCompatActivity {
 
    }
 
+   private void setCallButton(@NonNull DetailsViewState viewState) {
+      if (viewState.getPhoneNumber() == null) {
+         binding.detailsButtonCall.setEnabled(false);
+         binding.detailsButtonCall.setAlpha(0.25f);
+      } else {
+         binding.detailsButtonCall.setOnClickListener(view -> {
+            Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", viewState.getPhoneNumber(), null));
+            DetailsActivity.this.startActivity(intent);
+         });
+      }
+   }
+
+   private void setWebsiteButton(@NonNull DetailsViewState viewState) {
+      if (viewState.getWebsiteUrl() == null) {
+         binding.detailsButtonWebsite.setEnabled(false);
+         binding.detailsButtonWebsite.setAlpha(0.25f);
+      } else {
+         binding.detailsButtonWebsite.setOnClickListener(view -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(viewState.getWebsiteUrl()));
+            startActivity(intent);
+         });
+      }
+   }
+
    @NonNull
    private ObjectAnimator getFabAnimator() {
       // Translate animation
       PropertyValuesHolder pvhY = PropertyValuesHolder.ofFloat("translationY", 0, binding.detailsToolbar.getHeight());
       // Alpha animation
       PropertyValuesHolder pvhAlpha = PropertyValuesHolder.ofFloat("alpha", 1, 0.75f);
-      return ObjectAnimator.ofPropertyValuesHolder(binding.detailsFabSelect, pvhY, pvhAlpha);
+      ObjectAnimator objectAnimator = ObjectAnimator.ofPropertyValuesHolder(binding.detailsFabSelect, pvhY, pvhAlpha);
+      objectAnimator.setDuration(ANIMATION_DURATION);
+      return objectAnimator;
    }
 
    @NonNull
    private ValueAnimator getInfoPaddingAnimator() {
-      ValueAnimator infoPaddingAnimation = ValueAnimator.ofInt(DensityUtil.dip2px(getApplicationContext(), 10), DensityUtil.dip2px(getApplicationContext(), 44));
-      infoPaddingAnimation.addUpdateListener(valueAnimator ->
-          binding.detailsRestaurantInfo.setPadding((Integer) valueAnimator.getAnimatedValue(), 0, 0, 0));
-      return infoPaddingAnimation;
+      ValueAnimator valueAnimator = ValueAnimator.ofInt(DensityUtil.dip2px(getApplicationContext(), 10), DensityUtil.dip2px(getApplicationContext(), 44));
+      valueAnimator.setDuration(ANIMATION_DURATION);
+      valueAnimator.addUpdateListener(animator ->
+          binding.detailsRestaurantInfo.setPadding((Integer) animator.getAnimatedValue(), 0, 0, 0));
+      return valueAnimator;
    }
 }

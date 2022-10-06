@@ -8,34 +8,34 @@ import java.util.Objects;
 
 public class DetailsViewState {
 
-   @NonNull
+   @Nullable
    private final String id;
 
    @Nullable
    private final String photoUrl;
 
-   @NonNull
+   @Nullable
    private final String name;
 
    private final float rating;
 
    private final boolean isRatingBarVisible;
 
-   @NonNull
+   @Nullable
    private final String address;
 
-   @NonNull
+   @Nullable
    private final String openingStatus;
 
-   @NonNull
+   @Nullable
    private final String phoneNumber;
 
-   @NonNull
+   @Nullable
    private final String websiteUrl;
 
    private final List<DetailsItemViewState> detailsItemViewStateList;
 
-   public DetailsViewState(@NonNull String id, @Nullable String photoUrl, @NonNull String name, float rating, boolean isRatingBarVisible, @NonNull String address, @NonNull String openingStatus, @NonNull String phoneNumber, @NonNull String websiteUrl, List<DetailsItemViewState> detailsItemViewStateList) {
+   public DetailsViewState(@Nullable String id, @Nullable String photoUrl, @Nullable String name, float rating, boolean isRatingBarVisible, @Nullable String address, @Nullable String openingStatus, @Nullable String phoneNumber, @Nullable String websiteUrl, List<DetailsItemViewState> detailsItemViewStateList) {
       this.id = id;
       this.photoUrl = photoUrl;
       this.name = name;
@@ -48,7 +48,7 @@ public class DetailsViewState {
       this.detailsItemViewStateList = detailsItemViewStateList;
    }
 
-   @NonNull
+   @Nullable
    public String getId() {
       return id;
    }
@@ -58,7 +58,7 @@ public class DetailsViewState {
       return photoUrl;
    }
 
-   @NonNull
+   @Nullable
    public String getName() {
       return name;
    }
@@ -71,22 +71,22 @@ public class DetailsViewState {
       return isRatingBarVisible;
    }
 
-   @NonNull
+   @Nullable
    public String getAddress() {
       return address;
    }
 
-   @NonNull
+   @Nullable
    public String getOpeningStatus() {
       return openingStatus;
    }
 
-   @NonNull
+   @Nullable
    public String getPhoneNumber() {
       return phoneNumber;
    }
 
-   @NonNull
+   @Nullable
    public String getWebsiteUrl() {
       return websiteUrl;
    }
@@ -100,7 +100,7 @@ public class DetailsViewState {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       DetailsViewState that = (DetailsViewState) o;
-      return Float.compare(that.rating, rating) == 0 && isRatingBarVisible == that.isRatingBarVisible && id.equals(that.id) && Objects.equals(photoUrl, that.photoUrl) && name.equals(that.name) && address.equals(that.address) && openingStatus.equals(that.openingStatus) && phoneNumber.equals(that.phoneNumber) && websiteUrl.equals(that.websiteUrl) && Objects.equals(detailsItemViewStateList, that.detailsItemViewStateList);
+      return Float.compare(that.rating, rating) == 0 && isRatingBarVisible == that.isRatingBarVisible && Objects.equals(id, that.id) && Objects.equals(photoUrl, that.photoUrl) && Objects.equals(name, that.name) && Objects.equals(address, that.address) && Objects.equals(openingStatus, that.openingStatus) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(websiteUrl, that.websiteUrl) && Objects.equals(detailsItemViewStateList, that.detailsItemViewStateList);
    }
 
    @Override
