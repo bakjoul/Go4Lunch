@@ -124,7 +124,7 @@
                         <Button
                             android:id="@+id/details_button_like"
                             style="@style/DetailsActivityAction"
-                            android:drawableTop="@drawable/ic_baseline_star_border_24"
+                            android:drawableTop="@drawable/tgl_details_like"
                             android:text="@string/details_button_like" />
 
                         <Button
