@@ -50,6 +50,9 @@ public class DetailsActivity extends AppCompatActivity {
       ImageView photo = binding.detailsRestaurantPhoto;
 
       viewModel.getDetailsViewState().observe(this, viewState -> {
+         if (!viewState.isProgressBarVisible()) {
+            binding.detailsProgressBar.setVisibility(View.GONE);
+         }
          Glide.with(photo.getContext())
              .load(viewState.getPhotoUrl())
              .centerCrop()

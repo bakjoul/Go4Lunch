@@ -33,9 +33,11 @@ public class DetailsViewState {
    @Nullable
    private final String websiteUrl;
 
+   private final boolean isProgressBarVisible;
+
    private final List<DetailsItemViewState> detailsItemViewStateList;
 
-   public DetailsViewState(@Nullable String id, @Nullable String photoUrl, @Nullable String name, float rating, boolean isRatingBarVisible, @Nullable String address, @Nullable String openingStatus, @Nullable String phoneNumber, @Nullable String websiteUrl, List<DetailsItemViewState> detailsItemViewStateList) {
+   public DetailsViewState(@Nullable String id, @Nullable String photoUrl, @Nullable String name, float rating, boolean isRatingBarVisible, @Nullable String address, @Nullable String openingStatus, @Nullable String phoneNumber, @Nullable String websiteUrl, boolean isProgressBarVisible, List<DetailsItemViewState> detailsItemViewStateList) {
       this.id = id;
       this.photoUrl = photoUrl;
       this.name = name;
@@ -45,6 +47,7 @@ public class DetailsViewState {
       this.openingStatus = openingStatus;
       this.phoneNumber = phoneNumber;
       this.websiteUrl = websiteUrl;
+      this.isProgressBarVisible = isProgressBarVisible;
       this.detailsItemViewStateList = detailsItemViewStateList;
    }
 
@@ -91,6 +94,10 @@ public class DetailsViewState {
       return websiteUrl;
    }
 
+   public boolean isProgressBarVisible() {
+      return isProgressBarVisible;
+   }
+
    public List<DetailsItemViewState> getDetailsItemViewStateList() {
       return detailsItemViewStateList;
    }
@@ -100,12 +107,12 @@ public class DetailsViewState {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       DetailsViewState that = (DetailsViewState) o;
-      return Float.compare(that.rating, rating) == 0 && isRatingBarVisible == that.isRatingBarVisible && Objects.equals(id, that.id) && Objects.equals(photoUrl, that.photoUrl) && Objects.equals(name, that.name) && Objects.equals(address, that.address) && Objects.equals(openingStatus, that.openingStatus) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(websiteUrl, that.websiteUrl) && Objects.equals(detailsItemViewStateList, that.detailsItemViewStateList);
+      return Float.compare(that.rating, rating) == 0 && isRatingBarVisible == that.isRatingBarVisible && isProgressBarVisible == that.isProgressBarVisible && Objects.equals(id, that.id) && Objects.equals(photoUrl, that.photoUrl) && Objects.equals(name, that.name) && Objects.equals(address, that.address) && Objects.equals(openingStatus, that.openingStatus) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(websiteUrl, that.websiteUrl) && Objects.equals(detailsItemViewStateList, that.detailsItemViewStateList);
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(id, photoUrl, name, rating, isRatingBarVisible, address, openingStatus, phoneNumber, websiteUrl, detailsItemViewStateList);
+      return Objects.hash(id, photoUrl, name, rating, isRatingBarVisible, address, openingStatus, phoneNumber, websiteUrl, isProgressBarVisible, detailsItemViewStateList);
    }
 
    @NonNull
@@ -121,6 +128,7 @@ public class DetailsViewState {
           ", openingStatus='" + openingStatus + '\'' +
           ", phoneNumber='" + phoneNumber + '\'' +
           ", websiteUrl='" + websiteUrl + '\'' +
+          ", isProgressBarVisible=" + isProgressBarVisible +
           ", detailsItemViewStateList=" + detailsItemViewStateList +
           '}';
    }

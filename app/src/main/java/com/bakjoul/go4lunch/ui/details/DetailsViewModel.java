@@ -99,6 +99,7 @@ public class DetailsViewModel extends ViewModel {
           getOpeningStatus(r.getOpeningHoursResponse()),
           r.getFormattedPhoneNumber(),
           r.getWebsite(),
+          false,
           new ArrayList<>()
       );
    }
@@ -116,6 +117,7 @@ public class DetailsViewModel extends ViewModel {
               null,
               null,
               null,
+              false,
               null
           )
       );
