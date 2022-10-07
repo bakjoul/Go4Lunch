@@ -162,11 +162,14 @@ public class DetailsViewModel extends ViewModel {
             if (response.getPeriods() != null) {
                for (PeriodResponse p : response.getPeriods()) {
                   if (p.getOpen().getDay() != null && dayOfWeek == p.getOpen().getDay()) {
+                     // Check if closing time has not passed
+                     if (Long.parseLong(localDateTime.format(apiTimeFormatter)) < Long.parseLong(p.getClose().getTime()))
                      status
                          .append(application.getString(R.string.details_opened_until))
                          .append(p.getClose().getTime(), 0, 2)
                          .append(application.getString(R.string.details_time_separator))
                          .append(p.getClose().getTime(), 2, 4);
+                     break;
                   }
                }
             }
