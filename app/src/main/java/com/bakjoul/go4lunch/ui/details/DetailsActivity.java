@@ -70,7 +70,7 @@ public class DetailsActivity extends AppCompatActivity {
 
       binding.detailsAppbar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
          boolean isFabDown = false;
-         boolean isInfoPaddingChanged = false;
+         boolean isInfoAlignedLeft = true;
 
          @Override
          public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
@@ -90,19 +90,18 @@ public class DetailsActivity extends AppCompatActivity {
             }
 
             // When collapsing, info padding will be increased
-            if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange() - binding.detailsFabBack.getHeight() && isInfoPaddingChanged) {
+            if (Math.abs(verticalOffset) >= appBarLayout.getTotalScrollRange() - binding.detailsFabBack.getHeight() && isInfoAlignedLeft) {
                infoPaddingAnimation.start();
-               isInfoPaddingChanged = false;
+               isInfoAlignedLeft = false;
             }
             // When expanding, info padding will be decreased
-            else if (Math.abs(verticalOffset) < appBarLayout.getTotalScrollRange() - binding.detailsFabBack.getHeight() && !isInfoPaddingChanged) {
+            else if (Math.abs(verticalOffset) < appBarLayout.getTotalScrollRange() - binding.detailsFabBack.getHeight() && !isInfoAlignedLeft) {
                infoPaddingAnimation.setInterpolator(new ReverseInterpolator());
                infoPaddingAnimation.start();
-               isInfoPaddingChanged = true;
+               isInfoAlignedLeft = true;
             }
          }
       });
-
    }
 
    private void setCallButton(@NonNull DetailsViewState viewState) {

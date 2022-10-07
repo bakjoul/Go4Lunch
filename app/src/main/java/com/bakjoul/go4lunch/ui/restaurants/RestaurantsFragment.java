@@ -14,13 +14,14 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.FragmentRestaurantsBinding;
+import com.bakjoul.go4lunch.ui.details.DetailsActivity;
 
 import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class RestaurantsFragment extends Fragment {
+public class RestaurantsFragment extends Fragment implements RestaurantsAdapter.OnRestaurantClickListener {
 
    public static RestaurantsFragment newInstance() {
       return new RestaurantsFragment();
@@ -41,7 +42,7 @@ public class RestaurantsFragment extends Fragment {
 
       RestaurantsViewModel viewModel = new ViewModelProvider(this).get(RestaurantsViewModel.class);
 
-      RestaurantsAdapter adapter = new RestaurantsAdapter();
+      RestaurantsAdapter adapter = new RestaurantsAdapter(this);
       binding.restaurantsRecyclerView.setAdapter(adapter);
       DividerItemDecoration itemDecoration = new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
       itemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(requireContext(), R.drawable.custom_divider)));
@@ -49,5 +50,12 @@ public class RestaurantsFragment extends Fragment {
 
       viewModel.getRestaurantsViewState().observe(getViewLifecycleOwner(), restaurantsViewState ->
           adapter.submitList(restaurantsViewState.getRestaurantsItemViewStates()));
+   }
+
+   @Override
+   public void OnRestaurantClicked(int position) {
+      DetailsActivity.navigate(
+          binding.restaurantsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString(), getActivity()
+      );
    }
 }

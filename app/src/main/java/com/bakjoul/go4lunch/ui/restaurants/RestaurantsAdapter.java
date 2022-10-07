@@ -15,14 +15,17 @@ import com.bumptech.glide.Glide;
 
 public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, RestaurantsAdapter.ViewHolder> {
 
-   public RestaurantsAdapter() {
+   private final OnRestaurantClickListener onRestaurantClickListener;
+
+   public RestaurantsAdapter(OnRestaurantClickListener onRestaurantClickListener) {
       super(new RestaurantsAdapterDiffCallback());
+      this.onRestaurantClickListener = onRestaurantClickListener;
    }
 
    @NonNull
    @Override
    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-      return new ViewHolder(FragmentRestaurantsItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+      return new ViewHolder(FragmentRestaurantsItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false), this.onRestaurantClickListener);
    }
 
    @Override
@@ -30,16 +33,21 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
       holder.bind(getItem(position));
    }
 
-   public static class ViewHolder extends RecyclerView.ViewHolder {
+   public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
 
       private final FragmentRestaurantsItemBinding binding;
+      private final OnRestaurantClickListener onRestaurantClickListener;
 
-      public ViewHolder(@NonNull FragmentRestaurantsItemBinding binding) {
+      public ViewHolder(@NonNull FragmentRestaurantsItemBinding binding, OnRestaurantClickListener onRestaurantClickListener) {
          super(binding.getRoot());
          this.binding = binding;
+
+         binding.getRoot().setOnClickListener(this);
+         this.onRestaurantClickListener = onRestaurantClickListener;
       }
 
       public void bind(@NonNull RestaurantsItemViewState viewState) {
+         itemView.setTag(viewState.getId());
          binding.restaurantsItemName.setText(viewState.getName());
          binding.restaurantsItemLocation.setText(viewState.getAddress());
          binding.restaurantsItemIsOpen.setText(viewState.getIsOpen());
@@ -57,6 +65,11 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
              .centerCrop()
              .into(photo);
       }
+
+      @Override
+      public void onClick(View view) {
+         this.onRestaurantClickListener.OnRestaurantClicked(getAdapterPosition());
+      }
    }
 
    private static class RestaurantsAdapterDiffCallback extends DiffUtil.ItemCallback<RestaurantsItemViewState> {
@@ -70,5 +83,9 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
       public boolean areContentsTheSame(@NonNull RestaurantsItemViewState oldItem, @NonNull RestaurantsItemViewState newItem) {
          return oldItem.equals(newItem);
       }
+   }
+
+   public interface OnRestaurantClickListener {
+      void OnRestaurantClicked(int position);
    }
 }
