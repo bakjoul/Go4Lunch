@@ -12,10 +12,12 @@ public class MapViewState {
 
    private final LatLng latLng;
    private final List<RestaurantMarker> restaurantsMarkers;
+   private final boolean isProgressBarVisible;
 
-   public MapViewState(LatLng latLng, List<RestaurantMarker> restaurantsMarkers) {
+   public MapViewState(LatLng latLng, List<RestaurantMarker> restaurantsMarkers, boolean isProgressBarVisible) {
       this.latLng = latLng;
       this.restaurantsMarkers = restaurantsMarkers;
+      this.isProgressBarVisible = isProgressBarVisible;
    }
 
    public LatLng getLatLng() {
@@ -26,17 +28,21 @@ public class MapViewState {
       return restaurantsMarkers;
    }
 
+   public boolean isProgressBarVisible() {
+      return isProgressBarVisible;
+   }
+
    @Override
    public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       MapViewState that = (MapViewState) o;
-      return Objects.equals(latLng, that.latLng) && Objects.equals(restaurantsMarkers, that.restaurantsMarkers);
+      return isProgressBarVisible == that.isProgressBarVisible && Objects.equals(latLng, that.latLng) && Objects.equals(restaurantsMarkers, that.restaurantsMarkers);
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(latLng, restaurantsMarkers);
+      return Objects.hash(latLng, restaurantsMarkers, isProgressBarVisible);
    }
 
    @NonNull
@@ -45,6 +51,7 @@ public class MapViewState {
       return "MapViewState{" +
           "latLng=" + latLng +
           ", restaurantsMarkers=" + restaurantsMarkers +
+          ", isProgressBarVisible=" + isProgressBarVisible +
           '}';
    }
 }

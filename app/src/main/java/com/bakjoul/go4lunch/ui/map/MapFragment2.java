@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.model.RestaurantMarker;
+import com.bakjoul.go4lunch.databinding.FragmentMap2Binding;
 import com.bakjoul.go4lunch.ui.details.DetailsActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -25,24 +26,29 @@ public class MapFragment2 extends Fragment {
 
    private static final String TAG = "MapFragment2";
 
+   private FragmentMap2Binding binding;
+
    public static MapFragment2 newInstance() {
       return new MapFragment2();
    }
 
-
    @SuppressLint("MissingPermission")
    @Override
-   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
-                            Bundle savedInstanceState) {
-      Log.d(TAG, "onCreateView: MAPFRAGMENT2");
-      MapViewModel viewModel = new ViewModelProvider(this).get(MapViewModel.class);
+   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      binding = FragmentMap2Binding.inflate(inflater, container, false);
 
       SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
+      MapViewModel viewModel = new ViewModelProvider(this).get(MapViewModel.class);
 
       if (supportMapFragment != null) {
          supportMapFragment.getMapAsync(googleMap ->
              viewModel.getMapViewStateMediatorLiveData().observe(getViewLifecycleOwner(), viewState -> {
                 if (viewState != null) {
+                   if (!viewState.isProgressBarVisible()) {
+                      binding.mapProgressBar.setVisibility(View.GONE);
+                   } else {
+                      binding.mapProgressBar.setVisibility(View.VISIBLE);
+                   }
                    googleMap.clear();
                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
                            viewState.getLatLng(),
@@ -73,7 +79,6 @@ public class MapFragment2 extends Fragment {
              })
          );
       }
-
-      return inflater.inflate(R.layout.fragment_map2, container, false);
+      return binding.getRoot();
    }
 }

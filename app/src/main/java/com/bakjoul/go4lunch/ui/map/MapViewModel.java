@@ -41,6 +41,8 @@ public class MapViewModel extends ViewModel {
 
    private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
 
+   private final MutableLiveData<Boolean> isProgressBarVisibleLiveData = new MutableLiveData<>(true);
+
    @Inject
    public MapViewModel(
        @NonNull LocationRepository locationRepository,
@@ -56,6 +58,7 @@ public class MapViewModel extends ViewModel {
              @Override
              public LiveData<List<RestaurantMarker>> apply(Location location) {
                 if (location != null) {
+                   isProgressBarVisibleLiveData.setValue(true);
                    locationLiveData.setValue(location);
                    nearbySearchResponseLiveData = restaurantRepository.getNearbySearchResponse(
                        getLocation(location),
@@ -68,6 +71,7 @@ public class MapViewModel extends ViewModel {
                        nearbySearchResponseLiveData, response -> {
                           List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
                           if (response != null) {
+                             isProgressBarVisibleLiveData.setValue(false);
                              Bitmap greenMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_green_marker);
                              Bitmap redMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_red_marker);
                              for (RestaurantResponse r : response.getResults()) {
@@ -86,6 +90,7 @@ public class MapViewModel extends ViewModel {
                                 }
                              }
                           } else {
+                             isProgressBarVisibleLiveData.setValue(false);
                              return restaurantsMarkers;
                           }
                           return restaurantsMarkers;
@@ -101,13 +106,18 @@ public class MapViewModel extends ViewModel {
       );
 
       mapViewStateMediatorLiveData.addSource(locationLiveData, location ->
-          combine(location, restaurantsMarkersLiveData.getValue()));
+          combine(location, restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue()));
       mapViewStateMediatorLiveData.addSource(restaurantsMarkersLiveData, markerOptions ->
-          combine(locationLiveData.getValue(), markerOptions));
+          combine(locationLiveData.getValue(), markerOptions, isProgressBarVisibleLiveData.getValue()));
+      mapViewStateMediatorLiveData.addSource(isProgressBarVisibleLiveData, isProgressBarVisible ->
+          combine(locationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisible));
    }
 
 
-   private void combine(@Nullable Location location, @Nullable List<RestaurantMarker> restaurantMarkers) {
+   private void combine(
+       @Nullable Location location,
+       @Nullable List<RestaurantMarker> restaurantMarkers,
+       Boolean isProgressBarVisible) {
       if (location == null) {
          return;
       }
@@ -117,15 +127,15 @@ public class MapViewModel extends ViewModel {
          mapViewStateMediatorLiveData.setValue(
              new MapViewState(
                  new LatLng(location.getLatitude(), location.getLongitude()),
-                 emptyList
-             )
+                 emptyList,
+                 isProgressBarVisible)
          );
       } else {
          mapViewStateMediatorLiveData.setValue(
              new MapViewState(
                  new LatLng(location.getLatitude(), location.getLongitude()),
-                 restaurantMarkers
-             )
+                 restaurantMarkers,
+                 isProgressBarVisible)
          );
       }
    }
