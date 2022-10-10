@@ -67,7 +67,7 @@ public class MapViewModel extends ViewModel {
                 if (location != null) {
                    isProgressBarVisibleLiveData.setValue(true);
                    locationLiveData.setValue(location);
-                   nearbySearchResultLiveData = restaurantRepository.getNearbySearchResponse(
+                   nearbySearchResultLiveData = restaurantRepository.getNearbySearchResult(
                        getLocation(location),
                        RANK_BY,
                        TYPE,
@@ -162,5 +162,9 @@ public class MapViewModel extends ViewModel {
    @NonNull
    private String getLocation(@NonNull Location location) {
       return location.getLatitude() + "," + location.getLongitude();
+   }
+
+   public void onRetryButtonClicked() {
+
    }
 }

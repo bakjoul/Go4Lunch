@@ -27,7 +27,7 @@ import com.bakjoul.go4lunch.ui.NoPermissionFragment;
 import com.bakjoul.go4lunch.ui.dispatcher.DispatcherActivity;
 import com.bakjoul.go4lunch.ui.main.MainViewModel.BottomNavigationViewButton;
 import com.bakjoul.go4lunch.ui.main.MainViewModel.FragmentToDisplay;
-import com.bakjoul.go4lunch.ui.map.MapFragment2;
+import com.bakjoul.go4lunch.ui.map.MapFragment;
 import com.bakjoul.go4lunch.ui.restaurants.RestaurantsFragment;
 import com.bakjoul.go4lunch.ui.workmates.WorkmatesFragment;
 import com.bumptech.glide.Glide;
@@ -131,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
       boolean shown = false;
 
       for (Fragment fragment : getSupportFragmentManager().getFragments()) {
-         if (fragment instanceof MapFragment2) {
+         if (fragment instanceof MapFragment) {
             if (selected == FragmentToDisplay.MAP) {
                transaction.show(fragment);
                shown = true;
@@ -165,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
       if (!shown) {
          switch (selected) {
             case MAP:
-               transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), MapFragment2.newInstance());
+               transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), MapFragment.newInstance());
                break;
             case RESTAURANT:
                transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), RestaurantsFragment.newInstance());

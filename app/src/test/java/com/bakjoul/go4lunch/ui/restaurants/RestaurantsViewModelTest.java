@@ -18,6 +18,7 @@ import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.model.GeometryResponse;
 import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
+import com.bakjoul.go4lunch.data.model.NearbySearchResult;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
@@ -101,7 +102,7 @@ public class RestaurantsViewModelTest {
 
    private final Location location = Mockito.mock(Location.class);
 
-   private final MutableLiveData<NearbySearchResponse> nearbySearchResponseLiveData = new MutableLiveData<>();
+   private final MutableLiveData<NearbySearchResult> nearbySearchResultMutableLiveData = new MutableLiveData<>();
    private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
    private RestaurantsViewModel viewModel;
@@ -112,7 +113,7 @@ public class RestaurantsViewModelTest {
       given(application.getString(R.string.restaurant_is_closed)).willReturn(CLOSED);
       given(application.getString(R.string.information_not_available)).willReturn(NOT_AVAILABLE);
 
-      doReturn(nearbySearchResponseLiveData).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+      doReturn(nearbySearchResultMutableLiveData).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
       doReturn(locationLiveData).when(locationRepository).getCurrentLocation();
       doReturn("50m").when(locationDistanceUtils).getDistance(location, new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude));
       doReturn("ImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", false);
@@ -130,7 +131,7 @@ public class RestaurantsViewModelTest {
    @Test
    public void nominal_case() {
       // Given
-      nearbySearchResponseLiveData.setValue(getDefaultNearbySearchResponse());
+      nearbySearchResultMutableLiveData.setValue(getDefaultNearbySearchResult());
 
       // When
       RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
@@ -142,7 +143,7 @@ public class RestaurantsViewModelTest {
    @Test
    public void nearbysearchresponse_is_null_should_expose_empty_viewstate() {
       // Given
-      nearbySearchResponseLiveData.setValue(null);
+      nearbySearchResultMutableLiveData.setValue(new NearbySearchResult(null, null));
 
       // When
       RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
@@ -163,13 +164,12 @@ public class RestaurantsViewModelTest {
       assertEquals(getEmptyRestaurantViewState(), result);
    }
 
-
    // region IN
    @NonNull
-   private NearbySearchResponse getDefaultNearbySearchResponse() {
-      return new NearbySearchResponse(
-          new ArrayList<>(Arrays.asList(RESTAURANT_RESPONSE_1, RESTAURANT_RESPONSE_2, RESTAURANT_RESPONSE_3, RESTAURANT_RESPONSE_4)),
-          "OK"
+   private NearbySearchResult getDefaultNearbySearchResult() {
+      return new NearbySearchResult(
+          new NearbySearchResponse(new ArrayList<>(Arrays.asList(RESTAURANT_RESPONSE_1, RESTAURANT_RESPONSE_2, RESTAURANT_RESPONSE_3, RESTAURANT_RESPONSE_4)), "OK"),
+          null
       );
    }
 

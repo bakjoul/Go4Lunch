@@ -9,7 +9,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -79,7 +78,7 @@ public class RestaurantsViewModel extends ViewModel {
              if (location != null) {
                 isProgressBarVisibleLiveData.setValue(true);
                 locationLiveData.setValue(location);
-                LiveData<NearbySearchResult> nearbySearchResultLiveData = restaurantRepository.getNearbySearchResponse(
+                LiveData<NearbySearchResult> nearbySearchResultLiveData = restaurantRepository.getNearbySearchResult(
                     RestaurantsViewModel.this.getLocation(location),
                     RANK_BY,
                     TYPE,
@@ -104,6 +103,7 @@ public class RestaurantsViewModel extends ViewModel {
                     }
                 );
              } else {
+                isProgressBarVisibleLiveData.setValue(false);
                 locationLiveData.setValue(null);
                 return null;
              }
@@ -122,11 +122,7 @@ public class RestaurantsViewModel extends ViewModel {
        @Nullable Location location,
        @Nullable List<RestaurantsItemViewState> restaurantsItemViewStateList,
        Boolean isProgressBarVisible) {
-      if (location == null) {
-         return;
-      }
-
-      if (restaurantsItemViewStateList == null) {
+      if (location == null || restaurantsItemViewStateList == null) {
          List<RestaurantsItemViewState> emptyList = new ArrayList<>();
          restaurantsViewStateMediatorLiveData.setValue(
              new RestaurantsViewState(
@@ -218,7 +214,7 @@ public class RestaurantsViewModel extends ViewModel {
       return null;
    }
 
-   public LiveData<RestaurantsViewState> getRestaurantsViewStateMediatorLiveData() {
+   public LiveData<RestaurantsViewState> getRestaurantsViewState() {
       return restaurantsViewStateMediatorLiveData;
    }
 

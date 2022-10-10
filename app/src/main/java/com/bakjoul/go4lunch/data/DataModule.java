@@ -10,6 +10,8 @@ import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.inject.Singleton;
 
 import dagger.Module;
@@ -54,6 +56,8 @@ public class DataModule {
 
       OkHttpClient client = new OkHttpClient.Builder()
           .addInterceptor(interceptor)
+          .connectTimeout(10, TimeUnit.SECONDS)
+          .readTimeout(10, TimeUnit.SECONDS)
           .build();
 
       return new Retrofit.Builder()
