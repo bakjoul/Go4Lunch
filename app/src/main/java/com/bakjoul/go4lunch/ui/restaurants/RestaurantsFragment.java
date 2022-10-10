@@ -51,7 +51,7 @@ public class RestaurantsFragment extends Fragment implements RestaurantsAdapter.
       itemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(requireContext(), R.drawable.custom_divider)));
       binding.restaurantsRecyclerView.addItemDecoration(itemDecoration);
 
-      viewModel.getRestaurantsViewState().observe(getViewLifecycleOwner(), viewState -> {
+      viewModel.getRestaurantsViewStateMediatorLiveData().observe(getViewLifecycleOwner(), viewState -> {
              if (!viewState.isProgressBarVisible()) {
                 binding.listProgressBar.setVisibility(View.GONE);
              } else {

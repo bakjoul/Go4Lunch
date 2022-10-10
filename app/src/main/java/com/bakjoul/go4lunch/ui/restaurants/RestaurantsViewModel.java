@@ -9,7 +9,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
@@ -52,7 +54,9 @@ public class RestaurantsViewModel extends ViewModel {
    @NonNull
    private final RestaurantImageMapper restaurantImageMapper;
 
-   private final LiveData<RestaurantsViewState> restaurantsViewState;
+   private final MediatorLiveData<RestaurantsViewState> restaurantsViewStateMediatorLiveData = new MediatorLiveData<>();
+
+   private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
    private final MutableLiveData<Boolean> isProgressBarVisibleLiveData = new MutableLiveData<>(true);
 
@@ -70,10 +74,11 @@ public class RestaurantsViewModel extends ViewModel {
       this.locationDistanceUtils = locationDistanceUtils;
       this.restaurantImageMapper = restaurantImageMapper;
 
-      restaurantsViewState = Transformations.switchMap(
+      LiveData<List<RestaurantsItemViewState>> restaurantsItemViewStateLiveData = Transformations.switchMap(
           locationRepository.getCurrentLocation(), location -> {
              if (location != null) {
                 isProgressBarVisibleLiveData.setValue(true);
+                locationLiveData.setValue(location);
                 LiveData<NearbySearchResult> nearbySearchResultLiveData = restaurantRepository.getNearbySearchResponse(
                     RestaurantsViewModel.this.getLocation(location),
                     RANK_BY,
@@ -81,12 +86,11 @@ public class RestaurantsViewModel extends ViewModel {
                     BuildConfig.MAPS_API_KEY
                 );
                 return Transformations.map(
-                    nearbySearchResultLiveData,
-                    result -> {
+                    nearbySearchResultLiveData, result -> {
                        List<RestaurantsItemViewState> restaurantsItemViewStateList;
                        if (result.getResponse() != null) {
                           isProgressBarVisibleLiveData.setValue(false);
-                          restaurantsItemViewStateList = RestaurantsViewModel.this.mapData(result.getResponse(), location);
+                          restaurantsItemViewStateList = mapData(result.getResponse(), location);
                        } else if (result.getErrorType() == ErrorType.TIMEOUT) {
                           isProgressBarVisibleLiveData.setValue(false);
                           restaurantsItemViewStateList = new ArrayList<>();
@@ -96,14 +100,50 @@ public class RestaurantsViewModel extends ViewModel {
                           isProgressBarVisibleLiveData.setValue(false);
                           restaurantsItemViewStateList = new ArrayList<>();
                        }
-                       return new RestaurantsViewState(restaurantsItemViewStateList, restaurantsItemViewStateList.isEmpty(), false);
+                       return restaurantsItemViewStateList;
                     }
                 );
              } else {
-                return new MutableLiveData<>(new RestaurantsViewState(new ArrayList<>(), true, false));
+                locationLiveData.setValue(null);
+                return null;
              }
           }
       );
+
+      restaurantsViewStateMediatorLiveData.addSource(locationLiveData, location ->
+          combine(location, restaurantsItemViewStateLiveData.getValue(), isProgressBarVisibleLiveData.getValue()));
+      restaurantsViewStateMediatorLiveData.addSource(restaurantsItemViewStateLiveData, restaurantsItemViewStateList ->
+          combine(locationLiveData.getValue(), restaurantsItemViewStateList, isProgressBarVisibleLiveData.getValue()));
+      restaurantsViewStateMediatorLiveData.addSource(isProgressBarVisibleLiveData, isProgressBarVisible ->
+          combine(locationLiveData.getValue(), restaurantsItemViewStateLiveData.getValue(), isProgressBarVisible));
+   }
+
+   private void combine(
+       @Nullable Location location,
+       @Nullable List<RestaurantsItemViewState> restaurantsItemViewStateList,
+       Boolean isProgressBarVisible) {
+      if (location == null) {
+         return;
+      }
+
+      if (restaurantsItemViewStateList == null) {
+         List<RestaurantsItemViewState> emptyList = new ArrayList<>();
+         restaurantsViewStateMediatorLiveData.setValue(
+             new RestaurantsViewState(
+                 emptyList,
+                 true,
+                 isProgressBarVisible
+             )
+         );
+      } else {
+         restaurantsViewStateMediatorLiveData.setValue(
+             new RestaurantsViewState(
+                 restaurantsItemViewStateList,
+                 restaurantsItemViewStateList.isEmpty(),
+                 isProgressBarVisible
+             )
+         );
+      }
    }
 
    @NonNull
@@ -178,8 +218,8 @@ public class RestaurantsViewModel extends ViewModel {
       return null;
    }
 
-   public LiveData<RestaurantsViewState> getRestaurantsViewState() {
-      return restaurantsViewState;
+   public LiveData<RestaurantsViewState> getRestaurantsViewStateMediatorLiveData() {
+      return restaurantsViewStateMediatorLiveData;
    }
 
    public SingleLiveEvent<ErrorType> getErrorTypeSingleLiveEvent() {

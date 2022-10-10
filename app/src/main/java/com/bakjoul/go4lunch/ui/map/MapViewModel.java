@@ -42,9 +42,9 @@ public class MapViewModel extends ViewModel {
 
    private static final String TAG = "MapViewModel";
 
-   private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
-
    private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
+
+   private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
    private final MutableLiveData<Boolean> isProgressBarVisibleLiveData = new MutableLiveData<>(true);
 
@@ -59,7 +59,6 @@ public class MapViewModel extends ViewModel {
 
       LiveData<List<RestaurantMarker>> restaurantsMarkersLiveData = Transformations.switchMap(
           locationRepository.getCurrentLocation(), new Function<Location, LiveData<List<RestaurantMarker>>>() {
-             //LiveData<NearbySearchResponse> nearbySearchResponseLiveData;
              LiveData<NearbySearchResult> nearbySearchResultLiveData;
              LiveData<List<RestaurantMarker>> markersLiveData;
 
@@ -152,7 +151,7 @@ public class MapViewModel extends ViewModel {
       }
    }
 
-   public MediatorLiveData<MapViewState> getMapViewStateMediatorLiveData() {
+   public LiveData<MapViewState> getMapViewStateMediatorLiveData() {
       return mapViewStateMediatorLiveData;
    }
 
