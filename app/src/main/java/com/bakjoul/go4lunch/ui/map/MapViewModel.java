@@ -6,6 +6,7 @@ import static com.bakjoul.go4lunch.data.repository.RestaurantRepository.TYPE;
 import android.app.Application;
 import android.graphics.Bitmap;
 import android.location.Location;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,12 +19,14 @@ import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
+import com.bakjoul.go4lunch.data.model.ErrorType;
+import com.bakjoul.go4lunch.data.model.NearbySearchResult;
 import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
+import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -37,11 +40,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class MapViewModel extends ViewModel {
 
+   private static final String TAG = "MapViewModel";
+
    private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
 
    private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
 
    private final MutableLiveData<Boolean> isProgressBarVisibleLiveData = new MutableLiveData<>(true);
+
+   private final SingleLiveEvent<ErrorType> errorTypeSingleLiveEvent = new SingleLiveEvent<>();
 
    @Inject
    public MapViewModel(
@@ -52,7 +59,8 @@ public class MapViewModel extends ViewModel {
 
       LiveData<List<RestaurantMarker>> restaurantsMarkersLiveData = Transformations.switchMap(
           locationRepository.getCurrentLocation(), new Function<Location, LiveData<List<RestaurantMarker>>>() {
-             LiveData<NearbySearchResponse> nearbySearchResponseLiveData;
+             //LiveData<NearbySearchResponse> nearbySearchResponseLiveData;
+             LiveData<NearbySearchResult> nearbySearchResultLiveData;
              LiveData<List<RestaurantMarker>> markersLiveData;
 
              @Override
@@ -60,7 +68,7 @@ public class MapViewModel extends ViewModel {
                 if (location != null) {
                    isProgressBarVisibleLiveData.setValue(true);
                    locationLiveData.setValue(location);
-                   nearbySearchResponseLiveData = restaurantRepository.getNearbySearchResponse(
+                   nearbySearchResultLiveData = restaurantRepository.getNearbySearchResponse(
                        getLocation(location),
                        RANK_BY,
                        TYPE,
@@ -68,13 +76,13 @@ public class MapViewModel extends ViewModel {
                    );
 
                    markersLiveData = Transformations.map(
-                       nearbySearchResponseLiveData, response -> {
+                       nearbySearchResultLiveData, result -> {
                           List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
-                          if (response != null) {
+                          if (result.getResponse() != null) {
                              isProgressBarVisibleLiveData.setValue(false);
                              Bitmap greenMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_green_marker);
                              Bitmap redMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_red_marker);
-                             for (RestaurantResponse r : response.getResults()) {
+                             for (RestaurantResponse r : result.getResponse().getResults()) {
                                 if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
                                    restaurantsMarkers.add(
                                        new RestaurantMarker(
@@ -89,6 +97,10 @@ public class MapViewModel extends ViewModel {
                                    );
                                 }
                              }
+                          } else if (result.getErrorType() == ErrorType.TIMEOUT) {
+                             isProgressBarVisibleLiveData.setValue(false);
+                             errorTypeSingleLiveEvent.setValue(ErrorType.TIMEOUT);
+                             Log.d(TAG, "Socket time out");
                           } else {
                              isProgressBarVisibleLiveData.setValue(false);
                              return restaurantsMarkers;
@@ -142,6 +154,10 @@ public class MapViewModel extends ViewModel {
 
    public MediatorLiveData<MapViewState> getMapViewStateMediatorLiveData() {
       return mapViewStateMediatorLiveData;
+   }
+
+   public SingleLiveEvent<ErrorType> getErrorTypeSingleLiveEvent() {
+      return errorTypeSingleLiveEvent;
    }
 
    @NonNull

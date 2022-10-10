@@ -9,10 +9,12 @@ public class RestaurantsViewState {
 
    private final List<RestaurantsItemViewState> restaurantsItemViewStates;
    private final boolean isEmptyStateVisible;
+   private final boolean isProgressBarVisible;
 
-   public RestaurantsViewState(List<RestaurantsItemViewState> restaurantsItemViewStates, boolean isEmptyStateVisible) {
+   public RestaurantsViewState(List<RestaurantsItemViewState> restaurantsItemViewStates, boolean isEmptyStateVisible, boolean isProgressBarVisible) {
       this.restaurantsItemViewStates = restaurantsItemViewStates;
       this.isEmptyStateVisible = isEmptyStateVisible;
+      this.isProgressBarVisible = isProgressBarVisible;
    }
 
    public List<RestaurantsItemViewState> getRestaurantsItemViewStates() {
@@ -23,17 +25,21 @@ public class RestaurantsViewState {
       return isEmptyStateVisible;
    }
 
+   public boolean isProgressBarVisible() {
+      return isProgressBarVisible;
+   }
+
    @Override
    public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
-      RestaurantsViewState viewState = (RestaurantsViewState) o;
-      return isEmptyStateVisible == viewState.isEmptyStateVisible && Objects.equals(restaurantsItemViewStates, viewState.restaurantsItemViewStates);
+      RestaurantsViewState that = (RestaurantsViewState) o;
+      return isEmptyStateVisible == that.isEmptyStateVisible && isProgressBarVisible == that.isProgressBarVisible && Objects.equals(restaurantsItemViewStates, that.restaurantsItemViewStates);
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(restaurantsItemViewStates, isEmptyStateVisible);
+      return Objects.hash(restaurantsItemViewStates, isEmptyStateVisible, isProgressBarVisible);
    }
 
    @NonNull
@@ -42,6 +48,7 @@ public class RestaurantsViewState {
       return "RestaurantsViewState{" +
           "restaurantsItemViewStates=" + restaurantsItemViewStates +
           ", isEmptyStateVisible=" + isEmptyStateVisible +
+          ", isProgressBarVisible=" + isProgressBarVisible +
           '}';
    }
 }

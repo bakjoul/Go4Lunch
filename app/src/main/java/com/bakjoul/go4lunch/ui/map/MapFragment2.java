@@ -12,12 +12,14 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bakjoul.go4lunch.R;
+import com.bakjoul.go4lunch.data.model.ErrorType;
 import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.databinding.FragmentMap2Binding;
 import com.bakjoul.go4lunch.ui.details.DetailsActivity;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.snackbar.Snackbar;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -79,6 +81,20 @@ public class MapFragment2 extends Fragment {
              })
          );
       }
+
+
+      viewModel.getErrorTypeSingleLiveEvent().observe(getViewLifecycleOwner(), errorType -> {
+         if (errorType == ErrorType.TIMEOUT) {
+            Snackbar
+                .make(binding.getRoot(), R.string.snackbar_timeout, Snackbar.LENGTH_INDEFINITE)
+                .setAnchorView(binding.mapProgressBar)
+                .setAction(R.string.snackbar_retry, view -> {
+                   // Do something
+                })
+                .show();
+         }
+      });
+
       return binding.getRoot();
    }
 }

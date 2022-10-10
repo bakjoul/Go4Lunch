@@ -222,12 +222,12 @@ public class RestaurantsViewModelTest {
               null
           )
       );
-      return new RestaurantsViewState(restaurantsItemViewStateList, false);
+      return new RestaurantsViewState(restaurantsItemViewStateList, false, false);
    }
 
    @NonNull
    private RestaurantsViewState getEmptyRestaurantViewState() {
-      return new RestaurantsViewState(new ArrayList<>(), true);
+      return new RestaurantsViewState(new ArrayList<>(), true, false);
    }
    // endregion OUT
 }

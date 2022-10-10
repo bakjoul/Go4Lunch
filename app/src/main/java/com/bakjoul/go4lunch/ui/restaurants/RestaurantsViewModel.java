@@ -5,6 +5,7 @@ import static com.bakjoul.go4lunch.data.repository.RestaurantRepository.TYPE;
 
 import android.app.Application;
 import android.location.Location;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,8 +16,10 @@ import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.R;
+import com.bakjoul.go4lunch.data.model.ErrorType;
 import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
+import com.bakjoul.go4lunch.data.model.NearbySearchResult;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
@@ -24,6 +27,7 @@ import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
+import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +38,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 
 @HiltViewModel
 public class RestaurantsViewModel extends ViewModel {
+
+   private static final String TAG = "RestaurantsViewModel";
 
    private static final String BUSINESS_STATUS_OPERATIONAL = "OPERATIONAL";
 
@@ -47,6 +53,10 @@ public class RestaurantsViewModel extends ViewModel {
    private final RestaurantImageMapper restaurantImageMapper;
 
    private final LiveData<RestaurantsViewState> restaurantsViewState;
+
+   private final MutableLiveData<Boolean> isProgressBarVisibleLiveData = new MutableLiveData<>(true);
+
+   private final SingleLiveEvent<ErrorType> errorTypeSingleLiveEvent = new SingleLiveEvent<>();
 
    @Inject
    public RestaurantsViewModel(
@@ -63,26 +73,34 @@ public class RestaurantsViewModel extends ViewModel {
       restaurantsViewState = Transformations.switchMap(
           locationRepository.getCurrentLocation(), location -> {
              if (location != null) {
-                LiveData<NearbySearchResponse> nearbySearchResponseLiveData = restaurantRepository.getNearbySearchResponse(
+                isProgressBarVisibleLiveData.setValue(true);
+                LiveData<NearbySearchResult> nearbySearchResultLiveData = restaurantRepository.getNearbySearchResponse(
                     RestaurantsViewModel.this.getLocation(location),
                     RANK_BY,
                     TYPE,
                     BuildConfig.MAPS_API_KEY
                 );
                 return Transformations.map(
-                    nearbySearchResponseLiveData,
-                    response -> {
+                    nearbySearchResultLiveData,
+                    result -> {
                        List<RestaurantsItemViewState> restaurantsItemViewStateList;
-                       if (response != null) {
-                          restaurantsItemViewStateList = RestaurantsViewModel.this.mapData(response, location);
+                       if (result.getResponse() != null) {
+                          isProgressBarVisibleLiveData.setValue(false);
+                          restaurantsItemViewStateList = RestaurantsViewModel.this.mapData(result.getResponse(), location);
+                       } else if (result.getErrorType() == ErrorType.TIMEOUT) {
+                          isProgressBarVisibleLiveData.setValue(false);
+                          restaurantsItemViewStateList = new ArrayList<>();
+                          errorTypeSingleLiveEvent.setValue(ErrorType.TIMEOUT);
+                          Log.d(TAG, "Socket time out");
                        } else {
+                          isProgressBarVisibleLiveData.setValue(false);
                           restaurantsItemViewStateList = new ArrayList<>();
                        }
-                       return new RestaurantsViewState(restaurantsItemViewStateList, restaurantsItemViewStateList.isEmpty());
+                       return new RestaurantsViewState(restaurantsItemViewStateList, restaurantsItemViewStateList.isEmpty(), false);
                     }
                 );
              } else {
-                return new MutableLiveData<>(new RestaurantsViewState(new ArrayList<>(), true));
+                return new MutableLiveData<>(new RestaurantsViewState(new ArrayList<>(), true, false));
              }
           }
       );
@@ -162,5 +180,9 @@ public class RestaurantsViewModel extends ViewModel {
 
    public LiveData<RestaurantsViewState> getRestaurantsViewState() {
       return restaurantsViewState;
+   }
+
+   public SingleLiveEvent<ErrorType> getErrorTypeSingleLiveEvent() {
+      return errorTypeSingleLiveEvent;
    }
 }

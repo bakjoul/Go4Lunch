@@ -7,7 +7,11 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.data.api.RestaurantApi;
+import com.bakjoul.go4lunch.data.model.ErrorType;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
+import com.bakjoul.go4lunch.data.model.NearbySearchResult;
+
+import java.net.SocketTimeoutException;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -32,25 +36,34 @@ public class RestaurantRepository {
       this.restaurantApi = restaurantApi;
    }
 
-   public LiveData<NearbySearchResponse> getNearbySearchResponse(
+   public LiveData<NearbySearchResult> getNearbySearchResponse(
        String location,
        String rankBy,
        String type,
        String key
    ) {
-      MutableLiveData<NearbySearchResponse> restaurantResponseMutableLiveData = new MutableLiveData<>();
+      MutableLiveData<NearbySearchResult> restaurantResultMutableLiveData = new MutableLiveData<>();
+      //MutableLiveData<NearbySearchResponse> restaurantResponseMutableLiveData = new MutableLiveData<>();
       restaurantApi.getRestaurants(location, rankBy, type, key).enqueue(new Callback<NearbySearchResponse>() {
          @Override
          public void onResponse(@NonNull Call<NearbySearchResponse> call, @NonNull Response<NearbySearchResponse> response) {
-            restaurantResponseMutableLiveData.setValue(response.body());
+            //restaurantResponseMutableLiveData.setValue(response.body());
+            restaurantResultMutableLiveData.setValue(new NearbySearchResult(response.body(), null));
          }
 
          @Override
          public void onFailure(@NonNull Call<NearbySearchResponse> call, @NonNull Throwable t) {
             Log.d(TAG, "onFailure: ");
-            restaurantResponseMutableLiveData.setValue(null);
+            //restaurantResponseMutableLiveData.setValue(null);
+            if (t instanceof SocketTimeoutException) {
+               restaurantResultMutableLiveData.setValue(new NearbySearchResult(null, ErrorType.TIMEOUT));
+            } else {
+               restaurantResultMutableLiveData.setValue(new NearbySearchResult(null, null));
+            }
+
          }
       });
-      return restaurantResponseMutableLiveData;
+      //return restaurantResponseMutableLiveData;
+      return restaurantResultMutableLiveData;
    }
 }

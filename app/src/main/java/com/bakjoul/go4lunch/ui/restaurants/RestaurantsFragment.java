@@ -1,6 +1,7 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,8 +14,10 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 
 import com.bakjoul.go4lunch.R;
+import com.bakjoul.go4lunch.data.model.ErrorType;
 import com.bakjoul.go4lunch.databinding.FragmentRestaurantsBinding;
 import com.bakjoul.go4lunch.ui.details.DetailsActivity;
+import com.google.android.material.snackbar.Snackbar;
 
 import java.util.Objects;
 
@@ -48,8 +51,28 @@ public class RestaurantsFragment extends Fragment implements RestaurantsAdapter.
       itemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(requireContext(), R.drawable.custom_divider)));
       binding.restaurantsRecyclerView.addItemDecoration(itemDecoration);
 
-      viewModel.getRestaurantsViewState().observe(getViewLifecycleOwner(), restaurantsViewState ->
-          adapter.submitList(restaurantsViewState.getRestaurantsItemViewStates()));
+      viewModel.getRestaurantsViewState().observe(getViewLifecycleOwner(), viewState -> {
+             if (!viewState.isProgressBarVisible()) {
+                binding.listProgressBar.setVisibility(View.GONE);
+             } else {
+                binding.listProgressBar.setVisibility(View.VISIBLE);
+             }
+             adapter.submitList(viewState.getRestaurantsItemViewStates());
+          }
+      );
+
+      viewModel.getErrorTypeSingleLiveEvent().observe(getViewLifecycleOwner(), errorType -> {
+         if (errorType == ErrorType.TIMEOUT) {
+            Log.d("test", "onViewCreated: snackbar");
+            Snackbar
+                .make(binding.getRoot(), R.string.snackbar_timeout, Snackbar.LENGTH_INDEFINITE)
+                .setAnchorView(binding.listProgressBar)
+                .setAction(R.string.snackbar_retry, v -> {
+                   // Do something
+                })
+                .show();
+         }
+      });
    }
 
    @Override
