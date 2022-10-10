@@ -82,7 +82,6 @@ public class MapFragment extends Fragment {
          );
       }
 
-
       viewModel.getErrorTypeSingleLiveEvent().observe(getViewLifecycleOwner(), errorType -> {
          if (errorType == ErrorType.TIMEOUT) {
             Snackbar
