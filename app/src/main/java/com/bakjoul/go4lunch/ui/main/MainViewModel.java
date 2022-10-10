@@ -81,7 +81,6 @@ public class MainViewModel extends ViewModel {
           combine(bottomNavigationViewButton, isLocationPermissionEnabledLiveData.getValue()));
 
       fragmentToDisplaySingleLiveEvent.addSource(isLocationPermissionEnabledLiveData, isLocationPermissionEnabled -> {
-         Log.d("Nino", "onChanged() called with: isLocationPermissionEnabled = [" + isLocationPermissionEnabled + "]");
          combine(bottomNavigationViewButtonMutableLiveData.getValue(), isLocationPermissionEnabled);
       });
    }

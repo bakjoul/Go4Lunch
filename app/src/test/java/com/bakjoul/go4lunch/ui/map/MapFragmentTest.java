@@ -1,6 +1,5 @@
 package com.bakjoul.go4lunch.ui.map;
 
-import static org.hamcrest.CoreMatchers.any;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -9,7 +8,6 @@ import static org.mockito.Mockito.verify;
 
 import android.app.Application;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
@@ -29,7 +27,6 @@ import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.junit.Before;
@@ -126,7 +123,7 @@ public class MapFragmentTest {
       nearbySearchResultMutableLiveData.setValue(getDefaultNearbySearchResult());
 
       // When
-      MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateMediatorLiveData());
+      MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
 
       // Then
       assertEquals(getDefaultMapViewState(), result);

@@ -179,7 +179,7 @@ public class MainActivity extends AppCompatActivity {
          }
       }
 
-      transaction.commit();
+      transaction.commitNow();
 
       isBottomNavigationViewListenerDisabled = true;
       binding.mainBottomNavigationView.setSelectedItemId(selected.getMenuItemId());

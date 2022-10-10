@@ -35,7 +35,7 @@ public class MapFragmentOld extends SupportMapFragment {
       MapViewModel viewModel = new ViewModelProvider(this).get(MapViewModel.class);
 
       MapFragmentOld.this.getMapAsync(googleMap ->
-          viewModel.getMapViewStateMediatorLiveData().observe(getViewLifecycleOwner(), viewState -> {
+          viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), viewState -> {
              if (viewState != null) {
                 googleMap.clear();
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
