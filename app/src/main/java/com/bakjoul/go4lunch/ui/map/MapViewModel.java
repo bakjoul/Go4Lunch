@@ -24,7 +24,6 @@ import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
-import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -38,127 +37,125 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class MapViewModel extends ViewModel {
 
-    private static final String TAG = "MapViewModel";
+   private static final String TAG = "MapViewModel";
 
-    private final MutableLiveData<Boolean> isMapReadyMutableLiveData = new MutableLiveData<>(false);
+   private final MutableLiveData<Boolean> isMapReadyMutableLiveData = new MutableLiveData<>(false);
 
-    private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
+   private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
 
-    private final MutableLiveData<Boolean> nearbySearchRequestPingMutableLiveData = new MutableLiveData<>(true);
+   private final MutableLiveData<Boolean> nearbySearchRequestPingMutableLiveData = new MutableLiveData<>(true);
 
-    private final MutableLiveData<Boolean> isProgressBarVisibleLiveData = new MutableLiveData<>(true);
+   private final MutableLiveData<Boolean> isProgressBarVisibleLiveData = new MutableLiveData<>(true);
 
-    private final SingleLiveEvent<ErrorType> errorTypeSingleLiveEvent = new SingleLiveEvent<>();
+   private final MutableLiveData<ErrorType> errorTypeMutableLiveData = new MutableLiveData<>();
 
-    @Inject
-    public MapViewModel(
-        @NonNull LocationRepository locationRepository,
-        @NonNull RestaurantRepository restaurantRepository,
-        @NonNull Application application,
-        @NonNull SvgToBitmap svgToBitmap) {
+   @Inject
+   public MapViewModel(
+       @NonNull LocationRepository locationRepository,
+       @NonNull RestaurantRepository restaurantRepository,
+       @NonNull Application application,
+       @NonNull SvgToBitmap svgToBitmap) {
 
-        LiveData<Location> locationLiveData = locationRepository.getCurrentLocation();
+      LiveData<Location> locationLiveData = locationRepository.getCurrentLocation();
 
-        LiveData<List<RestaurantMarker>> restaurantsMarkersLiveData = Transformations.switchMap(
-            locationLiveData,
-            location -> {
-                if (location == null) {
-                    return new MutableLiveData<>(null);
-                }
-                return Transformations.switchMap(
-                    nearbySearchRequestPingMutableLiveData,
-                    aVoid -> Transformations.map(
-                        restaurantRepository.getNearbySearchResult(getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY),
-                        result -> {
-                            List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
-                            if (result.getResponse() != null) {
-                                isProgressBarVisibleLiveData.setValue(false);
-                                Bitmap greenMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_green_marker);
-                                Bitmap redMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_red_marker);
-                                for (RestaurantResponse r : result.getResponse().getResults()) {
-                                    if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
-                                        restaurantsMarkers.add(
-                                            new RestaurantMarker(
-                                                r.getPlaceId(),
-                                                new LatLng(
-                                                    r.getGeometry().getLocation().getLat(),
-                                                    r.getGeometry().getLocation().getLng()
-                                                ),
-                                                r.getName(),
-                                                BitmapDescriptorFactory.fromBitmap(greenMarker)
-                                            )
-                                        );
-                                    }
-                                }
-                            } else if (result.getErrorType() == ErrorType.TIMEOUT) {
-                                isProgressBarVisibleLiveData.setValue(false);
-                                errorTypeSingleLiveEvent.setValue(ErrorType.TIMEOUT);
-                                Log.d(TAG, "Socket time out");
-                            } else {
-                                isProgressBarVisibleLiveData.setValue(false);
-                                return restaurantsMarkers;
-                            }
-                            return restaurantsMarkers;
+      LiveData<List<RestaurantMarker>> restaurantsMarkersLiveData = Transformations.switchMap(
+          locationLiveData,
+          location -> {
+             if (location == null) {
+                return new MutableLiveData<>(null);
+             }
+             return Transformations.switchMap(
+                 nearbySearchRequestPingMutableLiveData,
+                 aVoid -> Transformations.map(
+                     restaurantRepository.getNearbySearchResult(getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY),
+                     result -> {
+                        errorTypeMutableLiveData.setValue(null);
+                        List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
+                        if (result.getResponse() != null) {
+                           isProgressBarVisibleLiveData.setValue(false);
+                           Bitmap greenMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_green_marker);
+                           Bitmap redMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_red_marker);
+                           for (RestaurantResponse r : result.getResponse().getResults()) {
+                              if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
+                                 restaurantsMarkers.add(
+                                     new RestaurantMarker(
+                                         r.getPlaceId(),
+                                         new LatLng(
+                                             r.getGeometry().getLocation().getLat(),
+                                             r.getGeometry().getLocation().getLng()
+                                         ),
+                                         r.getName(),
+                                         BitmapDescriptorFactory.fromBitmap(greenMarker)
+                                     )
+                                 );
+                              }
+                           }
+                        } else if (result.getErrorType() == ErrorType.TIMEOUT) {
+                           isProgressBarVisibleLiveData.setValue(false);
+                           errorTypeMutableLiveData.setValue(ErrorType.TIMEOUT);
+                           Log.d(TAG, "Socket time out");
+                        } else {
+                           isProgressBarVisibleLiveData.setValue(false);
+                           return restaurantsMarkers;
                         }
-                    )
-                );
-            }
-        );
+                        return restaurantsMarkers;
+                     }
+                 )
+             );
+          }
+      );
 
-        mapViewStateMediatorLiveData.addSource(locationLiveData, location ->
-            combine(location, restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue(), isMapReadyMutableLiveData.getValue())
-        );
-        mapViewStateMediatorLiveData.addSource(restaurantsMarkersLiveData, markerOptions ->
-            combine(locationLiveData.getValue(), markerOptions, isProgressBarVisibleLiveData.getValue(), isMapReadyMutableLiveData.getValue())
-        );
-        mapViewStateMediatorLiveData.addSource(isProgressBarVisibleLiveData, isProgressBarVisible ->
-            combine(locationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisible, isMapReadyMutableLiveData.getValue())
-        );
-        mapViewStateMediatorLiveData.addSource(isMapReadyMutableLiveData, isMapReady ->
-            combine(locationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue(), isMapReady)
-        );
-    }
+      mapViewStateMediatorLiveData.addSource(locationLiveData, location ->
+          combine(location, restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue(), isMapReadyMutableLiveData.getValue())
+      );
+      mapViewStateMediatorLiveData.addSource(restaurantsMarkersLiveData, markerOptions ->
+          combine(locationLiveData.getValue(), markerOptions, isProgressBarVisibleLiveData.getValue(), isMapReadyMutableLiveData.getValue())
+      );
+      mapViewStateMediatorLiveData.addSource(isProgressBarVisibleLiveData, isProgressBarVisible ->
+          combine(locationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisible, isMapReadyMutableLiveData.getValue())
+      );
+      mapViewStateMediatorLiveData.addSource(isMapReadyMutableLiveData, isMapReady ->
+          combine(locationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue(), isMapReady)
+      );
+   }
 
 
-    private void combine(
-        @Nullable Location location,
-        @Nullable List<RestaurantMarker> restaurantMarkers,
-        @Nullable Boolean isProgressBarVisible,
-        @Nullable Boolean isMapReady
-    ) {
-        if (location == null || isProgressBarVisible == null || isMapReady == null) {
-            return;
-        }
+   private void combine(
+       @Nullable Location location,
+       @Nullable List<RestaurantMarker> restaurantMarkers,
+       @Nullable Boolean isProgressBarVisible,
+       @Nullable Boolean isMapReady
+   ) {
+      if (location == null || isProgressBarVisible == null || isMapReady == null) {
+         return;
+      }
 
-        if (isMapReady) {
-            mapViewStateMediatorLiveData.setValue(
-                new MapViewState(
-                    new LatLng(location.getLatitude(), location.getLongitude()),
-                    restaurantMarkers == null ? new ArrayList<>() : restaurantMarkers,
-                    isProgressBarVisible
-                )
-            );
-        }
-    }
+      if (isMapReady) {
+         mapViewStateMediatorLiveData.setValue(
+             new MapViewState(
+                 new LatLng(location.getLatitude(), location.getLongitude()),
+                 restaurantMarkers == null ? new ArrayList<>() : restaurantMarkers,
+                 errorTypeMutableLiveData.getValue() == null ? null : errorTypeMutableLiveData.getValue(),
+                 isProgressBarVisible
+             )
+         );
+      }
+   }
 
-    public LiveData<MapViewState> getMapViewStateLiveData() {
-        return mapViewStateMediatorLiveData;
-    }
+   public LiveData<MapViewState> getMapViewStateLiveData() {
+      return mapViewStateMediatorLiveData;
+   }
 
-    public SingleLiveEvent<ErrorType> getErrorTypeSingleLiveEvent() {
-        return errorTypeSingleLiveEvent;
-    }
+   @NonNull
+   private String getLocation(@NonNull Location location) {
+      return location.getLatitude() + "," + location.getLongitude();
+   }
 
-    @NonNull
-    private String getLocation(@NonNull Location location) {
-        return location.getLatitude() + "," + location.getLongitude();
-    }
+   public void onMapReady() {
+      isMapReadyMutableLiveData.setValue(true);
+   }
 
-    public void onMapReady() {
-        isMapReadyMutableLiveData.setValue(true);
-    }
-
-    public void onRetryButtonClicked() {
-        nearbySearchRequestPingMutableLiveData.setValue(true);
-    }
+   public void onRetryButtonClicked() {
+      nearbySearchRequestPingMutableLiveData.setValue(true);
+   }
 }

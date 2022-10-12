@@ -185,6 +185,7 @@ public class MapFragmentTest {
       return new MapViewState(
           FAKE_LOCATION,
           restaurantMarkers,
+          null,
           false
       );
    }
