@@ -1,8 +1,8 @@
 package com.bakjoul.go4lunch.data.model;
 
+import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
 
-import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.Objects;
@@ -11,9 +11,10 @@ public class RestaurantMarker {
    private final String id;
    private final LatLng position;
    private final String title;
-   private final BitmapDescriptor icon;
+   @IdRes
+   private final int icon;
 
-   public RestaurantMarker(String id, LatLng position, String title, BitmapDescriptor icon) {
+   public RestaurantMarker(String id, LatLng position, String title, int icon) {
       this.id = id;
       this.position = position;
       this.title = title;
@@ -32,7 +33,7 @@ public class RestaurantMarker {
       return title;
    }
 
-   public BitmapDescriptor getIcon() {
+   public int getIcon() {
       return icon;
    }
 
@@ -41,7 +42,7 @@ public class RestaurantMarker {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       RestaurantMarker that = (RestaurantMarker) o;
-      return Objects.equals(id, that.id) && Objects.equals(position, that.position) && Objects.equals(title, that.title) && Objects.equals(icon, that.icon);
+      return icon == that.icon && Objects.equals(id, that.id) && Objects.equals(position, that.position) && Objects.equals(title, that.title);
    }
 
    @Override
@@ -55,7 +56,7 @@ public class RestaurantMarker {
       return "RestaurantMarker{" +
           "id='" + id + '\'' +
           ", position=" + position +
-          ", name='" + title + '\'' +
+          ", title='" + title + '\'' +
           ", icon=" + icon +
           '}';
    }

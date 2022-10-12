@@ -24,7 +24,6 @@ import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -88,7 +87,7 @@ public class MapViewModel extends ViewModel {
                                                 r.getGeometry().getLocation().getLng()
                                             ),
                                             r.getName(),
-                                            BitmapDescriptorFactory.fromBitmap(greenMarker)
+                                            R.drawable.ic_restaurant_green_marker
                                         )
                                     );
                                  }

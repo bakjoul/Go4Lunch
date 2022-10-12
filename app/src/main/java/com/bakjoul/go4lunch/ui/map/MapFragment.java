@@ -15,9 +15,12 @@ import com.bakjoul.go4lunch.data.model.ErrorType;
 import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.databinding.FragmentMapBinding;
 import com.bakjoul.go4lunch.ui.details.DetailsActivity;
+import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
 
@@ -67,7 +70,7 @@ public class MapFragment extends Fragment {
                MarkerOptions marker = new MarkerOptions()
                    .position(m.getPosition())
                    .title(m.getTitle())
-                   .icon(m.getIcon());
+                   .icon(getIcon(m));
                googleMap
                    .addMarker(marker)
                    .setTag(m.getId());
@@ -91,5 +94,10 @@ public class MapFragment extends Fragment {
       });
 
       return binding.getRoot();
+   }
+
+   @NonNull
+   private BitmapDescriptor getIcon(@NonNull RestaurantMarker m) {
+      return BitmapDescriptorFactory.fromBitmap(new SvgToBitmap().getBitmapFromVectorDrawable(getContext(), m.getIcon()));
    }
 }
