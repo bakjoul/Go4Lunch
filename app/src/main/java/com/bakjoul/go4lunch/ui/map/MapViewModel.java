@@ -66,41 +66,45 @@ public class MapViewModel extends ViewModel {
              }
              return Transformations.switchMap(
                  nearbySearchRequestPingMutableLiveData,
-                 aVoid -> Transformations.map(
-                     restaurantRepository.getNearbySearchResult(getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY),
-                     result -> {
-                        errorTypeMutableLiveData.setValue(null);
-                        List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
-                        if (result.getResponse() != null) {
-                           isProgressBarVisibleLiveData.setValue(false);
-                           Bitmap greenMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_green_marker);
-                           Bitmap redMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_red_marker);
-                           for (RestaurantResponse r : result.getResponse().getResults()) {
-                              if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
-                                 restaurantsMarkers.add(
-                                     new RestaurantMarker(
-                                         r.getPlaceId(),
-                                         new LatLng(
-                                             r.getGeometry().getLocation().getLat(),
-                                             r.getGeometry().getLocation().getLng()
-                                         ),
-                                         r.getName(),
-                                         BitmapDescriptorFactory.fromBitmap(greenMarker)
-                                     )
-                                 );
+                 aVoid -> {
+                    errorTypeMutableLiveData.setValue(null);
+                    isProgressBarVisibleLiveData.setValue(true);
+                    return Transformations.map(
+                        restaurantRepository.getNearbySearchResult(getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY),
+                        result -> {
+
+                           List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
+                           if (result.getResponse() != null) {
+                              isProgressBarVisibleLiveData.setValue(false);
+                              Bitmap greenMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_green_marker);
+                              Bitmap redMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_red_marker);
+                              for (RestaurantResponse r : result.getResponse().getResults()) {
+                                 if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
+                                    restaurantsMarkers.add(
+                                        new RestaurantMarker(
+                                            r.getPlaceId(),
+                                            new LatLng(
+                                                r.getGeometry().getLocation().getLat(),
+                                                r.getGeometry().getLocation().getLng()
+                                            ),
+                                            r.getName(),
+                                            BitmapDescriptorFactory.fromBitmap(greenMarker)
+                                        )
+                                    );
+                                 }
                               }
+                           } else if (result.getErrorType() == ErrorType.TIMEOUT) {
+                              isProgressBarVisibleLiveData.setValue(false);
+                              errorTypeMutableLiveData.setValue(ErrorType.TIMEOUT);
+                              Log.d(TAG, "Socket time out");
+                           } else {
+                              isProgressBarVisibleLiveData.setValue(false);
+                              return restaurantsMarkers;
                            }
-                        } else if (result.getErrorType() == ErrorType.TIMEOUT) {
-                           isProgressBarVisibleLiveData.setValue(false);
-                           errorTypeMutableLiveData.setValue(ErrorType.TIMEOUT);
-                           Log.d(TAG, "Socket time out");
-                        } else {
-                           isProgressBarVisibleLiveData.setValue(false);
                            return restaurantsMarkers;
                         }
-                        return restaurantsMarkers;
-                     }
-                 )
+                    );
+                 }
              );
           }
       );

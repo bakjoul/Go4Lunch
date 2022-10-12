@@ -57,22 +57,18 @@ public class RestaurantsFragment extends Fragment implements RestaurantsAdapter.
              } else {
                 binding.listProgressBar.setVisibility(View.VISIBLE);
              }
+
+             if (viewState.getErrorType() != null) {
+                if (viewState.getErrorType() == ErrorType.TIMEOUT) {
+                   Snackbar
+                       .make(binding.getRoot(), R.string.snackbar_timeout, Snackbar.LENGTH_INDEFINITE)
+                       .setAction(R.string.snackbar_retry, v -> viewModel.onRetryButtonClicked())
+                       .show();
+                }
+             }
              adapter.submitList(viewState.getRestaurantsItemViewStates());
           }
       );
-
-      viewModel.getErrorTypeSingleLiveEvent().observe(getViewLifecycleOwner(), errorType -> {
-         if (errorType == ErrorType.TIMEOUT) {
-            Log.d("test", "onViewCreated: snackbar");
-            Snackbar
-                .make(binding.getRoot(), R.string.snackbar_timeout, Snackbar.LENGTH_INDEFINITE)
-                .setAnchorView(binding.listProgressBar)
-                .setAction(R.string.snackbar_retry, v -> {
-                   // Do something
-                })
-                .show();
-         }
-      });
    }
 
    @Override
