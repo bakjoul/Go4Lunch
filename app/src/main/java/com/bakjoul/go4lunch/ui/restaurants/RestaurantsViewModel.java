@@ -109,16 +109,13 @@ public class RestaurantsViewModel extends ViewModel {
           }
       );
 
-      restaurantsViewStateMediatorLiveData.addSource(locationLiveData, location ->
-          combine(location, restaurantsItemViewStateLiveData.getValue(), isProgressBarVisibleLiveData.getValue()));
       restaurantsViewStateMediatorLiveData.addSource(restaurantsItemViewStateLiveData, restaurantsItemViewStateList ->
-          combine(locationLiveData.getValue(), restaurantsItemViewStateList, isProgressBarVisibleLiveData.getValue()));
+          combine(restaurantsItemViewStateList, isProgressBarVisibleLiveData.getValue()));
       restaurantsViewStateMediatorLiveData.addSource(isProgressBarVisibleLiveData, isProgressBarVisible ->
-          combine(locationLiveData.getValue(), restaurantsItemViewStateLiveData.getValue(), isProgressBarVisible));
+          combine(restaurantsItemViewStateLiveData.getValue(), isProgressBarVisible));
    }
 
    private void combine(
-       @Nullable Location location,
        @Nullable List<RestaurantsItemViewState> restaurantsItemViewStateList,
        @Nullable Boolean isProgressBarVisible
    ) {
