@@ -166,7 +166,7 @@ public class RestaurantsViewModelTest {
    }
 
    @Test
-   public void timeout_error_should_expose_empty_viewstate() {
+   public void timeout_error_should_expose_empty_viewstate_with_timeout_error() {
       // Given
       doReturn(new MutableLiveData<>(new NearbySearchResult(null, ErrorType.TIMEOUT))).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
 

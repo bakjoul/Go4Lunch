@@ -3,8 +3,6 @@ package com.bakjoul.go4lunch.ui.map;
 import static com.bakjoul.go4lunch.data.repository.RestaurantRepository.RANK_BY;
 import static com.bakjoul.go4lunch.data.repository.RestaurantRepository.TYPE;
 
-import android.app.Application;
-import android.graphics.Bitmap;
 import android.location.Location;
 import android.util.Log;
 
@@ -23,7 +21,6 @@ import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
-import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -51,9 +48,7 @@ public class MapViewModel extends ViewModel {
    @Inject
    public MapViewModel(
        @NonNull LocationRepository locationRepository,
-       @NonNull RestaurantRepository restaurantRepository,
-       @NonNull Application application,
-       @NonNull SvgToBitmap svgToBitmap) {
+       @NonNull RestaurantRepository restaurantRepository) {
 
       LiveData<Location> locationLiveData = locationRepository.getCurrentLocation();
 
@@ -71,12 +66,9 @@ public class MapViewModel extends ViewModel {
                     return Transformations.map(
                         restaurantRepository.getNearbySearchResult(getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY),
                         result -> {
-
                            List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
                            if (result.getResponse() != null) {
                               isProgressBarVisibleLiveData.setValue(false);
-                              Bitmap greenMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_green_marker);
-                              Bitmap redMarker = svgToBitmap.getBitmapFromVectorDrawable(application.getApplicationContext(), R.drawable.ic_restaurant_red_marker);
                               for (RestaurantResponse r : result.getResponse().getResults()) {
                                  if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
                                     restaurantsMarkers.add(
@@ -160,5 +152,10 @@ public class MapViewModel extends ViewModel {
 
    public void onRetryButtonClicked() {
       nearbySearchRequestPingMutableLiveData.setValue(true);
+   }
+
+   // For JaCoCo
+   public MutableLiveData<Boolean> getNearbySearchRequestPingMutableLiveData() {
+      return nearbySearchRequestPingMutableLiveData;
    }
 }

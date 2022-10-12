@@ -1,13 +1,12 @@
 package com.bakjoul.go4lunch.ui.map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
-import android.app.Application;
-import android.content.Context;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
@@ -15,6 +14,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.R;
+import com.bakjoul.go4lunch.data.model.ErrorType;
 import com.bakjoul.go4lunch.data.model.GeometryResponse;
 import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
@@ -25,7 +25,6 @@ import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
-import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -90,9 +89,6 @@ public class MapFragmentTest {
 
    private final LocationRepository locationRepository = Mockito.mock(LocationRepository.class);
    private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
-   private final Application application = Mockito.mock(Application.class);
-   private final SvgToBitmap svgToBitmap = Mockito.mock(SvgToBitmap.class);
-   private final Context context = Mockito.mock(Context.class);
 
    private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
    private final MutableLiveData<NearbySearchResult> nearbySearchResultMutableLiveData = new MutableLiveData<>();
@@ -105,14 +101,13 @@ public class MapFragmentTest {
    public void setUp() {
       doReturn(locationLiveData).when(locationRepository).getCurrentLocation();
       doReturn(nearbySearchResultMutableLiveData).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
-      doReturn(null).when(svgToBitmap).getBitmapFromVectorDrawable(context, R.drawable.ic_restaurant_green_marker);
 
       doReturn(FAKE_LOCATION.latitude).when(location).getLatitude();
       doReturn(FAKE_LOCATION.longitude).when(location).getLongitude();
 
       locationLiveData.setValue(location);
 
-      viewModel = new MapViewModel(locationRepository, restaurantRepository, application, svgToBitmap);
+      viewModel = new MapViewModel(locationRepository, restaurantRepository);
 
       verify(locationRepository).getCurrentLocation();
    }
@@ -120,6 +115,7 @@ public class MapFragmentTest {
    @Test
    public void nominal_case() {
       // Given
+      viewModel.onMapReady();
       nearbySearchResultMutableLiveData.setValue(getDefaultNearbySearchResult());
 
       // When
@@ -127,7 +123,64 @@ public class MapFragmentTest {
 
       // Then
       assertEquals(getDefaultMapViewState(), result);
+   }
 
+   @Test
+   public void location_null_should_expose_markersLiveData_null() {
+      // Given
+      locationLiveData.setValue(null);
+
+      // When
+      MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
+
+      // Then
+      assertNull(result);
+   }
+
+   @Test
+   public void timeout_error_should_expose_empty_markers_viewstate_with_timeout_error() {
+      // Given
+      viewModel.onMapReady();
+      doReturn(new MutableLiveData<>(new NearbySearchResult(null, ErrorType.TIMEOUT))).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+
+      // When
+      MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
+
+      // Then
+      assertEquals(getEmptyMarkersViewStateWithTimeoutError(), result);
+   }
+
+   @Test
+   public void result_response_null_should_expose_empty_markers_viewstate() {
+      // Given
+      viewModel.onMapReady();
+      doReturn(new MutableLiveData<>(new NearbySearchResult(null, null))).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+
+      // When
+      MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
+
+      // Then
+      assertEquals(getEmptyMarkersViewState(), result);
+   }
+
+   @Test
+   public void map_is_not_ready_should_expose_null_viewstate() {
+      // Given that we do not call onMapReady()
+
+      // When
+      MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
+
+      // Then
+      assertNull(result);
+   }
+
+   @Test
+   public void onRetryButtonClicked_should_update_PingLiveData() {
+      // When
+      viewModel.onRetryButtonClicked();
+
+      // Then
+      assertEquals(Boolean.TRUE, viewModel.getNearbySearchRequestPingMutableLiveData().getValue());
    }
 
    // region IN
@@ -146,6 +199,7 @@ public class MapFragmentTest {
    // endregion IN
 
    // region OUT
+   @NonNull
    private MapViewState getDefaultMapViewState() {
       List<RestaurantMarker> restaurantMarkers = new ArrayList<>();
       restaurantMarkers.add(
@@ -156,7 +210,7 @@ public class MapFragmentTest {
                   RESTAURANT_RESPONSE_1.getGeometry().getLocation().getLng()
               ),
               RESTAURANT_RESPONSE_1.getName(),
-              null
+              R.drawable.ic_restaurant_green_marker
           )
       );
       restaurantMarkers.add(
@@ -167,7 +221,7 @@ public class MapFragmentTest {
                   RESTAURANT_RESPONSE_2.getGeometry().getLocation().getLng()
               ),
               RESTAURANT_RESPONSE_2.getName(),
-              null
+              R.drawable.ic_restaurant_green_marker
           )
       );
       restaurantMarkers.add(
@@ -178,13 +232,33 @@ public class MapFragmentTest {
                   RESTAURANT_RESPONSE_3.getGeometry().getLocation().getLng()
               ),
               RESTAURANT_RESPONSE_3.getName(),
-              null
+              R.drawable.ic_restaurant_green_marker
           )
       );
 
       return new MapViewState(
           FAKE_LOCATION,
           restaurantMarkers,
+          null,
+          false
+      );
+   }
+
+   @NonNull
+   private MapViewState getEmptyMarkersViewStateWithTimeoutError() {
+      return new MapViewState(
+          new LatLng(location.getLatitude(), location.getLongitude()),
+          new ArrayList<>(),
+          ErrorType.TIMEOUT,
+          false
+      );
+   }
+
+   @NonNull
+   private MapViewState getEmptyMarkersViewState() {
+      return new MapViewState(
+          new LatLng(location.getLatitude(), location.getLongitude()),
+          new ArrayList<>(),
           null,
           false
       );
