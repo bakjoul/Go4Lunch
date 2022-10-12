@@ -15,6 +15,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.R;
+import com.bakjoul.go4lunch.data.model.ErrorType;
 import com.bakjoul.go4lunch.data.model.GeometryResponse;
 import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
@@ -153,7 +154,7 @@ public class RestaurantsViewModelTest {
    }
 
    @Test
-   public void location_is_null_should_expose_empty_viewState() {
+   public void location_is_null_should_expose_empty_viewstate() {
       // Given
       locationLiveData.setValue(null);
 
@@ -162,6 +163,27 @@ public class RestaurantsViewModelTest {
 
       // Then
       assertEquals(getEmptyRestaurantViewState(), result);
+   }
+
+   @Test
+   public void timeout_error_should_expose_empty_viewstate() {
+      // Given
+      doReturn(new MutableLiveData<>(new NearbySearchResult(null, ErrorType.TIMEOUT))).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+
+      // When
+      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
+
+      // Then
+      assertEquals(getEmptyRestaurantViewStateWithTimeoutError(), result);
+   }
+
+   @Test
+   public void onRetryButtonClicked_should_update_PingLiveData() {
+      // When
+      viewModel.onRetryButtonClicked();
+
+      // Then
+      assertEquals(Boolean.TRUE, viewModel.getNearbySearchRequestPingMutableLiveData().getValue());
    }
 
    // region IN
@@ -228,6 +250,11 @@ public class RestaurantsViewModelTest {
    @NonNull
    private RestaurantsViewState getEmptyRestaurantViewState() {
       return new RestaurantsViewState(new ArrayList<>(), true, null, false);
+   }
+
+   @NonNull
+   private RestaurantsViewState getEmptyRestaurantViewStateWithTimeoutError() {
+      return new RestaurantsViewState(new ArrayList<>(), true, ErrorType.TIMEOUT, false);
    }
    // endregion OUT
 }

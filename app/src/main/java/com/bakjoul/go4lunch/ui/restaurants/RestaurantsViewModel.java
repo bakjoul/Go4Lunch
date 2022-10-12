@@ -77,6 +77,7 @@ public class RestaurantsViewModel extends ViewModel {
           locationLiveData,
           location -> {
              if (location == null) {
+                isProgressBarVisibleLiveData.setValue(false);
                 return null;
              }
              return Transformations.switchMap(
@@ -121,15 +122,12 @@ public class RestaurantsViewModel extends ViewModel {
        @Nullable List<RestaurantsItemViewState> restaurantsItemViewStateList,
        @Nullable Boolean isProgressBarVisible
    ) {
-      if (location == null || isProgressBarVisible == null) {
-         return;
-      }
       restaurantsViewStateMediatorLiveData.setValue(
           new RestaurantsViewState(
               restaurantsItemViewStateList == null ? new ArrayList<>() : restaurantsItemViewStateList,
               restaurantsItemViewStateList == null || restaurantsItemViewStateList.isEmpty(),
               errorTypeMutableLiveData.getValue() == null ? null : errorTypeMutableLiveData.getValue(),
-              isProgressBarVisible
+              Boolean.TRUE.equals(isProgressBarVisible)
           )
       );
    }
@@ -212,5 +210,9 @@ public class RestaurantsViewModel extends ViewModel {
 
    public void onRetryButtonClicked() {
       nearbySearchRequestPingMutableLiveData.setValue(true);
+   }
+
+   public MutableLiveData<Boolean> getNearbySearchRequestPingMutableLiveData() {
+      return nearbySearchRequestPingMutableLiveData;
    }
 }
