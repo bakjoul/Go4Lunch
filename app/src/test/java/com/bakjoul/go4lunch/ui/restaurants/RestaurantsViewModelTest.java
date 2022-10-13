@@ -117,7 +117,7 @@ public class RestaurantsViewModelTest {
       doReturn(nearbySearchResultMutableLiveData).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
       doReturn(locationLiveData).when(locationRepository).getCurrentLocation();
       doReturn("50m").when(locationDistanceUtils).getDistance(location, new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude));
-      doReturn("ImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", false);
+      doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", false);
 
       doReturn(FAKE_LOCATION.latitude).when(location).getLatitude();
       doReturn(FAKE_LOCATION.longitude).when(location).getLongitude();
@@ -142,7 +142,7 @@ public class RestaurantsViewModelTest {
    }
 
    @Test
-   public void nearbysearchresponse_is_null_should_expose_empty_viewstate() {
+   public void nearbysearchresponse_null_should_expose_empty_viewstate() {
       // Given
       nearbySearchResultMutableLiveData.setValue(new NearbySearchResult(null, null));
 
@@ -154,7 +154,7 @@ public class RestaurantsViewModelTest {
    }
 
    @Test
-   public void location_is_null_should_expose_empty_viewstate() {
+   public void location_null_should_expose_empty_viewstate() {
       // Given
       locationLiveData.setValue(null);
 
@@ -215,7 +215,7 @@ public class RestaurantsViewModelTest {
               "",
               3,
               true,
-              "ImageUrl"
+              "fakeImageUrl"
           )
       );
       restaurantsItemViewStateList.add(

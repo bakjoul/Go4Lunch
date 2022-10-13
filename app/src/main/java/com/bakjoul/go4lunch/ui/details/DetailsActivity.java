@@ -49,7 +49,7 @@ public class DetailsActivity extends AppCompatActivity {
 
       ImageView photo = binding.detailsRestaurantPhoto;
 
-      viewModel.getDetailsViewState().observe(this, viewState -> {
+      viewModel.getDetailsViewStateLiveData().observe(this, viewState -> {
          if (!viewState.isProgressBarVisible()) {
             binding.detailsProgressBar.setVisibility(View.GONE);
          }

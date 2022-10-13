@@ -38,8 +38,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class MapFragmentTest {
+public class MapViewModelTest {
 
+   // region Constants
    private static final LatLng DEFAULT_LOCATION = new LatLng(48.841577, 2.253059);
    private static final LatLng FAKE_LOCATION = new LatLng(43.21, 12.34);
 
@@ -83,6 +84,7 @@ public class MapFragmentTest {
        null,
        "CLOSED_TEMPORARILY",
        75);
+   // endregion Constants
 
    @Rule
    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();

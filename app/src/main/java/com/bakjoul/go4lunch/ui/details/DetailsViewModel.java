@@ -43,7 +43,7 @@ public class DetailsViewModel extends ViewModel {
    @NonNull
    private final Application application;
 
-   private final LiveData<DetailsViewState> detailsViewState;
+   private final LiveData<DetailsViewState> detailsViewStateLiveData;
 
    @NonNull
    private final RestaurantImageMapper restaurantImageMapper;
@@ -61,7 +61,7 @@ public class DetailsViewModel extends ViewModel {
       this.restaurantImageMapper = restaurantImageMapper;
 
       if (restaurantId != null) {
-         detailsViewState = Transformations.switchMap(
+         detailsViewStateLiveData = Transformations.switchMap(
              restaurantDetailsRepository.getDetailsResponse(
                  restaurantId,
                  BuildConfig.MAPS_API_KEY
@@ -76,13 +76,13 @@ public class DetailsViewModel extends ViewModel {
              }
          );
       } else {
-         detailsViewState = getErrorDetailsViewState();
+         detailsViewStateLiveData = getErrorDetailsViewState();
       }
 
    }
 
-   public LiveData<DetailsViewState> getDetailsViewState() {
-      return detailsViewState;
+   public LiveData<DetailsViewState> getDetailsViewStateLiveData() {
+      return detailsViewStateLiveData;
    }
 
    @RequiresApi(api = Build.VERSION_CODES.O)

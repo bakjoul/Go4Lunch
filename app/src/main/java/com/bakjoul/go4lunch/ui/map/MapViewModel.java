@@ -154,7 +154,6 @@ public class MapViewModel extends ViewModel {
       nearbySearchRequestPingMutableLiveData.setValue(true);
    }
 
-   // For JaCoCo
    public MutableLiveData<Boolean> getNearbySearchRequestPingMutableLiveData() {
       return nearbySearchRequestPingMutableLiveData;
    }

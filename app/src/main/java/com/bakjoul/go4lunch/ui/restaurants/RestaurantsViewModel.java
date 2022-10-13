@@ -209,7 +209,6 @@ public class RestaurantsViewModel extends ViewModel {
       nearbySearchRequestPingMutableLiveData.setValue(true);
    }
 
-   // For JaCoCo
    public MutableLiveData<Boolean> getNearbySearchRequestPingMutableLiveData() {
       return nearbySearchRequestPingMutableLiveData;
    }
