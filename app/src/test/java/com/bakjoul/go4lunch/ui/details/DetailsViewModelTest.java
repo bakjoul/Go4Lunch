@@ -39,16 +39,16 @@ public class DetailsViewModelTest {
    private static final String TIME_SEPARATOR = "h";
    private static final String OPEN_AT = " ⋅ Ouvre à ";
 
-   private static final RestaurantDetailsResponse RESTAURANT_DETAILS_RESPONSE = new RestaurantDetailsResponse(
-       "RESTAURANT_DETAILS_RESPONSE_ID",
-       "RESTAURANT_DETAILS_RESPONSE_NAME",
+   private static final RestaurantDetailsResponse RESTAURANT_DETAILS_RESPONSE_1 = new RestaurantDetailsResponse(
+       "RESTAURANT_DETAILS_RESPONSE_ID_1",
+       "RESTAURANT_DETAILS_RESPONSE_NAME_1",
        5,
        10,
-       "RESTAURANT_DETAILS_RESPONSE_ADDRESS",
+       "RESTAURANT_DETAILS_RESPONSE_ADDRESS_1",
        new OpeningHoursResponse(true, null, null),
        new ArrayList<>(Collections.singletonList(new PhotoResponse("fakePhotoReference"))),
-       "RESTAURANT_DETAILS_RESPONSE_PHONE_NUMBER",
-       "RESTAURANT_DETAILS_RESPONSE_WEBSITE"
+       "RESTAURANT_DETAILS_RESPONSE_PHONE_NUMBER_1",
+       "RESTAURANT_DETAILS_RESPONSE_WEBSITE_1"
    );
    // endregion Constants
 
@@ -74,37 +74,74 @@ public class DetailsViewModelTest {
       given(application.getString(R.string.details_open_at)).willReturn(OPEN_AT);
 
       doReturn(detailsResponseLiveData).when(restaurantDetailsRepository).getDetailsResponse(anyString(), anyString());
-      doReturn(RESTAURANT_DETAILS_RESPONSE.getPlaceId()).when(savedStateHandle).get("restaurantId");
       doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", true);
-
-      viewModel = new DetailsViewModel(application, restaurantDetailsRepository, savedStateHandle, restaurantImageMapper);
    }
 
    @Test
    public void nominal_case() {
-      detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE, "OK"));
+      // Given
+      doReturn(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()).when(savedStateHandle).get("restaurantId");
+      initViewModel();
+      detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_1, "OK"));
 
       // When
       DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateLiveData());
 
+      // Then
       assertEquals(getDefaultDetailsViewState(), result);
    }
+
+   @Test
+   public void restaurantId_null_should_expose_error_viewstate() {
+      // Given
+      doReturn(null).when(savedStateHandle).get("restaurantId");
+      initViewModel();
+
+      // When
+      DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateLiveData());
+
+      // Then
+      assertEquals(getErrorDetailsViewState(), result);
+   }
+
+   // region IN
+   private void initViewModel() {
+      viewModel = new DetailsViewModel(application, restaurantDetailsRepository, savedStateHandle, restaurantImageMapper);
+   }
+   // endregion IN
 
    // region OUT
    @NonNull
    private DetailsViewState getDefaultDetailsViewState() {
       return new DetailsViewState(
-          RESTAURANT_DETAILS_RESPONSE.getPlaceId(),
+          RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(),
           "fakeImageUrl",
-          RESTAURANT_DETAILS_RESPONSE.getName(),
+          RESTAURANT_DETAILS_RESPONSE_1.getName(),
           3,
           true,
-          RESTAURANT_DETAILS_RESPONSE.getFormattedAddress(),
+          RESTAURANT_DETAILS_RESPONSE_1.getFormattedAddress(),
           "Ouvert",
-          RESTAURANT_DETAILS_RESPONSE.getFormattedPhoneNumber(),
-          RESTAURANT_DETAILS_RESPONSE.getWebsite(),
+          RESTAURANT_DETAILS_RESPONSE_1.getFormattedPhoneNumber(),
+          RESTAURANT_DETAILS_RESPONSE_1.getWebsite(),
           false,
           new ArrayList<>()
+      );
+   }
+
+   @NonNull
+   private DetailsViewState getErrorDetailsViewState() {
+      return new DetailsViewState(
+          null,
+          null,
+          application.getString(R.string.details_error_viewstate),
+          0,
+          false,
+          null,
+          null,
+          null,
+          null,
+          false,
+          null
       );
    }
    // endregion OUT

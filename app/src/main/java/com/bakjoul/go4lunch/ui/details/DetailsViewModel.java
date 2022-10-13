@@ -71,8 +71,9 @@ public class DetailsViewModel extends ViewModel {
                    return new MutableLiveData<>(
                        map(response)
                    );
+                } else {
+                   return null;
                 }
-                return null;
              }
          );
       } else {
