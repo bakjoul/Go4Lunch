@@ -55,10 +55,10 @@ public class DetailsViewModelTest {
    private static final RestaurantDetailsResponse RESTAURANT_DETAILS_RESPONSE_2 = new RestaurantDetailsResponse(
        "RESTAURANT_DETAILS_RESPONSE_ID_2",
        "RESTAURANT_DETAILS_RESPONSE_NAME_2",
-       5,
-       10,
+       0,
+       0,
        "RESTAURANT_DETAILS_RESPONSE_ADDRESS_2",
-       new OpeningHoursResponse(true, null, null),
+       null,
        null,
        "RESTAURANT_DETAILS_RESPONSE_PHONE_NUMBER_2",
        "RESTAURANT_DETAILS_RESPONSE_WEBSITE_2"
@@ -168,6 +168,34 @@ public class DetailsViewModelTest {
 
       // Then
       assertNull(result.getPhotoUrl());
+   }
+
+   @Test
+   public void no_user_rating_should_return_rating_0() {
+      // Given
+      doReturn(RESTAURANT_DETAILS_RESPONSE_2.getPlaceId()).when(savedStateHandle).get("restaurantId");
+      initViewModel();
+      detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_2, "OK"));
+
+      // When
+      DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateLiveData());
+
+      // Then
+      assertEquals(0, result.getRating(), 0);
+   }
+
+   @Test
+   public void openingHoursResponse_null_should_return_opening_status_not_available() {
+      // Given
+      doReturn(RESTAURANT_DETAILS_RESPONSE_2.getPlaceId()).when(savedStateHandle).get("restaurantId");
+      initViewModel();
+      detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_2, "OK"));
+
+      // When
+      DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateLiveData());
+
+      // Then
+      assertEquals(NOT_AVAILABLE, result.getOpeningStatus());
    }
 
    // region IN
