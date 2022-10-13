@@ -1,6 +1,8 @@
 package com.bakjoul.go4lunch.ui.details;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
@@ -49,6 +51,28 @@ public class DetailsViewModelTest {
        new ArrayList<>(Collections.singletonList(new PhotoResponse("fakePhotoReference"))),
        "RESTAURANT_DETAILS_RESPONSE_PHONE_NUMBER_1",
        "RESTAURANT_DETAILS_RESPONSE_WEBSITE_1"
+   );
+   private static final RestaurantDetailsResponse RESTAURANT_DETAILS_RESPONSE_2 = new RestaurantDetailsResponse(
+       "RESTAURANT_DETAILS_RESPONSE_ID_2",
+       "RESTAURANT_DETAILS_RESPONSE_NAME_2",
+       5,
+       10,
+       "RESTAURANT_DETAILS_RESPONSE_ADDRESS_2",
+       new OpeningHoursResponse(true, null, null),
+       null,
+       "RESTAURANT_DETAILS_RESPONSE_PHONE_NUMBER_2",
+       "RESTAURANT_DETAILS_RESPONSE_WEBSITE_2"
+   );
+   private static final RestaurantDetailsResponse RESTAURANT_DETAILS_RESPONSE_3 = new RestaurantDetailsResponse(
+       "RESTAURANT_DETAILS_RESPONSE_ID_3",
+       "RESTAURANT_DETAILS_RESPONSE_NAME_3",
+       5,
+       10,
+       "RESTAURANT_DETAILS_RESPONSE_ADDRESS_3",
+       new OpeningHoursResponse(true, null, null),
+       new ArrayList<>(Collections.singletonList(new PhotoResponse(null))),
+       "RESTAURANT_DETAILS_RESPONSE_PHONE_NUMBER_3",
+       "RESTAURANT_DETAILS_RESPONSE_WEBSITE_3"
    );
    // endregion Constants
 
@@ -102,6 +126,48 @@ public class DetailsViewModelTest {
 
       // Then
       assertEquals(getErrorDetailsViewState(), result);
+   }
+
+   @Test
+   public void response_null_should_expose_null_viewstate() {
+      doReturn(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()).when(savedStateHandle).get("restaurantId");
+      initViewModel();
+      detailsResponseLiveData.setValue(null);
+
+      // When
+      DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateLiveData());
+
+      // Then
+      assertNull(result);
+   }
+
+   @Test
+   public void photoResponse_null_should_return_null_photoUrl() {
+      // Given
+      doReturn(RESTAURANT_DETAILS_RESPONSE_2.getPlaceId()).when(savedStateHandle).get("restaurantId");
+      initViewModel();
+      detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_2, "OK"));
+
+      // When
+      DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateLiveData());
+
+      // Then
+      assertNull(result.getPhotoUrl());
+   }
+
+   @Test
+   public void photoRef_null_should_return_null_photoUrl() {
+      // Given
+      doReturn(RESTAURANT_DETAILS_RESPONSE_3.getPlaceId()).when(savedStateHandle).get("restaurantId");
+      doReturn(null).when(restaurantImageMapper).getImageUrl(anyString(), anyBoolean());
+      initViewModel();
+      detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_3, "OK"));
+
+      // When
+      DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateLiveData());
+
+      // Then
+      assertNull(result.getPhotoUrl());
    }
 
    // region IN
