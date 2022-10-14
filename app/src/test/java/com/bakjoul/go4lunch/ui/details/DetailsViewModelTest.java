@@ -15,11 +15,15 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.bakjoul.go4lunch.R;
+import com.bakjoul.go4lunch.data.model.CloseResponse;
 import com.bakjoul.go4lunch.data.model.DetailsResponse;
+import com.bakjoul.go4lunch.data.model.OpenResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
+import com.bakjoul.go4lunch.data.model.PeriodResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantDetailsResponse;
 import com.bakjoul.go4lunch.data.repository.RestaurantDetailsRepository;
+import com.bakjoul.go4lunch.ui.utils.DateTimeProvider;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 
@@ -28,6 +32,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -40,6 +45,8 @@ public class DetailsViewModelTest {
    private static final String UNTIL = " jusqu'à ";
    private static final String TIME_SEPARATOR = "h";
    private static final String OPEN_AT = " ⋅ Ouvre à ";
+
+   private static final LocalDateTime FAKE_DATE_TIME = LocalDateTime.of(2022, 10, 16, 12, 0);
 
    private static final RestaurantDetailsResponse RESTAURANT_DETAILS_RESPONSE_1 = new RestaurantDetailsResponse(
        "RESTAURANT_DETAILS_RESPONSE_ID_1",
@@ -74,6 +81,61 @@ public class DetailsViewModelTest {
        "RESTAURANT_DETAILS_RESPONSE_PHONE_NUMBER_3",
        "RESTAURANT_DETAILS_RESPONSE_WEBSITE_3"
    );
+   private static final RestaurantDetailsResponse RESTAURANT_DETAILS_RESPONSE_4 = new RestaurantDetailsResponse(
+       "RESTAURANT_DETAILS_RESPONSE_ID_4",
+       "RESTAURANT_DETAILS_RESPONSE_NAME_4",
+       5,
+       10,
+       "RESTAURANT_DETAILS_RESPONSE_ADDRESS_4",
+       new OpeningHoursResponse(true, new ArrayList<>(Collections.singletonList(new PeriodResponse(new CloseResponse(0, "1500"), new OpenResponse(0, "0900")))), null),
+       new ArrayList<>(Collections.singletonList(new PhotoResponse("fakePhotoReference"))),
+       "RESTAURANT_DETAILS_RESPONSE_PHONE_NUMBER_4",
+       "RESTAURANT_DETAILS_RESPONSE_WEBSITE_4"
+   );
+   private static final RestaurantDetailsResponse RESTAURANT_DETAILS_RESPONSE_5 = new RestaurantDetailsResponse(
+       "RESTAURANT_DETAILS_RESPONSE_ID_5",
+       "RESTAURANT_DETAILS_RESPONSE_NAME_5",
+       5,
+       10,
+       "RESTAURANT_DETAILS_RESPONSE_ADDRESS_5",
+       new OpeningHoursResponse(false, new ArrayList<>(Collections.singletonList(new PeriodResponse(new CloseResponse(1, "1500"), new OpenResponse(1, "1000")))), null),
+       new ArrayList<>(Collections.singletonList(new PhotoResponse("fakePhotoReference"))),
+       "RESTAURANT_DETAILS_RESPONSE_PHONE_NUMBER_5",
+       "RESTAURANT_DETAILS_RESPONSE_WEBSITE_5"
+   );
+   private static final RestaurantDetailsResponse RESTAURANT_DETAILS_RESPONSE_6 = new RestaurantDetailsResponse(
+       "RESTAURANT_DETAILS_RESPONSE_ID_6",
+       "RESTAURANT_DETAILS_RESPONSE_NAME_6",
+       5,
+       10,
+       "RESTAURANT_DETAILS_RESPONSE_ADDRESS_6",
+       new OpeningHoursResponse(false, new ArrayList<>(Collections.singletonList(new PeriodResponse(new CloseResponse(0, "1100"), new OpenResponse(0, "1000")))), null),
+       new ArrayList<>(Collections.singletonList(new PhotoResponse("fakePhotoReference"))),
+       "RESTAURANT_DETAILS_RESPONSE_PHONE_NUMBER_6",
+       "RESTAURANT_DETAILS_RESPONSE_WEBSITE_6"
+   );
+   private static final RestaurantDetailsResponse RESTAURANT_DETAILS_RESPONSE_7 = new RestaurantDetailsResponse(
+       "RESTAURANT_DETAILS_RESPONSE_ID_7",
+       "RESTAURANT_DETAILS_RESPONSE_NAME_7",
+       5,
+       10,
+       "RESTAURANT_DETAILS_RESPONSE_ADDRESS_7",
+       new OpeningHoursResponse(false, null, null),
+       new ArrayList<>(Collections.singletonList(new PhotoResponse("fakePhotoReference"))),
+       "RESTAURANT_DETAILS_RESPONSE_PHONE_NUMBER_7",
+       "RESTAURANT_DETAILS_RESPONSE_WEBSITE_7"
+   );
+   private static final RestaurantDetailsResponse RESTAURANT_DETAILS_RESPONSE_8 = new RestaurantDetailsResponse(
+       "RESTAURANT_DETAILS_RESPONSE_ID_8",
+       "RESTAURANT_DETAILS_RESPONSE_NAME_8",
+       5,
+       10,
+       "RESTAURANT_DETAILS_RESPONSE_ADDRESS_8",
+       new OpeningHoursResponse(true, new ArrayList<>(Collections.singletonList(new PeriodResponse(new CloseResponse(null, null), new OpenResponse(null, null)))), null),
+       new ArrayList<>(Collections.singletonList(new PhotoResponse("fakePhotoReference"))),
+       "RESTAURANT_DETAILS_RESPONSE_PHONE_NUMBER_8",
+       "RESTAURANT_DETAILS_RESPONSE_WEBSITE_8"
+   );
    // endregion Constants
 
    @Rule
@@ -83,6 +145,7 @@ public class DetailsViewModelTest {
    private final RestaurantDetailsRepository restaurantDetailsRepository = Mockito.mock(RestaurantDetailsRepository.class);
    private final SavedStateHandle savedStateHandle = Mockito.mock(SavedStateHandle.class);
    private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
+   private final DateTimeProvider dateTimeProvider = Mockito.mock(DateTimeProvider.class);
 
    private final MutableLiveData<DetailsResponse> detailsResponseLiveData = new MutableLiveData<>();
 
@@ -99,6 +162,7 @@ public class DetailsViewModelTest {
 
       doReturn(detailsResponseLiveData).when(restaurantDetailsRepository).getDetailsResponse(anyString(), anyString());
       doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", true);
+      doReturn(LocalDateTime.now()).when(dateTimeProvider).getNow();
    }
 
    @Test
@@ -198,9 +262,84 @@ public class DetailsViewModelTest {
       assertEquals(NOT_AVAILABLE, result.getOpeningStatus());
    }
 
+   @Test
+   public void restaurant_open_then_openingStatus_should_return_open_until_closing_time() {
+      // Given
+      doReturn(FAKE_DATE_TIME).when(dateTimeProvider).getNow();
+      doReturn(RESTAURANT_DETAILS_RESPONSE_4.getPlaceId()).when(savedStateHandle).get("restaurantId");
+      initViewModel();
+      detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_4, "OK"));
+
+      // When
+      DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateLiveData());
+
+      // Then
+      assertEquals("Ouvert jusqu'à 15h00", result.getOpeningStatus());
+   }
+
+   @Test
+   public void restaurant_closed_then_openingStatus_should_return_closed_and_opens_at() {
+      // Given
+      doReturn(FAKE_DATE_TIME).when(dateTimeProvider).getNow();
+      doReturn(RESTAURANT_DETAILS_RESPONSE_5.getPlaceId()).when(savedStateHandle).get("restaurantId");
+      initViewModel();
+      detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_5, "OK"));
+
+      // When
+      DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateLiveData());
+
+      // Then
+      assertEquals("Fermé ⋅ Ouvre à 10h00 lun.", result.getOpeningStatus());
+   }
+
+   @Test
+   public void restaurant_closed_then_openingStatus_should_return_closed_and_opens_same_day_next_week() {
+      // Given
+      doReturn(FAKE_DATE_TIME).when(dateTimeProvider).getNow();
+      doReturn(RESTAURANT_DETAILS_RESPONSE_6.getPlaceId()).when(savedStateHandle).get("restaurantId");
+      initViewModel();
+      detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_6, "OK"));
+
+      // When
+      DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateLiveData());
+
+      // Then
+      assertEquals("Fermé ⋅ Ouvre à 10h00 dim.", result.getOpeningStatus());
+   }
+
+   @Test
+   public void restaurant_closed_and_periods_null_should_return_closed_without_next_opening_time() {
+      // Given
+      doReturn(FAKE_DATE_TIME).when(dateTimeProvider).getNow();
+      doReturn(RESTAURANT_DETAILS_RESPONSE_7.getPlaceId()).when(savedStateHandle).get("restaurantId");
+      initViewModel();
+      detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_7, "OK"));
+
+      // When
+      DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateLiveData());
+
+      // Then
+      assertEquals("Fermé", result.getOpeningStatus());
+   }
+
+   @Test
+   public void restaurant_open_and_periods_null_should_return_open_without_closing_time() {
+      // Given
+      doReturn(FAKE_DATE_TIME).when(dateTimeProvider).getNow();
+      doReturn(RESTAURANT_DETAILS_RESPONSE_8.getPlaceId()).when(savedStateHandle).get("restaurantId");
+      initViewModel();
+      detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_8, "OK"));
+
+      // When
+      DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateLiveData());
+
+      // Then
+      assertEquals("Ouvert", result.getOpeningStatus());
+   }
+
    // region IN
    private void initViewModel() {
-      viewModel = new DetailsViewModel(application, restaurantDetailsRepository, savedStateHandle, restaurantImageMapper);
+      viewModel = new DetailsViewModel(application, restaurantDetailsRepository, savedStateHandle, restaurantImageMapper, dateTimeProvider);
    }
    // endregion IN
 

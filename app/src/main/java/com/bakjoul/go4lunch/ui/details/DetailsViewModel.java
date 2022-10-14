@@ -20,6 +20,7 @@ import com.bakjoul.go4lunch.data.model.PeriodResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantDetailsResponse;
 import com.bakjoul.go4lunch.data.repository.RestaurantDetailsRepository;
+import com.bakjoul.go4lunch.ui.utils.DateTimeProvider;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 
 import java.time.DayOfWeek;
@@ -48,17 +49,22 @@ public class DetailsViewModel extends ViewModel {
    @NonNull
    private final RestaurantImageMapper restaurantImageMapper;
 
+   @NonNull
+   private final DateTimeProvider dateTimeProvider;
+
    @RequiresApi(api = Build.VERSION_CODES.O)
    @Inject
    public DetailsViewModel(
        @NonNull Application application,
        @NonNull RestaurantDetailsRepository restaurantDetailsRepository,
        @NonNull SavedStateHandle savedStateHandle,
-       @NonNull RestaurantImageMapper restaurantImageMapper) {
+       @NonNull RestaurantImageMapper restaurantImageMapper,
+       @NonNull DateTimeProvider dateTimeProvider) {
 
       this.application = application;
       String restaurantId = savedStateHandle.get(KEY);
       this.restaurantImageMapper = restaurantImageMapper;
+      this.dateTimeProvider = dateTimeProvider;
 
       if (restaurantId != null) {
          detailsViewStateLiveData = Transformations.switchMap(
@@ -148,15 +154,15 @@ public class DetailsViewModel extends ViewModel {
    private String getOpeningStatus(OpeningHoursResponse response) {
       StringBuilder status;
       if (response != null) {
-         LocalDateTime localDateTime = LocalDateTime.now();
+         LocalDateTime now = dateTimeProvider.getNow();
          Locale locale = Locale.getDefault();
          DateTimeFormatter apiTimeFormatter = DateTimeFormatter.ofPattern("HHmm", Locale.getDefault());
          int dayOfWeek;
          // Make days of week between API and Java method match
-         if (DayOfWeek.from(localDateTime).getValue() == 7) {
+         if (DayOfWeek.from(now).getValue() == 7) {
             dayOfWeek = 0;
          } else {
-            dayOfWeek = DayOfWeek.from(localDateTime).getValue();
+            dayOfWeek = DayOfWeek.from(now).getValue();
          }
 
          if (response.getOpenNow()) {
@@ -166,7 +172,7 @@ public class DetailsViewModel extends ViewModel {
                for (PeriodResponse p : response.getPeriods()) {
                   if (p.getOpen().getDay() != null && dayOfWeek == p.getOpen().getDay()) {
                      // Check if closing time has not passed
-                     if (Long.parseLong(localDateTime.format(apiTimeFormatter)) < Long.parseLong(p.getClose().getTime()))
+                     if (Long.parseLong(now.format(apiTimeFormatter)) < Long.parseLong(p.getClose().getTime()))
                         status
                             .append(application.getString(R.string.details_opened_until))
                             .append(p.getClose().getTime(), 0, 2)
@@ -192,33 +198,30 @@ public class DetailsViewModel extends ViewModel {
                    || !orderedDays.contains(5)
                    || !orderedDays.contains(6)
                ) {
-                  if (dayToAdd > 6) {
-                     dayToAdd = 0;
-                  }
                   orderedDays.add(dayToAdd);
                   dayToAdd++;
-               }
-               if (dayToAdd > 6) {
-                  dayToAdd = 0;
+                  if (dayToAdd == 7) {
+                     dayToAdd = 0;
+                  }
                }
                orderedDays.add(dayToAdd);
 
                boolean nextOpeningFound = false;
-               // Check opening periods from today included until next 6 days
-               for (Integer i : orderedDays) {
+               int daysUntilNextOpening = -1;
+               // Check opening periods from today included until next 7 days
+               for (int i = 0; i < orderedDays.size(); i++) {
+                  daysUntilNextOpening++;
                   for (PeriodResponse p : response.getPeriods()) {
                      // If current day and day of period match
-                     if (Objects.equals(i, p.getOpen().getDay())) {
+                     if (Objects.equals(orderedDays.get(i), p.getOpen().getDay())) {
                         // If it's today, ensures that the closing time has not passed
-                        if (Objects.equals(i, orderedDays.get(0)) && Long.parseLong(p.getClose().getTime()) < Long.parseLong(localDateTime.format(apiTimeFormatter))) {
+                        if (i != orderedDays.size() - 1 && Objects.equals(orderedDays.get(i), dayOfWeek) && Long.parseLong(p.getClose().getTime()) < Long.parseLong(now.format(apiTimeFormatter))) {
                            // If it has, skip to next period
                            continue;
                         }
                         nextOpeningFound = true;
-                        // Get the index of the next opening day
-                        int daysUntilNextOpening = orderedDays.indexOf(i);
                         // Add the days until the next opening to today's date to know the next opening day
-                        String nextOpeningDay = localDateTime.plusDays(daysUntilNextOpening).getDayOfWeek().getDisplayName(TextStyle.SHORT, locale);
+                        String nextOpeningDay = now.plusDays(daysUntilNextOpening).getDayOfWeek().getDisplayName(TextStyle.SHORT, locale);
                         status
                             .append(application.getString(R.string.details_open_at))
                             .append(p.getOpen().getTime(), 0, 2)
