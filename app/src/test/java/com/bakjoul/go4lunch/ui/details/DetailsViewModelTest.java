@@ -47,6 +47,7 @@ public class DetailsViewModelTest {
    private static final String OPEN_AT = " ⋅ Ouvre à ";
 
    private static final LocalDateTime FAKE_DATE_TIME = LocalDateTime.of(2022, 10, 16, 12, 0);
+   private static final LocalDateTime FAKE_DATE_TIME_2 = LocalDateTime.of(2022, 10, 17, 12, 0);
 
    private static final RestaurantDetailsResponse RESTAURANT_DETAILS_RESPONSE_1 = new RestaurantDetailsResponse(
        "RESTAURANT_DETAILS_RESPONSE_ID_1",
@@ -222,6 +223,7 @@ public class DetailsViewModelTest {
    @Test
    public void photoRef_null_should_return_null_photoUrl() {
       // Given
+      doReturn(FAKE_DATE_TIME_2).when(dateTimeProvider).getNow();
       doReturn(RESTAURANT_DETAILS_RESPONSE_3.getPlaceId()).when(savedStateHandle).get("restaurantId");
       doReturn(null).when(restaurantImageMapper).getImageUrl(anyString(), anyBoolean());
       initViewModel();
