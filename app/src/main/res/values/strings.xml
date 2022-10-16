@@ -38,5 +38,7 @@
     <string name="details_back_button_desc">Back button</string>
     <string name="snackbar_timeout">Délai d\'attente dépassé\nVérifiez votre connexion</string>
     <string name="snackbar_retry">Réessayer</string>
+    <string name="toolbar_title_hungry">I\'m Hungry!</string>
+    <string name="toolbar_title_workmates">Available workmates</string>
 
 </resources>

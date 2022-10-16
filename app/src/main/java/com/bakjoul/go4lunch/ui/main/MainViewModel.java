@@ -80,9 +80,8 @@ public class MainViewModel extends ViewModel {
       fragmentToDisplaySingleLiveEvent.addSource(bottomNavigationViewButtonMutableLiveData, bottomNavigationViewButton ->
           combine(bottomNavigationViewButton, isLocationPermissionEnabledLiveData.getValue()));
 
-      fragmentToDisplaySingleLiveEvent.addSource(isLocationPermissionEnabledLiveData, isLocationPermissionEnabled -> {
-         combine(bottomNavigationViewButtonMutableLiveData.getValue(), isLocationPermissionEnabled);
-      });
+      fragmentToDisplaySingleLiveEvent.addSource(isLocationPermissionEnabledLiveData, isLocationPermissionEnabled ->
+          combine(bottomNavigationViewButtonMutableLiveData.getValue(), isLocationPermissionEnabled));
    }
 
    private void combine(@Nullable BottomNavigationViewButton bottomNavigationViewButton, @Nullable Boolean isLocationPermissionEnabled) {
@@ -99,7 +98,7 @@ public class MainViewModel extends ViewModel {
             }
             break;
          case RESTAURANTS:
-            fragmentToDisplaySingleLiveEvent.setValue(FragmentToDisplay.RESTAURANT);
+            fragmentToDisplaySingleLiveEvent.setValue(FragmentToDisplay.RESTAURANTS);
             break;
          case WORKMATES:
             fragmentToDisplaySingleLiveEvent.setValue(FragmentToDisplay.WORKMATES);
@@ -167,7 +166,7 @@ public class MainViewModel extends ViewModel {
 
    public enum FragmentToDisplay {
       MAP(R.id.main_bottomNavigationView_menuItem_mapView),
-      RESTAURANT(R.id.main_bottomNavigationView_menuItem_listView),
+      RESTAURANTS(R.id.main_bottomNavigationView_menuItem_listView),
       WORKMATES(R.id.main_bottomNavigationView_menuItem_workmates),
       NO_PERMISSION(R.id.main_bottomNavigationView_menuItem_mapView);
 

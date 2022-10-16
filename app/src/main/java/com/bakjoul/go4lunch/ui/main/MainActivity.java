@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
@@ -84,6 +85,7 @@ public class MainActivity extends AppCompatActivity {
 
    private void setToolbar() {
       Toolbar toolbar = binding.mainToolbar;
+      toolbar.setTitle(R.string.toolbar_title_hungry);
       setSupportActionBar(toolbar);
       if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
          toolbar.setBackgroundColor(getColor(R.color.primaryColor));
@@ -133,13 +135,15 @@ public class MainActivity extends AppCompatActivity {
       for (Fragment fragment : getSupportFragmentManager().getFragments()) {
          if (fragment instanceof MapFragment) {
             if (selected == FragmentToDisplay.MAP) {
+               setToolbarTitle(selected);
                transaction.show(fragment);
                shown = true;
             } else {
                transaction.hide(fragment);
             }
          } else if (fragment instanceof RestaurantsFragment) {
-            if (selected == FragmentToDisplay.RESTAURANT) {
+            if (selected == FragmentToDisplay.RESTAURANTS) {
+               setToolbarTitle(selected);
                transaction.show(fragment);
                shown = true;
             } else {
@@ -147,6 +151,7 @@ public class MainActivity extends AppCompatActivity {
             }
          } else if (fragment instanceof WorkmatesFragment) {
             if (selected == FragmentToDisplay.WORKMATES) {
+               setToolbarTitle(selected);
                transaction.show(fragment);
                shown = true;
             } else {
@@ -167,10 +172,12 @@ public class MainActivity extends AppCompatActivity {
             case MAP:
                transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), MapFragment.newInstance());
                break;
-            case RESTAURANT:
+            case RESTAURANTS:
+               binding.mainToolbar.setTitle(R.string.toolbar_title_hungry);
                transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), RestaurantsFragment.newInstance());
                break;
             case WORKMATES:
+               binding.mainToolbar.setTitle(R.string.toolbar_title_workmates);
                transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), WorkmatesFragment.newInstance());
                break;
             case NO_PERMISSION:
@@ -184,6 +191,22 @@ public class MainActivity extends AppCompatActivity {
       isBottomNavigationViewListenerDisabled = true;
       binding.mainBottomNavigationView.setSelectedItemId(selected.getMenuItemId());
       isBottomNavigationViewListenerDisabled = false;
+   }
+
+   private void setToolbarTitle(@NonNull FragmentToDisplay selected) {
+      switch (selected) {
+         case MAP:
+         case RESTAURANTS:
+            if (binding.mainToolbar.getTitle() != getString(R.string.toolbar_title_hungry)) {
+               binding.mainToolbar.setTitle(R.string.toolbar_title_hungry);
+            }
+            break;
+         case WORKMATES:
+            if (binding.mainToolbar.getTitle() != getString(R.string.toolbar_title_workmates)) {
+               binding.mainToolbar.setTitle(R.string.toolbar_title_workmates);
+            }
+            break;
+      }
    }
 
    private void checkLocationPermission() {
