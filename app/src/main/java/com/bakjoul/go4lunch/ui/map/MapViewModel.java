@@ -4,6 +4,7 @@ import static com.bakjoul.go4lunch.data.repository.RestaurantRepository.RANK_BY;
 import static com.bakjoul.go4lunch.data.repository.RestaurantRepository.TYPE;
 
 import android.location.Location;
+import android.location.LocationManager;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -20,12 +21,11 @@ import com.bakjoul.go4lunch.data.model.ErrorType;
 import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
+import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.google.android.gms.maps.model.LatLng;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,7 +42,12 @@ public class MapViewModel extends ViewModel {
    @NonNull
    private final LocationDistanceUtil locationDistanceUtil;
 
+   @NonNull
+   private final MapLocationRepository mapLocationRepository;
+
    private final MutableLiveData<Boolean> isMapReadyMutableLiveData = new MutableLiveData<>(false);
+
+   private final MutableLiveData<Boolean> isLocationGpsBasedMutableLiveData = new MutableLiveData<>(true);
 
    private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
 
@@ -56,71 +61,99 @@ public class MapViewModel extends ViewModel {
    public MapViewModel(
        @NonNull LocationRepository locationRepository,
        @NonNull RestaurantRepository restaurantRepository,
-       @NonNull LocationDistanceUtil locationDistanceUtil
+       @NonNull LocationDistanceUtil locationDistanceUtil,
+       @NonNull MapLocationRepository mapLocationRepository
    ) {
       this.locationDistanceUtil = locationDistanceUtil;
+      this.mapLocationRepository = mapLocationRepository;
 
-      LiveData<Location> locationLiveData = locationRepository.getCurrentLocation();
+      LiveData<Location> gpsLocationLiveData = locationRepository.getCurrentLocation();
+      LiveData<Location> mapLocationLiveData = mapLocationRepository.getCurrentMapLocation();
 
       LiveData<List<RestaurantMarker>> restaurantsMarkersLiveData = Transformations.switchMap(
-          locationLiveData,
-          location -> {
-             if (location == null) {
-                return new MutableLiveData<>(null);
+          isLocationGpsBasedMutableLiveData,
+          isLocationGpsBased -> {
+             if (isLocationGpsBased) {
+                return Transformations.switchMap(
+                    gpsLocationLiveData,
+                    gpsLocation -> {
+                       if (gpsLocation == null) {
+                          return new MutableLiveData<>(null);
+                       }
+                       return getRestaurantsMarkersLiveData(gpsLocation, restaurantRepository);
+                    }
+                );
+             } else {
+                return Transformations.switchMap(
+                    mapLocationLiveData,
+                    mapLocation -> {
+                       if (mapLocation == null) {
+                          return new MutableLiveData<>(null);
+                       }
+                       return getRestaurantsMarkersLiveData(mapLocation, restaurantRepository);
+                    }
+                );
              }
-             return Transformations.switchMap(
-                 nearbySearchRequestPingMutableLiveData,
-                 aVoid -> {
-                    errorTypeMutableLiveData.setValue(null);
-                    isProgressBarVisibleLiveData.setValue(true);
-                    return Transformations.map(
-                        restaurantRepository.getNearbySearchResult(getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY),
-                        result -> {
-                           List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
-                           if (result.getResponse() != null) {
-                              isProgressBarVisibleLiveData.setValue(false);
-                              for (RestaurantResponse r : result.getResponse().getResults()) {
-                                 if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
-                                    restaurantsMarkers.add(
-                                        new RestaurantMarker(
-                                            r.getPlaceId(),
-                                            new LatLng(
-                                                r.getGeometry().getLocation().getLat(),
-                                                r.getGeometry().getLocation().getLng()
-                                            ),
-                                            r.getName(),
-                                            R.drawable.ic_restaurant_red_marker
-                                        )
-                                    );
-                                 }
-                              }
-                           } else if (result.getErrorType() == ErrorType.TIMEOUT) {
-                              isProgressBarVisibleLiveData.setValue(false);
-                              errorTypeMutableLiveData.setValue(ErrorType.TIMEOUT);
-                              Log.d(TAG, "Socket time out");
-                           } else {
-                              isProgressBarVisibleLiveData.setValue(false);
-                              return restaurantsMarkers;
-                           }
-                           return restaurantsMarkers;
-                        }
-                    );
-                 }
-             );
           }
       );
 
-      mapViewStateMediatorLiveData.addSource(locationLiveData, location ->
-          combine(location, restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue(), isMapReadyMutableLiveData.getValue())
+      mapViewStateMediatorLiveData.addSource(gpsLocationLiveData, location ->
+          combine(location, restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue(), isMapReadyMutableLiveData.getValue(), isLocationGpsBasedMutableLiveData.getValue())
       );
       mapViewStateMediatorLiveData.addSource(restaurantsMarkersLiveData, markerOptions ->
-          combine(locationLiveData.getValue(), markerOptions, isProgressBarVisibleLiveData.getValue(), isMapReadyMutableLiveData.getValue())
+          combine(gpsLocationLiveData.getValue(), markerOptions, isProgressBarVisibleLiveData.getValue(), isMapReadyMutableLiveData.getValue(), isLocationGpsBasedMutableLiveData.getValue())
       );
       mapViewStateMediatorLiveData.addSource(isProgressBarVisibleLiveData, isProgressBarVisible ->
-          combine(locationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisible, isMapReadyMutableLiveData.getValue())
+          combine(gpsLocationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisible, isMapReadyMutableLiveData.getValue(), isLocationGpsBasedMutableLiveData.getValue())
       );
       mapViewStateMediatorLiveData.addSource(isMapReadyMutableLiveData, isMapReady ->
-          combine(locationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue(), isMapReady)
+          combine(gpsLocationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue(), isMapReady, isLocationGpsBasedMutableLiveData.getValue())
+      );
+      mapViewStateMediatorLiveData.addSource(isLocationGpsBasedMutableLiveData, isLocationGpsBased ->
+          combine(gpsLocationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue(), isMapReadyMutableLiveData.getValue(), isLocationGpsBased)
+      );
+   }
+
+   @NonNull
+   private LiveData<List<RestaurantMarker>> getRestaurantsMarkersLiveData(Location location, @NonNull RestaurantRepository restaurantRepository) {
+      return Transformations.switchMap(
+          nearbySearchRequestPingMutableLiveData,
+          aVoid -> {
+             errorTypeMutableLiveData.setValue(null);
+             isProgressBarVisibleLiveData.setValue(true);
+             return Transformations.map(
+                 restaurantRepository.getNearbySearchResult(getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY),
+                 result -> {
+                    List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
+                    if (result.getResponse() != null) {
+                       isProgressBarVisibleLiveData.setValue(false);
+                       for (RestaurantResponse r : result.getResponse().getResults()) {
+                          if (r.getBusinessStatus() != null && r.getBusinessStatus().equals("OPERATIONAL")) {
+                             restaurantsMarkers.add(
+                                 new RestaurantMarker(
+                                     r.getPlaceId(),
+                                     new LatLng(
+                                         r.getGeometry().getLocation().getLat(),
+                                         r.getGeometry().getLocation().getLng()
+                                     ),
+                                     r.getName(),
+                                     R.drawable.ic_restaurant_red_marker
+                                 )
+                             );
+                          }
+                       }
+                    } else if (result.getErrorType() == ErrorType.TIMEOUT) {
+                       isProgressBarVisibleLiveData.setValue(false);
+                       errorTypeMutableLiveData.setValue(ErrorType.TIMEOUT);
+                       Log.d(TAG, "Socket time out");
+                    } else {
+                       isProgressBarVisibleLiveData.setValue(false);
+                       return restaurantsMarkers;
+                    }
+                    return restaurantsMarkers;
+                 }
+             );
+          }
       );
    }
 
@@ -129,9 +162,9 @@ public class MapViewModel extends ViewModel {
        @Nullable Location location,
        @Nullable List<RestaurantMarker> restaurantMarkers,
        @Nullable Boolean isProgressBarVisible,
-       @Nullable Boolean isMapReady
-   ) {
-      if (location == null || isProgressBarVisible == null || isMapReady == null) {
+       @Nullable Boolean isMapReady,
+       @Nullable Boolean isLocationGpsBased) {
+      if (location == null || isProgressBarVisible == null || isMapReady == null || isLocationGpsBased == null) {
          return;
       }
 
@@ -141,8 +174,8 @@ public class MapViewModel extends ViewModel {
                  new LatLng(location.getLatitude(), location.getLongitude()),
                  restaurantMarkers == null ? new ArrayList<>() : restaurantMarkers,
                  errorTypeMutableLiveData.getValue() == null ? null : errorTypeMutableLiveData.getValue(),
-                 isProgressBarVisible
-             )
+                 isProgressBarVisible,
+                 isLocationGpsBased)
          );
       }
    }
@@ -164,17 +197,23 @@ public class MapViewModel extends ViewModel {
       nearbySearchRequestPingMutableLiveData.setValue(true);
    }
 
-   public MutableLiveData<Boolean> getNearbySearchRequestPingMutableLiveData() {
+   public LiveData<Boolean> getNearbySearchRequestPingMutableLiveData() {
       return nearbySearchRequestPingMutableLiveData;
    }
 
    public void onCameraMoved(@NonNull LatLng newPosition, @NonNull LatLng oldPosition) {
-      LatLng newRoundedPosition = new LatLng(
-          new BigDecimal(newPosition.latitude).setScale(7, RoundingMode.HALF_UP).doubleValue(),
-          new BigDecimal(newPosition.longitude).setScale(7, RoundingMode.HALF_UP).doubleValue()
-      );
-      if (locationDistanceUtil.getDistance(newRoundedPosition, oldPosition) > MAP_MINIMUM_DISPLACEMENT) {
-         Log.d("test", "onCameraMoved: " + locationDistanceUtil.getDistance(newRoundedPosition, oldPosition));
+      if (locationDistanceUtil.getDistance(newPosition, oldPosition) > MAP_MINIMUM_DISPLACEMENT) {
+         isLocationGpsBasedMutableLiveData.setValue(false);
+
+         Location mapLocation = new Location(LocationManager.GPS_PROVIDER);
+         mapLocation.setLatitude(newPosition.latitude);
+         mapLocation.setLongitude(newPosition.longitude);
+         mapLocationRepository.setCurrentMapLocation(mapLocation);
+         Log.d("test", "onCameraMoved: " + locationDistanceUtil.getDistance(newPosition, oldPosition));
       }
+   }
+
+   public void onMyLocationButtonClicked() {
+      isLocationGpsBasedMutableLiveData.setValue(true);
    }
 }

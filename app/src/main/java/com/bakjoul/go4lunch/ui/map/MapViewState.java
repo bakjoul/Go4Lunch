@@ -15,12 +15,14 @@ public class MapViewState {
    private final List<RestaurantMarker> restaurantsMarkers;
    private final ErrorType errorType;
    private final boolean isProgressBarVisible;
+   private final boolean isLocationGpsBased;
 
-   public MapViewState(LatLng latLng, List<RestaurantMarker> restaurantsMarkers, ErrorType errorType, boolean isProgressBarVisible) {
+   public MapViewState(LatLng latLng, List<RestaurantMarker> restaurantsMarkers, ErrorType errorType, boolean isProgressBarVisible, boolean isLocationGpsBased) {
       this.latLng = latLng;
       this.restaurantsMarkers = restaurantsMarkers;
       this.errorType = errorType;
       this.isProgressBarVisible = isProgressBarVisible;
+      this.isLocationGpsBased = isLocationGpsBased;
    }
 
    public LatLng getLatLng() {
@@ -39,17 +41,21 @@ public class MapViewState {
       return isProgressBarVisible;
    }
 
+   public boolean isLocationGpsBased() {
+      return isLocationGpsBased;
+   }
+
    @Override
    public boolean equals(Object o) {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       MapViewState that = (MapViewState) o;
-      return isProgressBarVisible == that.isProgressBarVisible && Objects.equals(latLng, that.latLng) && Objects.equals(restaurantsMarkers, that.restaurantsMarkers) && errorType == that.errorType;
+      return isProgressBarVisible == that.isProgressBarVisible && isLocationGpsBased == that.isLocationGpsBased && Objects.equals(latLng, that.latLng) && Objects.equals(restaurantsMarkers, that.restaurantsMarkers) && errorType == that.errorType;
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(latLng, restaurantsMarkers, errorType, isProgressBarVisible);
+      return Objects.hash(latLng, restaurantsMarkers, errorType, isProgressBarVisible, isLocationGpsBased);
    }
 
    @NonNull
@@ -60,6 +66,7 @@ public class MapViewState {
           ", restaurantsMarkers=" + restaurantsMarkers +
           ", errorType=" + errorType +
           ", isProgressBarVisible=" + isProgressBarVisible +
+          ", isGpsLocationBased=" + isLocationGpsBased +
           '}';
    }
 }

@@ -50,22 +50,28 @@ public class MapFragment extends Fragment {
             googleMap.setMinZoomPreference(12);
             googleMap.setMaxZoomPreference(16);
             googleMap.setMyLocationEnabled(true);
+            googleMap.setOnMyLocationButtonClickListener(() -> {
+               viewModel.onMyLocationButtonClicked();
+               return false;
+            });
             viewModel.onMapReady();
          });
       }
 
       viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), viewState -> {
+         googleMap.clear();
          if (!viewState.isProgressBarVisible()) {
             binding.mapProgressBar.setVisibility(View.GONE);
          } else {
             binding.mapProgressBar.setVisibility(View.VISIBLE);
          }
-         googleMap.clear();
-         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                 viewState.getLatLng(),
-                 13.5f
-             )
-         );
+         if (viewState.isLocationGpsBased()) {
+            googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(
+                    viewState.getLatLng(),
+                    13.5f
+                )
+            );
+         }
 
          if (viewState.getRestaurantsMarkers() != null && !viewState.getRestaurantsMarkers().isEmpty()) {
             for (RestaurantMarker m : viewState.getRestaurantsMarkers()) {
@@ -94,13 +100,7 @@ public class MapFragment extends Fragment {
             }
          }
 
-         googleMap.setOnCameraIdleListener(() -> {
-            viewModel.onCameraMoved(googleMap.getCameraPosition().target, viewState.getLatLng());
-/*            googleMap.addMarker(new MarkerOptions()
-                .position(googleMap.getCameraPosition().target)
-            );*/
-         });
-
+         googleMap.setOnCameraIdleListener(() -> viewModel.onCameraMoved(googleMap.getCameraPosition().target, viewState.getLatLng()));
       });
 
       return binding.getRoot();

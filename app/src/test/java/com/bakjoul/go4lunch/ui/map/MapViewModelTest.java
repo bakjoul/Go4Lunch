@@ -24,6 +24,7 @@ import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
+import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
@@ -93,6 +94,7 @@ public class MapViewModelTest {
    private final LocationRepository locationRepository = Mockito.mock(LocationRepository.class);
    private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
    private final LocationDistanceUtil locationDistanceUtil = Mockito.mock(LocationDistanceUtil.class);
+   private final MapLocationRepository mapLocationRepository = Mockito.mock(MapLocationRepository.class);
 
    private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
    private final MutableLiveData<NearbySearchResult> nearbySearchResultMutableLiveData = new MutableLiveData<>();
@@ -111,7 +113,7 @@ public class MapViewModelTest {
 
       locationLiveData.setValue(location);
 
-      viewModel = new MapViewModel(locationRepository, restaurantRepository, locationDistanceUtil);
+      viewModel = new MapViewModel(locationRepository, restaurantRepository, locationDistanceUtil, mapLocationRepository);
 
       verify(locationRepository).getCurrentLocation();
    }
@@ -244,8 +246,8 @@ public class MapViewModelTest {
           FAKE_LOCATION,
           restaurantMarkers,
           null,
-          false
-      );
+          false,
+          true);
    }
 
    @NonNull
@@ -254,8 +256,8 @@ public class MapViewModelTest {
           new LatLng(location.getLatitude(), location.getLongitude()),
           new ArrayList<>(),
           ErrorType.TIMEOUT,
-          false
-      );
+          false,
+          true);
    }
 
    @NonNull
@@ -264,8 +266,8 @@ public class MapViewModelTest {
           new LatLng(location.getLatitude(), location.getLongitude()),
           new ArrayList<>(),
           null,
-          false
-      );
+          false,
+          true);
    }
    // endregion OUT
 }
