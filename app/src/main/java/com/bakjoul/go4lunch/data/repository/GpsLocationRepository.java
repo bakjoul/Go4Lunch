@@ -21,15 +21,17 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class LocationRepository {
+public class GpsLocationRepository {
 
-   private static final String TAG = "LocationRepository";
+   private static final String TAG = "GpsLocationRepository";
 
    private static final long INTERVAL = 10000;
    private static final long FASTEST_INTERVAL = INTERVAL / 2;
    private static final float SMALLEST_DISPLACEMENT = 20f;
 
    private final MutableLiveData<Boolean> isLocationPermissionAllowedLiveData = new MutableLiveData<>(false);
+
+   private final MutableLiveData<Boolean> isLocationGpsBasedMutableLiveData = new MutableLiveData<>(true);
 
    @NonNull
    private final FusedLocationProviderClient fusedLocationProvider;
@@ -45,7 +47,7 @@ public class LocationRepository {
        .setSmallestDisplacement(SMALLEST_DISPLACEMENT);
 
    @Inject
-   public LocationRepository(@NonNull FusedLocationProviderClient fusedLocationProvider) {
+   public GpsLocationRepository(@NonNull FusedLocationProviderClient fusedLocationProvider) {
       this.fusedLocationProvider = fusedLocationProvider;
       locationCallback = new LocationCallback() {
          @Override
@@ -71,6 +73,10 @@ public class LocationRepository {
       });
    }
 
+   public LiveData<Boolean> getIsLocationGpsBasedMutableLiveData() {
+      return isLocationGpsBasedMutableLiveData;
+   }
+
    public void startLocationUpdates() {
       Log.d(TAG, "startLocationUpdates() called");
       isLocationPermissionAllowedLiveData.setValue(true);
@@ -79,5 +85,13 @@ public class LocationRepository {
    public void stopLocationUpdates() {
       Log.d(TAG, "stopLocationUpdates() called");
       isLocationPermissionAllowedLiveData.setValue(false);
+   }
+
+   public void onCameraMoved() {
+      isLocationGpsBasedMutableLiveData.setValue(false);
+   }
+
+   public void onMyLocationButtonClicked() {
+      isLocationGpsBasedMutableLiveData.setValue(true);
    }
 }

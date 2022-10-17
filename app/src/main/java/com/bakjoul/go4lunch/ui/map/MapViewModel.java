@@ -20,7 +20,7 @@ import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.model.ErrorType;
 import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
-import com.bakjoul.go4lunch.data.repository.LocationRepository;
+import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
 import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
@@ -43,11 +43,12 @@ public class MapViewModel extends ViewModel {
    private final LocationDistanceUtil locationDistanceUtil;
 
    @NonNull
+   private final GpsLocationRepository gpsLocationRepository;
+
+   @NonNull
    private final MapLocationRepository mapLocationRepository;
 
    private final MutableLiveData<Boolean> isMapReadyMutableLiveData = new MutableLiveData<>(false);
-
-   private final MutableLiveData<Boolean> isLocationGpsBasedMutableLiveData = new MutableLiveData<>(true);
 
    private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
 
@@ -59,16 +60,18 @@ public class MapViewModel extends ViewModel {
 
    @Inject
    public MapViewModel(
-       @NonNull LocationRepository locationRepository,
+       @NonNull GpsLocationRepository gpsLocationRepository,
        @NonNull RestaurantRepository restaurantRepository,
        @NonNull LocationDistanceUtil locationDistanceUtil,
        @NonNull MapLocationRepository mapLocationRepository
    ) {
+      this.gpsLocationRepository = gpsLocationRepository;
       this.locationDistanceUtil = locationDistanceUtil;
       this.mapLocationRepository = mapLocationRepository;
 
-      LiveData<Location> gpsLocationLiveData = locationRepository.getCurrentLocation();
+      LiveData<Location> gpsLocationLiveData = gpsLocationRepository.getCurrentLocation();
       LiveData<Location> mapLocationLiveData = mapLocationRepository.getCurrentMapLocation();
+      LiveData<Boolean> isLocationGpsBasedMutableLiveData = gpsLocationRepository.getIsLocationGpsBasedMutableLiveData();
 
       LiveData<List<RestaurantMarker>> restaurantsMarkersLiveData = Transformations.switchMap(
           isLocationGpsBasedMutableLiveData,
@@ -97,21 +100,26 @@ public class MapViewModel extends ViewModel {
           }
       );
 
-      mapViewStateMediatorLiveData.addSource(gpsLocationLiveData, location ->
-          combine(location, restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue(), isMapReadyMutableLiveData.getValue(), isLocationGpsBasedMutableLiveData.getValue())
-      );
-      mapViewStateMediatorLiveData.addSource(restaurantsMarkersLiveData, markerOptions ->
-          combine(gpsLocationLiveData.getValue(), markerOptions, isProgressBarVisibleLiveData.getValue(), isMapReadyMutableLiveData.getValue(), isLocationGpsBasedMutableLiveData.getValue())
-      );
-      mapViewStateMediatorLiveData.addSource(isProgressBarVisibleLiveData, isProgressBarVisible ->
-          combine(gpsLocationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisible, isMapReadyMutableLiveData.getValue(), isLocationGpsBasedMutableLiveData.getValue())
-      );
       mapViewStateMediatorLiveData.addSource(isMapReadyMutableLiveData, isMapReady ->
-          combine(gpsLocationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue(), isMapReady, isLocationGpsBasedMutableLiveData.getValue())
+          combine(isMapReady, isLocationGpsBasedMutableLiveData.getValue(), gpsLocationLiveData.getValue(), mapLocationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue())
       );
       mapViewStateMediatorLiveData.addSource(isLocationGpsBasedMutableLiveData, isLocationGpsBased ->
-          combine(gpsLocationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue(), isMapReadyMutableLiveData.getValue(), isLocationGpsBased)
+          combine(isMapReadyMutableLiveData.getValue(), isLocationGpsBased, gpsLocationLiveData.getValue(), mapLocationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue())
       );
+      mapViewStateMediatorLiveData.addSource(gpsLocationLiveData, gpsLocation ->
+          combine(isMapReadyMutableLiveData.getValue(), isLocationGpsBasedMutableLiveData.getValue(), gpsLocation, mapLocationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue())
+      );
+      mapViewStateMediatorLiveData.addSource(mapLocationLiveData, mapLocation ->
+          combine(isMapReadyMutableLiveData.getValue(), isLocationGpsBasedMutableLiveData.getValue(), gpsLocationLiveData.getValue(), mapLocation, restaurantsMarkersLiveData.getValue(), isProgressBarVisibleLiveData.getValue())
+      );
+      mapViewStateMediatorLiveData.addSource(restaurantsMarkersLiveData, restaurantMarkers ->
+          combine(isMapReadyMutableLiveData.getValue(), isLocationGpsBasedMutableLiveData.getValue(), gpsLocationLiveData.getValue(), mapLocationLiveData.getValue(), restaurantMarkers, isProgressBarVisibleLiveData.getValue())
+      );
+      mapViewStateMediatorLiveData.addSource(isProgressBarVisibleLiveData, isProgressBarVisible ->
+          combine(isMapReadyMutableLiveData.getValue(), isLocationGpsBasedMutableLiveData.getValue(), gpsLocationLiveData.getValue(), mapLocationLiveData.getValue(), restaurantsMarkersLiveData.getValue(), isProgressBarVisible)
+      );
+
+
    }
 
    @NonNull
@@ -159,19 +167,25 @@ public class MapViewModel extends ViewModel {
 
 
    private void combine(
-       @Nullable Location location,
-       @Nullable List<RestaurantMarker> restaurantMarkers,
-       @Nullable Boolean isProgressBarVisible,
        @Nullable Boolean isMapReady,
-       @Nullable Boolean isLocationGpsBased) {
-      if (location == null || isProgressBarVisible == null || isMapReady == null || isLocationGpsBased == null) {
+       @Nullable Boolean isLocationGpsBased,
+       @Nullable Location gpsLocation,
+       @Nullable Location mapLocation,
+       @Nullable List<RestaurantMarker> restaurantMarkers,
+       @Nullable Boolean isProgressBarVisible
+   ) {
+      if (isMapReady == null || isLocationGpsBased == null || isProgressBarVisible == null) {
          return;
+      }
+
+      if(isLocationGpsBased) {
+
       }
 
       if (isMapReady) {
          mapViewStateMediatorLiveData.setValue(
              new MapViewState(
-                 new LatLng(location.getLatitude(), location.getLongitude()),
+                 isLocationGpsBased ? new LatLng(gpsLocation.getLatitude(), gpsLocation.getLongitude()) : new LatLng(mapLocation.getLatitude(), mapLocation.getLongitude()),
                  restaurantMarkers == null ? new ArrayList<>() : restaurantMarkers,
                  errorTypeMutableLiveData.getValue() == null ? null : errorTypeMutableLiveData.getValue(),
                  isProgressBarVisible,
@@ -203,7 +217,7 @@ public class MapViewModel extends ViewModel {
 
    public void onCameraMoved(@NonNull LatLng newPosition, @NonNull LatLng oldPosition) {
       if (locationDistanceUtil.getDistance(newPosition, oldPosition) > MAP_MINIMUM_DISPLACEMENT) {
-         isLocationGpsBasedMutableLiveData.setValue(false);
+         gpsLocationRepository.onCameraMoved();
 
          Location mapLocation = new Location(LocationManager.GPS_PROVIDER);
          mapLocation.setLatitude(newPosition.latitude);
@@ -214,6 +228,6 @@ public class MapViewModel extends ViewModel {
    }
 
    public void onMyLocationButtonClicked() {
-      isLocationGpsBasedMutableLiveData.setValue(true);
+      gpsLocationRepository.onMyLocationButtonClicked();
    }
 }

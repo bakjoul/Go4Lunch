@@ -23,7 +23,8 @@ import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
-import com.bakjoul.go4lunch.data.repository.LocationRepository;
+import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
+import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
@@ -63,7 +64,8 @@ public class RestaurantsViewModel extends ViewModel {
    public RestaurantsViewModel(
        @NonNull Application application,
        @NonNull RestaurantRepository restaurantRepository,
-       @NonNull LocationRepository locationRepository,
+       @NonNull GpsLocationRepository gpsLocationRepository,
+       @NonNull MapLocationRepository mapLocationRepository,
        @NonNull LocationDistanceUtil locationDistanceUtils,
        @NonNull RestaurantImageMapper restaurantImageMapper
    ) {
@@ -71,41 +73,36 @@ public class RestaurantsViewModel extends ViewModel {
       this.locationDistanceUtils = locationDistanceUtils;
       this.restaurantImageMapper = restaurantImageMapper;
 
-      LiveData<Location> locationLiveData = locationRepository.getCurrentLocation();
+      LiveData<Location> gpsLocationLiveData = gpsLocationRepository.getCurrentLocation();
+      LiveData<Location> mapLocationLiveData = mapLocationRepository.getCurrentMapLocation();
+      LiveData<Boolean> isLocationGpsBasedMutableLiveData = gpsLocationRepository.getIsLocationGpsBasedMutableLiveData();
 
       LiveData<List<RestaurantsItemViewState>> restaurantsItemViewStateLiveData = Transformations.switchMap(
-          locationLiveData,
-          location -> {
-             if (location == null) {
-                isProgressBarVisibleLiveData.setValue(false);
-                return null;
+          isLocationGpsBasedMutableLiveData,
+          isLocationGpsBased -> {
+             if (isLocationGpsBased) {
+                return Transformations.switchMap(
+                    gpsLocationLiveData,
+                    gpsLocation -> {
+                       if (gpsLocation == null) {
+                          isProgressBarVisibleLiveData.setValue(false);
+                          return null;
+                       }
+                       return getRestaurantsListLiveData(gpsLocation, restaurantRepository);
+                    }
+                );
+             } else {
+                return Transformations.switchMap(
+                    mapLocationLiveData,
+                    mapLocation -> {
+                       if (mapLocation == null) {
+                          isProgressBarVisibleLiveData.setValue(false);
+                          return null;
+                       }
+                       return getRestaurantsListLiveData(mapLocation, restaurantRepository);
+                    }
+                );
              }
-             return Transformations.switchMap(
-                 nearbySearchRequestPingMutableLiveData,
-                 aVoid -> {
-                    errorTypeMutableLiveData.setValue(null);
-                    isProgressBarVisibleLiveData.setValue(true);
-                    return Transformations.map(
-                        restaurantRepository.getNearbySearchResult(RestaurantsViewModel.this.getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY),
-                        result -> {
-                           List<RestaurantsItemViewState> restaurantsItemViewStateList;
-                           if (result.getResponse() != null) {
-                              isProgressBarVisibleLiveData.setValue(false);
-                              restaurantsItemViewStateList = mapData(result.getResponse(), location);
-                           } else if (result.getErrorType() == ErrorType.TIMEOUT) {
-                              isProgressBarVisibleLiveData.setValue(false);
-                              restaurantsItemViewStateList = null;
-                              errorTypeMutableLiveData.setValue(ErrorType.TIMEOUT);
-                              Log.d(TAG, "Socket time out");
-                           } else {
-                              isProgressBarVisibleLiveData.setValue(false);
-                              restaurantsItemViewStateList = null;
-                           }
-                           return restaurantsItemViewStateList;
-                        }
-                    );
-                 }
-             );
           }
       );
 
@@ -115,10 +112,39 @@ public class RestaurantsViewModel extends ViewModel {
           combine(restaurantsItemViewStateLiveData.getValue(), isProgressBarVisible));
    }
 
+   @NonNull
+   private LiveData<List<RestaurantsItemViewState>> getRestaurantsListLiveData(Location location, @NonNull RestaurantRepository restaurantRepository) {
+      return Transformations.switchMap(
+          nearbySearchRequestPingMutableLiveData,
+          aVoid -> {
+             errorTypeMutableLiveData.setValue(null);
+             isProgressBarVisibleLiveData.setValue(true);
+             return Transformations.map(
+                 restaurantRepository.getNearbySearchResult(RestaurantsViewModel.this.getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY),
+                 result -> {
+                    List<RestaurantsItemViewState> restaurantsItemViewStateList;
+                    if (result.getResponse() != null) {
+                       isProgressBarVisibleLiveData.setValue(false);
+                       restaurantsItemViewStateList = mapData(result.getResponse(), location);
+                    } else if (result.getErrorType() == ErrorType.TIMEOUT) {
+                       isProgressBarVisibleLiveData.setValue(false);
+                       restaurantsItemViewStateList = null;
+                       errorTypeMutableLiveData.setValue(ErrorType.TIMEOUT);
+                       Log.d(TAG, "Socket time out");
+                    } else {
+                       isProgressBarVisibleLiveData.setValue(false);
+                       restaurantsItemViewStateList = null;
+                    }
+                    return restaurantsItemViewStateList;
+                 }
+             );
+          }
+      );
+   }
+
    private void combine(
        @Nullable List<RestaurantsItemViewState> restaurantsItemViewStateList,
-       @Nullable Boolean isProgressBarVisible
-   ) {
+       @Nullable Boolean isProgressBarVisible) {
       restaurantsViewStateMediatorLiveData.setValue(
           new RestaurantsViewState(
               restaurantsItemViewStateList == null ? new ArrayList<>() : restaurantsItemViewStateList,

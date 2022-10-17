@@ -1,7 +1,6 @@
 package com.bakjoul.go4lunch.data.repository;
 
 import android.location.Location;
-import android.util.Log;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

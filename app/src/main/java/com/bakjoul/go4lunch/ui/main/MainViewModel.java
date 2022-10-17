@@ -15,7 +15,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.repository.LocationRepository;
+import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
 import com.bakjoul.go4lunch.data.repository.PermissionRepository;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.facebook.AccessToken;
@@ -40,7 +40,7 @@ public class MainViewModel extends ViewModel {
    private final FirebaseAuth firebaseAuth;
 
    @NonNull
-   private final LocationRepository locationRepository;
+   private final GpsLocationRepository gpsLocationRepository;
 
    @NonNull
    private final PermissionRepository permissionRepository;
@@ -57,12 +57,12 @@ public class MainViewModel extends ViewModel {
    public MainViewModel(
        @ApplicationContext @NonNull Context context,
        @NonNull FirebaseAuth firebaseAuth,
-       @NonNull LocationRepository locationRepository,
+       @NonNull GpsLocationRepository gpsLocationRepository,
        @NonNull PermissionRepository permissionRepository
    ) {
       this.context = context;
       this.firebaseAuth = firebaseAuth;
-      this.locationRepository = locationRepository;
+      this.gpsLocationRepository = gpsLocationRepository;
       this.permissionRepository = permissionRepository;
 
       if (firebaseAuth.getCurrentUser() != null) {
@@ -128,10 +128,10 @@ public class MainViewModel extends ViewModel {
 
    public void onResume() {
       if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-         locationRepository.startLocationUpdates();
+         gpsLocationRepository.startLocationUpdates();
          permissionRepository.setLocationPermission(true);
       } else {
-         locationRepository.stopLocationUpdates();
+         gpsLocationRepository.stopLocationUpdates();
          permissionRepository.setLocationPermission(false);
       }
    }

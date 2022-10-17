@@ -23,7 +23,8 @@ import com.bakjoul.go4lunch.data.model.NearbySearchResult;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
-import com.bakjoul.go4lunch.data.repository.LocationRepository;
+import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
+import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
@@ -97,7 +98,8 @@ public class RestaurantsViewModelTest {
 
    private final Application application = Mockito.mock(Application.class);
    private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
-   private final LocationRepository locationRepository = Mockito.mock(LocationRepository.class);
+   private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
+   private final MapLocationRepository mapLocationRepository = Mockito.mock(MapLocationRepository.class);
    private final LocationDistanceUtil locationDistanceUtils = Mockito.mock(LocationDistanceUtil.class);
    private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
 
@@ -115,7 +117,7 @@ public class RestaurantsViewModelTest {
       given(application.getString(R.string.information_not_available)).willReturn(NOT_AVAILABLE);
 
       doReturn(nearbySearchResultMutableLiveData).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
-      doReturn(locationLiveData).when(locationRepository).getCurrentLocation();
+      doReturn(locationLiveData).when(gpsLocationRepository).getCurrentLocation();
       doReturn("50m").when(locationDistanceUtils).getDistanceToStringFormat(location, new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude));
       doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", false);
 
@@ -124,9 +126,9 @@ public class RestaurantsViewModelTest {
 
       locationLiveData.setValue(location);
 
-      viewModel = new RestaurantsViewModel(application, restaurantRepository, locationRepository, locationDistanceUtils, restaurantImageMapper);
+      viewModel = new RestaurantsViewModel(application, restaurantRepository, gpsLocationRepository, mapLocationRepository, locationDistanceUtils, restaurantImageMapper);
 
-      verify(locationRepository).getCurrentLocation();
+      verify(gpsLocationRepository).getCurrentLocation();
    }
 
    @Test

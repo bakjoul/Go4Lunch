@@ -23,7 +23,7 @@ import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
-import com.bakjoul.go4lunch.data.repository.LocationRepository;
+import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
 import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
@@ -91,7 +91,7 @@ public class MapViewModelTest {
    @Rule
    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-   private final LocationRepository locationRepository = Mockito.mock(LocationRepository.class);
+   private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
    private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
    private final LocationDistanceUtil locationDistanceUtil = Mockito.mock(LocationDistanceUtil.class);
    private final MapLocationRepository mapLocationRepository = Mockito.mock(MapLocationRepository.class);
@@ -105,7 +105,7 @@ public class MapViewModelTest {
 
    @Before
    public void setUp() {
-      doReturn(locationLiveData).when(locationRepository).getCurrentLocation();
+      doReturn(locationLiveData).when(gpsLocationRepository).getCurrentLocation();
       doReturn(nearbySearchResultMutableLiveData).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
 
       doReturn(FAKE_LOCATION.latitude).when(location).getLatitude();
@@ -113,9 +113,9 @@ public class MapViewModelTest {
 
       locationLiveData.setValue(location);
 
-      viewModel = new MapViewModel(locationRepository, restaurantRepository, locationDistanceUtil, mapLocationRepository);
+      viewModel = new MapViewModel(gpsLocationRepository, restaurantRepository, locationDistanceUtil, mapLocationRepository);
 
-      verify(locationRepository).getCurrentLocation();
+      verify(gpsLocationRepository).getCurrentLocation();
    }
 
    @Test
