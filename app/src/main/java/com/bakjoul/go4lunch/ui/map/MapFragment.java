@@ -47,6 +47,9 @@ public class MapFragment extends Fragment {
       if (supportMapFragment != null) {
          supportMapFragment.getMapAsync(googleMap -> {
             this.googleMap = googleMap;
+            googleMap.setMinZoomPreference(12);
+            googleMap.setMaxZoomPreference(16);
+            googleMap.setMyLocationEnabled(true);
             viewModel.onMapReady();
          });
       }
@@ -63,7 +66,6 @@ public class MapFragment extends Fragment {
                  13.5f
              )
          );
-         googleMap.setMyLocationEnabled(true);
 
          if (viewState.getRestaurantsMarkers() != null && !viewState.getRestaurantsMarkers().isEmpty()) {
             for (RestaurantMarker m : viewState.getRestaurantsMarkers()) {
@@ -91,6 +93,14 @@ public class MapFragment extends Fragment {
                    .show();
             }
          }
+
+         googleMap.setOnCameraIdleListener(() -> {
+            viewModel.onCameraMoved(googleMap.getCameraPosition().target, viewState.getLatLng());
+/*            googleMap.addMarker(new MarkerOptions()
+                .position(googleMap.getCameraPosition().target)
+            );*/
+         });
+
       });
 
       return binding.getRoot();

@@ -116,7 +116,7 @@ public class RestaurantsViewModelTest {
 
       doReturn(nearbySearchResultMutableLiveData).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
       doReturn(locationLiveData).when(locationRepository).getCurrentLocation();
-      doReturn("50m").when(locationDistanceUtils).getDistance(location, new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude));
+      doReturn("50m").when(locationDistanceUtils).getDistanceToStringFormat(location, new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude));
       doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", false);
 
       doReturn(FAKE_LOCATION.latitude).when(location).getLatitude();
@@ -224,7 +224,7 @@ public class RestaurantsViewModelTest {
               RESTAURANT_RESPONSE_2.getName(),
               RESTAURANT_RESPONSE_2.getVicinity(),
               CLOSED,
-              locationDistanceUtils.getDistance(location, RESTAURANT_RESPONSE_2.getGeometry().getLocation()),
+              locationDistanceUtils.getDistanceToStringFormat(location, RESTAURANT_RESPONSE_2.getGeometry().getLocation()),
               "",
               3,
               true,
@@ -237,7 +237,7 @@ public class RestaurantsViewModelTest {
               RESTAURANT_RESPONSE_3.getName(),
               RESTAURANT_RESPONSE_3.getVicinity(),
               NOT_AVAILABLE,
-              locationDistanceUtils.getDistance(location, RESTAURANT_RESPONSE_3.getGeometry().getLocation()),
+              locationDistanceUtils.getDistanceToStringFormat(location, RESTAURANT_RESPONSE_3.getGeometry().getLocation()),
               "",
               0,
               false,

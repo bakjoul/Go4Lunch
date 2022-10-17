@@ -38,8 +38,8 @@ public class RestaurantRepository {
    }
 
    // For testing
-   Random random = new Random();
-   boolean randomBoolean = false;
+   /*Random random = new Random();
+   boolean randomBoolean = false;*/
 
    public LiveData<NearbySearchResult> getNearbySearchResult(
        String location,
@@ -48,11 +48,11 @@ public class RestaurantRepository {
        String key
    ) {
       // For testing
-      randomBoolean = random.nextInt(2) == 0;
+      //randomBoolean = random.nextInt(2) == 0;
       MutableLiveData<NearbySearchResult> restaurantResultMutableLiveData = new MutableLiveData<>();
       // For testing
-      if (randomBoolean) {
-         Log.d("test", "Request done");
+      /*if (randomBoolean) {
+         Log.d("test", "Request done");*/
          restaurantApi.getRestaurants(location, rankBy, type, key).enqueue(new Callback<NearbySearchResponse>() {
             @Override
             public void onResponse(@NonNull Call<NearbySearchResponse> call, @NonNull Response<NearbySearchResponse> response) {
@@ -70,12 +70,12 @@ public class RestaurantRepository {
 
             }
          });
-      }
+/*      }
       // For testing
       else {
          Log.d("test", "Request not done, testing timeout");
          restaurantResultMutableLiveData.setValue(new NearbySearchResult(null, ErrorType.TIMEOUT));
-      }
+      }*/
       return restaurantResultMutableLiveData;
    }
 }

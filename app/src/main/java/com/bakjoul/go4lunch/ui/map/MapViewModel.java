@@ -21,8 +21,11 @@ import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.LocationRepository;
 import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
+import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.google.android.gms.maps.model.LatLng;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -34,6 +37,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class MapViewModel extends ViewModel {
 
    private static final String TAG = "MapViewModel";
+   private static final double MAP_MINIMUM_DISPLACEMENT = 1000;
+
+   @NonNull
+   private final LocationDistanceUtil locationDistanceUtil;
 
    private final MutableLiveData<Boolean> isMapReadyMutableLiveData = new MutableLiveData<>(false);
 
@@ -48,7 +55,10 @@ public class MapViewModel extends ViewModel {
    @Inject
    public MapViewModel(
        @NonNull LocationRepository locationRepository,
-       @NonNull RestaurantRepository restaurantRepository) {
+       @NonNull RestaurantRepository restaurantRepository,
+       @NonNull LocationDistanceUtil locationDistanceUtil
+   ) {
+      this.locationDistanceUtil = locationDistanceUtil;
 
       LiveData<Location> locationLiveData = locationRepository.getCurrentLocation();
 
@@ -79,7 +89,7 @@ public class MapViewModel extends ViewModel {
                                                 r.getGeometry().getLocation().getLng()
                                             ),
                                             r.getName(),
-                                            R.drawable.ic_restaurant_green_marker
+                                            R.drawable.ic_restaurant_red_marker
                                         )
                                     );
                                  }
@@ -156,5 +166,15 @@ public class MapViewModel extends ViewModel {
 
    public MutableLiveData<Boolean> getNearbySearchRequestPingMutableLiveData() {
       return nearbySearchRequestPingMutableLiveData;
+   }
+
+   public void onCameraMoved(@NonNull LatLng newPosition, @NonNull LatLng oldPosition) {
+      LatLng newRoundedPosition = new LatLng(
+          new BigDecimal(newPosition.latitude).setScale(7, RoundingMode.HALF_UP).doubleValue(),
+          new BigDecimal(newPosition.longitude).setScale(7, RoundingMode.HALF_UP).doubleValue()
+      );
+      if (locationDistanceUtil.getDistance(newRoundedPosition, oldPosition) > MAP_MINIMUM_DISPLACEMENT) {
+         Log.d("test", "onCameraMoved: " + locationDistanceUtil.getDistance(newRoundedPosition, oldPosition));
+      }
    }
 }

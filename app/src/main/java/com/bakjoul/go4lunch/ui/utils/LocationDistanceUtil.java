@@ -18,7 +18,7 @@ public class LocationDistanceUtil {
    public LocationDistanceUtil() {
    }
 
-   public String getDistance(@NonNull Location currentLocation, @NonNull LocationResponse restaurantLocationResponse) {
+   public String getDistanceToStringFormat(@NonNull Location currentLocation, @NonNull LocationResponse restaurantLocationResponse) {
       return String.format(
           Locale.getDefault(),
           "%.0fm",
@@ -27,5 +27,9 @@ public class LocationDistanceUtil {
               new LatLng(restaurantLocationResponse.getLat(), restaurantLocationResponse.getLng())
           )
       );
+   }
+
+   public double getDistance(@NonNull LatLng newPosition, @NonNull LatLng oldPosition) {
+      return SphericalUtil.computeDistanceBetween(newPosition, oldPosition);
    }
 }

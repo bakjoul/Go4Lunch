@@ -179,7 +179,7 @@ public class RestaurantsViewModel extends ViewModel {
 
    @NonNull
    private String getDistance(@NonNull Location currentLocation, @NonNull LocationResponse restaurantLocationResponse) {
-      return locationDistanceUtils.getDistance(currentLocation, restaurantLocationResponse);
+      return locationDistanceUtils.getDistanceToStringFormat(currentLocation, restaurantLocationResponse);
    }
 
    private float getRating(double restaurantRating) {
