@@ -31,8 +31,6 @@ public class GpsLocationRepository {
 
    private final MutableLiveData<Boolean> isLocationPermissionAllowedLiveData = new MutableLiveData<>(false);
 
-   private final MutableLiveData<Boolean> isLocationGpsBasedMutableLiveData = new MutableLiveData<>(true);
-
    @NonNull
    private final FusedLocationProviderClient fusedLocationProvider;
 
@@ -73,10 +71,6 @@ public class GpsLocationRepository {
       });
    }
 
-   public LiveData<Boolean> getIsLocationGpsBasedMutableLiveData() {
-      return isLocationGpsBasedMutableLiveData;
-   }
-
    public void startLocationUpdates() {
       Log.d(TAG, "startLocationUpdates() called");
       isLocationPermissionAllowedLiveData.setValue(true);
@@ -85,13 +79,5 @@ public class GpsLocationRepository {
    public void stopLocationUpdates() {
       Log.d(TAG, "stopLocationUpdates() called");
       isLocationPermissionAllowedLiveData.setValue(false);
-   }
-
-   public void onCameraMoved() {
-      isLocationGpsBasedMutableLiveData.setValue(false);
-   }
-
-   public void onMyLocationButtonClicked() {
-      isLocationGpsBasedMutableLiveData.setValue(true);
    }
 }

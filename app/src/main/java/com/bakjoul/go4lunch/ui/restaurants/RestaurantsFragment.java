@@ -1,7 +1,6 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +13,6 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.model.ErrorType;
 import com.bakjoul.go4lunch.databinding.FragmentRestaurantsBinding;
 import com.bakjoul.go4lunch.ui.details.DetailsActivity;
 import com.google.android.material.snackbar.Snackbar;

@@ -14,7 +14,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.model.ErrorType;
 import com.bakjoul.go4lunch.data.model.GeometryResponse;
 import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
@@ -25,7 +24,7 @@ import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
 import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
-import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 import com.google.android.gms.maps.model.LatLng;

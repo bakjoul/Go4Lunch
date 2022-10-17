@@ -2,8 +2,6 @@ package com.bakjoul.go4lunch.ui.restaurants;
 
 import androidx.annotation.NonNull;
 
-import com.bakjoul.go4lunch.data.model.ErrorType;
-
 import java.util.List;
 import java.util.Objects;
 

@@ -1,7 +1,7 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
-import static com.bakjoul.go4lunch.data.repository.RestaurantRepository.RANK_BY;
-import static com.bakjoul.go4lunch.data.repository.RestaurantRepository.TYPE;
+import static com.bakjoul.go4lunch.data.restaurant.RestaurantRepository.RANK_BY;
+import static com.bakjoul.go4lunch.data.restaurant.RestaurantRepository.TYPE;
 
 import android.app.Application;
 import android.location.Location;
@@ -17,7 +17,6 @@ import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.model.ErrorType;
 import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
@@ -25,7 +24,7 @@ import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
 import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
-import com.bakjoul.go4lunch.data.repository.RestaurantRepository;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 
