@@ -21,7 +21,7 @@ public class MapLocationRepository {
       mapLocationMutableLiveData.setValue(currentMapLocation);
    }
 
-   public LiveData<Location> getCurrentMapLocation() {
+   public LiveData<Location> getCurrentMapLocationLiveData() {
       return mapLocationMutableLiveData;
    }
 }

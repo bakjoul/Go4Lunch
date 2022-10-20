@@ -28,84 +28,95 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MapFragment extends Fragment {
 
-    private FragmentMapBinding binding;
-    private GoogleMap googleMap;
+   public static final float MOVE_CAMERA_ZOOM = 13.5f;
 
-    public static MapFragment newInstance() {
-        return new MapFragment();
-    }
+   private FragmentMapBinding binding;
+   private GoogleMap googleMap;
 
-    @SuppressLint("MissingPermission")
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        binding = FragmentMapBinding.inflate(inflater, container, false);
+   public static MapFragment newInstance() {
+      return new MapFragment();
+   }
 
-        SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
-        MapViewModel viewModel = new ViewModelProvider(this).get(MapViewModel.class);
+   @SuppressLint("MissingPermission")
+   @Override
+   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+      binding = FragmentMapBinding.inflate(inflater, container, false);
 
-        if (supportMapFragment != null) {
-            supportMapFragment.getMapAsync(googleMap -> {
-                this.googleMap = googleMap;
-                googleMap.setMinZoomPreference(12);
-                googleMap.setMaxZoomPreference(16);
-                googleMap.setMyLocationEnabled(true);
-                googleMap.setOnMyLocationButtonClickListener(() -> {
-                    viewModel.onMyLocationButtonClicked();
-                    return false;
-                });
-                viewModel.onMapReady();
+      SupportMapFragment supportMapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.google_map);
+      MapViewModel viewModel = new ViewModelProvider(this).get(MapViewModel.class);
+
+      final Snackbar retryBar = Snackbar
+          .make(binding.getRoot(), R.string.snackbar_message, Snackbar.LENGTH_INDEFINITE)
+          .setAction(R.string.snackbar_retry, view -> viewModel.onRetryButtonClicked());
+
+      if (supportMapFragment != null) {
+         // On map ready
+         supportMapFragment.getMapAsync(googleMap -> {
+            this.googleMap = googleMap;
+            viewModel.onMapReady();
+            googleMap.setMinZoomPreference(12);
+            googleMap.setMaxZoomPreference(16);
+            googleMap.setMyLocationEnabled(true);
+            googleMap.setOnMyLocationButtonClickListener(() -> {
+               viewModel.onMyLocationButtonClicked();
+               return false;
             });
-        }
-
-        viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), viewState -> {
-            googleMap.clear();
-            if (!viewState.isProgressBarVisible()) {
-                binding.mapProgressBar.setVisibility(View.GONE);
-            } else {
-                binding.mapProgressBar.setVisibility(View.VISIBLE);
-            }
-            if (viewState.getLatLng() != null) {
-                googleMap.moveCamera(
-                    CameraUpdateFactory.newLatLngZoom(
-                        viewState.getLatLng(),
-                        13.5f
-                    )
-                );
-            }
-
-            for (RestaurantMarker marker : viewState.getRestaurantsMarkers()) {
-                MarkerOptions markerOptions = new MarkerOptions()
-                    .position(marker.getPosition())
-                    .title(marker.getTitle())
-                    .icon(getIcon(marker));
-                googleMap
-                    .addMarker(markerOptions)
-                    .setTag(marker.getId());
-            }
-
-            googleMap.setOnMarkerClickListener(marker -> {
-                DetailsActivity.navigate((String) marker.getTag(), getActivity());
-                return true;
-            });
-
-            if (viewState.getErrorType() != null) {
-                if (viewState.getErrorType() == ErrorType.TIMEOUT) {
-                    Snackbar
-                        .make(binding.getRoot(), R.string.snackbar_timeout, Snackbar.LENGTH_INDEFINITE)
-                        .setAnchorView(binding.mapProgressBar)
-                        .setAction(R.string.snackbar_retry, view -> viewModel.onRetryButtonClicked())
-                        .show();
-                }
-            }
-
+            // Handles camera moves
             googleMap.setOnCameraIdleListener(() -> viewModel.onCameraMoved(googleMap.getCameraPosition().target));
-        });
+            googleMap.setOnCameraMoveStartedListener(reason -> {
+               if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+                  viewModel.onCameraMovedByUser();
+                  if (retryBar.isShown()) {
+                     retryBar.dismiss();
+                  }
+               }
+            });
 
-        return binding.getRoot();
-    }
+            // Updates camera according to location
+            viewModel.getCameraSingleLiveEvent().observe(getViewLifecycleOwner(), location ->
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, MOVE_CAMERA_ZOOM)));
 
-    @NonNull
-    private BitmapDescriptor getIcon(@NonNull RestaurantMarker m) {
-        return BitmapDescriptorFactory.fromBitmap(new SvgToBitmap().getBitmapFromVectorDrawable(getContext(), m.getIcon()));
-    }
+            viewModel.getIsRetryBarVisible().observe(getViewLifecycleOwner(), isRetryBarVisible -> {
+               if (isRetryBarVisible) {
+                  retryBar.show();
+               }
+            });
+         });
+      }
+
+      viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), viewState -> {
+         googleMap.clear();
+
+         // Progress bar visibility
+         if (!viewState.isProgressBarVisible()) {
+            binding.mapProgressBar.setVisibility(View.GONE);
+         } else {
+            binding.mapProgressBar.setVisibility(View.VISIBLE);
+         }
+
+         // Adds markers
+         for (RestaurantMarker marker : viewState.getRestaurantsMarkers()) {
+            MarkerOptions markerOptions = new MarkerOptions()
+                .position(marker.getPosition())
+                .title(marker.getTitle())
+                .icon(getIcon(marker));
+            googleMap
+                .addMarker(markerOptions)
+                .setTag(marker.getId());
+         }
+
+         // Adds markers click listeners
+         googleMap.setOnMarkerClickListener(marker -> {
+            DetailsActivity.navigate((String) marker.getTag(), getActivity());
+            return true;
+         });
+      });
+
+      return binding.getRoot();
+   }
+
+   @NonNull
+   private BitmapDescriptor getIcon(@NonNull RestaurantMarker m) {
+      return BitmapDescriptorFactory.fromBitmap(new SvgToBitmap().getBitmapFromVectorDrawable(getContext(), m.getIcon()));
+   }
 }

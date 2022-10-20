@@ -57,7 +57,7 @@ public class GpsLocationRepository {
    }
 
    @SuppressLint("MissingPermission")
-   public LiveData<Location> getCurrentLocation() {
+   public LiveData<Location> getCurrentLocationLiveData() {
       return Transformations.switchMap(isLocationPermissionAllowedLiveData, isLocationPermissionAllowed -> {
          Log.d(TAG, "switchMap() called with: isLocationPermissionAllowed = [" + isLocationPermissionAllowed + "]");
 

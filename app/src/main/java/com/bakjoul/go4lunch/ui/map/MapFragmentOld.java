@@ -1,3 +1,4 @@
+/*
 package com.bakjoul.go4lunch.ui.map;
 
 import android.annotation.SuppressLint;
@@ -76,3 +77,4 @@ public class MapFragmentOld extends SupportMapFragment {
       return BitmapDescriptorFactory.fromBitmap(new SvgToBitmap().getBitmapFromVectorDrawable(getContext(), m.getIcon()));
    }
 }
+*/

@@ -2,10 +2,10 @@ package com.bakjoul.go4lunch.ui.map;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.verify;
 
 import android.location.Location;
 
@@ -17,14 +17,15 @@ import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.model.GeometryResponse;
 import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
-import com.bakjoul.go4lunch.data.model.NearbySearchResult;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
+import com.bakjoul.go4lunch.data.repository.GpsModeRepository;
 import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
 import com.bakjoul.go4lunch.data.restaurant.RestaurantRepository;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 import com.google.android.gms.maps.model.LatLng;
@@ -85,18 +86,30 @@ public class MapViewModelTest {
        null,
        "CLOSED_TEMPORARILY",
        75);
+   private static final RestaurantResponse RESTAURANT_RESPONSE_5 = new RestaurantResponse(
+       "5",
+       "RESTAURANT_5_NAME",
+       "RESTAURANT_5_ADDRESS",
+       null,
+       new GeometryResponse(new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude)),
+       1.2,
+       null,
+       null,
+       75);
    // endregion Constants
 
    @Rule
    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
    private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
+   private final MapLocationRepository mapLocationRepository = Mockito.mock(MapLocationRepository.class);
+   private final GpsModeRepository gpsModeRepository = Mockito.mock(GpsModeRepository.class);
    private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
    private final LocationDistanceUtil locationDistanceUtil = Mockito.mock(LocationDistanceUtil.class);
-   private final MapLocationRepository mapLocationRepository = Mockito.mock(MapLocationRepository.class);
 
+   private final MutableLiveData<Boolean> isUserModeEnabledLiveData = new MutableLiveData<>();
    private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
-   private final MutableLiveData<NearbySearchResult> nearbySearchResultMutableLiveData = new MutableLiveData<>();
+   private final MutableLiveData<RestaurantResponseWrapper> responseWrapperMutableLiveData = new MutableLiveData<>();
 
    private final Location location = Mockito.mock(Location.class);
 
@@ -104,24 +117,28 @@ public class MapViewModelTest {
 
    @Before
    public void setUp() {
-      doReturn(locationLiveData).when(gpsLocationRepository).getCurrentLocation();
-      doReturn(nearbySearchResultMutableLiveData).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
-
       doReturn(FAKE_LOCATION.latitude).when(location).getLatitude();
       doReturn(FAKE_LOCATION.longitude).when(location).getLongitude();
-
       locationLiveData.setValue(location);
 
-      viewModel = new MapViewModel(gpsLocationRepository, restaurantRepository, locationDistanceUtil, mapLocationRepository);
+      isUserModeEnabledLiveData.setValue(false);
+      doReturn(isUserModeEnabledLiveData).when(gpsModeRepository).isUserModeEnabledLiveData();
 
-      verify(gpsLocationRepository).getCurrentLocation();
+      doReturn(locationLiveData).when(gpsLocationRepository).getCurrentLocationLiveData();
+      doReturn(locationLiveData).when(mapLocationRepository).getCurrentMapLocationLiveData();
+
+      doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+
+      viewModel = new MapViewModel(gpsLocationRepository, mapLocationRepository, gpsModeRepository, restaurantRepository, locationDistanceUtil);
    }
 
    @Test
-   public void nominal_case() {
+   public void gps_location_nominal_case() {
       // Given
       viewModel.onMapReady();
-      nearbySearchResultMutableLiveData.setValue(getDefaultNearbySearchResult());
+      viewModel.onMyLocationButtonClicked();
+      viewModel.onCameraMoved(FAKE_LOCATION);
+      responseWrapperMutableLiveData.setValue(getDefaultRestaurantResponseWrapper());
 
       // When
       MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
@@ -131,9 +148,9 @@ public class MapViewModelTest {
    }
 
    @Test
-   public void location_null_should_expose_markersLiveData_null() {
+   public void map_not_ready_should_expose_null_viewstate() {
       // Given
-      locationLiveData.setValue(null);
+      responseWrapperMutableLiveData.setValue(getDefaultRestaurantResponseWrapper());
 
       // When
       MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
@@ -143,29 +160,100 @@ public class MapViewModelTest {
    }
 
    @Test
-   public void timeout_error_should_expose_empty_markers_viewstate_with_timeout_error() {
+   public void usermode_location_nominal_case() {
       // Given
+      isUserModeEnabledLiveData.setValue(true);
       viewModel.onMapReady();
-      doReturn(new MutableLiveData<>(new NearbySearchResult(null, ErrorType.TIMEOUT))).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+      viewModel.onCameraMovedByUser();
+      viewModel.onCameraMoved(FAKE_LOCATION);
+      responseWrapperMutableLiveData.setValue(getDefaultRestaurantResponseWrapper());
 
       // When
       MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
+      Boolean isModeUserEnabled = LiveDataTestUtil.getValueForTesting(gpsModeRepository.isUserModeEnabledLiveData());
 
       // Then
-      assertEquals(getEmptyMarkersViewStateWithTimeoutError(), result);
+      assertEquals(getDefaultMapViewState(), result);
+      assertEquals(true, isModeUserEnabled);
    }
 
    @Test
-   public void result_response_null_should_expose_empty_markers_viewstate() {
+   public void location_not_null_should_set_camera_singleLiveEvent_to_location_value() {
+      // When
+      LatLng result = LiveDataTestUtil.getValueForTesting(viewModel.getCameraSingleLiveEvent());
+
+      // Then
+      assertEquals(getDefaultCameraLatLng(), result);
+   }
+
+   @Test
+   public void location_null_then_camera_singleLiveEvent_should_be_null() {
+      // Given
+      locationLiveData.setValue(null);
+
+      // When
+      LatLng result = LiveDataTestUtil.getValueForTesting(viewModel.getCameraSingleLiveEvent());
+
+      // Then
+      assertNull(result);
+   }
+
+   @Test
+   public void location_null_should_expose_viewstate_with_empty_markers() {
       // Given
       viewModel.onMapReady();
-      doReturn(new MutableLiveData<>(new NearbySearchResult(null, null))).when(restaurantRepository).getNearbySearchResult(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+      locationLiveData.setValue(null);
 
       // When
       MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
 
       // Then
-      assertEquals(getEmptyMarkersViewState(), result);
+      assertEquals(getViewStateWithEmptyMarkers(), result);
+   }
+
+   @Test
+   public void null_nearBySearchResponse_with_ioError_should_expose_viewstate_with_empty_markers_and_retry_bar() {
+      // Given
+      viewModel.onMapReady();
+      doReturn(getNullResponseWithIoError()).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+
+      // When
+      MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
+      Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisible());
+
+      // Then
+      assertEquals(getViewStateWithEmptyMarkersAndRetryBar(), result);
+      assertTrue(isRetryBarVisible);
+   }
+
+   @Test
+   public void null_nearBySearchResponse_with_criticalError_should_expose_viewstate_with_empty_markers_and_retry_bar() {
+      // Given
+      viewModel.onMapReady();
+      doReturn(getNullResponseWithCriticalError()).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+
+      // When
+      MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
+      Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisible());
+
+      // Then
+      assertEquals(getViewStateWithEmptyMarkersAndRetryBar(), result);
+      assertTrue(isRetryBarVisible);
+   }
+
+   @Test
+   public void nearBySearchResponse_with_criticalError_should_expose_viewstate_with_empty_markers_and_retry_bar() {
+      // Given
+      viewModel.onMapReady();
+      doReturn(getResponseWithCriticalError()).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+
+      // When
+      MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
+      Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisible());
+
+      // Then
+      assertEquals(getViewStateWithEmptyMarkersAndRetryBar(), result);
+      assertTrue(isRetryBarVisible);
    }
 
    @Test
@@ -195,11 +283,26 @@ public class MapViewModelTest {
    }
 
    @NonNull
-   private NearbySearchResult getDefaultNearbySearchResult() {
-      return new NearbySearchResult(
-          new NearbySearchResponse(new ArrayList<>(Arrays.asList(RESTAURANT_RESPONSE_1, RESTAURANT_RESPONSE_2, RESTAURANT_RESPONSE_3, RESTAURANT_RESPONSE_4)), "OK"),
-          null
+   private RestaurantResponseWrapper getDefaultRestaurantResponseWrapper() {
+      return new RestaurantResponseWrapper(
+          new NearbySearchResponse(new ArrayList<>(Arrays.asList(RESTAURANT_RESPONSE_1, RESTAURANT_RESPONSE_2, RESTAURANT_RESPONSE_3, RESTAURANT_RESPONSE_4, RESTAURANT_RESPONSE_5)), "OK"),
+          RestaurantResponseWrapper.State.SUCCESS
       );
+   }
+
+   @NonNull
+   private MutableLiveData<RestaurantResponseWrapper> getNullResponseWithIoError() {
+      return new MutableLiveData<>(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.IO_ERROR));
+   }
+
+   @NonNull
+   private MutableLiveData<RestaurantResponseWrapper> getNullResponseWithCriticalError() {
+      return new MutableLiveData<>(new RestaurantResponseWrapper(new NearbySearchResponse(new ArrayList<>(Arrays.asList(RESTAURANT_RESPONSE_1, RESTAURANT_RESPONSE_2, RESTAURANT_RESPONSE_3, RESTAURANT_RESPONSE_4)), "OK"), RestaurantResponseWrapper.State.CRITICAL_ERROR));
+   }
+
+   @NonNull
+   private MutableLiveData<RestaurantResponseWrapper> getResponseWithCriticalError() {
+      return new MutableLiveData<>(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.CRITICAL_ERROR));
    }
    // endregion IN
 
@@ -215,7 +318,7 @@ public class MapViewModelTest {
                   RESTAURANT_RESPONSE_1.getGeometry().getLocation().getLng()
               ),
               RESTAURANT_RESPONSE_1.getName(),
-              R.drawable.ic_restaurant_green_marker
+              R.drawable.ic_restaurant_red_marker
           )
       );
       restaurantMarkers.add(
@@ -226,7 +329,7 @@ public class MapViewModelTest {
                   RESTAURANT_RESPONSE_2.getGeometry().getLocation().getLng()
               ),
               RESTAURANT_RESPONSE_2.getName(),
-              R.drawable.ic_restaurant_green_marker
+              R.drawable.ic_restaurant_red_marker
           )
       );
       restaurantMarkers.add(
@@ -237,36 +340,35 @@ public class MapViewModelTest {
                   RESTAURANT_RESPONSE_3.getGeometry().getLocation().getLng()
               ),
               RESTAURANT_RESPONSE_3.getName(),
-              R.drawable.ic_restaurant_green_marker
+              R.drawable.ic_restaurant_red_marker
           )
       );
 
       return new MapViewState(
-          FAKE_LOCATION,
           restaurantMarkers,
-          null,
-          false,
-          true);
+          false
+      );
    }
 
    @NonNull
-   private MapViewState getEmptyMarkersViewStateWithTimeoutError() {
-      return new MapViewState(
-          new LatLng(location.getLatitude(), location.getLongitude()),
-          new ArrayList<>(),
-          ErrorType.TIMEOUT,
-          false,
-          true);
+   private LatLng getDefaultCameraLatLng() {
+      return new LatLng(location.getLatitude(), location.getLongitude());
    }
 
    @NonNull
-   private MapViewState getEmptyMarkersViewState() {
+   private MapViewState getViewStateWithEmptyMarkers() {
       return new MapViewState(
-          new LatLng(location.getLatitude(), location.getLongitude()),
           new ArrayList<>(),
-          null,
-          false,
-          true);
+          false
+      );
+   }
+
+   @NonNull
+   private MapViewState getViewStateWithEmptyMarkersAndRetryBar() {
+      return new MapViewState(
+          new ArrayList<>(),
+          false
+      );
    }
    // endregion OUT
 }
