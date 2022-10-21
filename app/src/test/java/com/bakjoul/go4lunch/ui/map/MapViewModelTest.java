@@ -19,12 +19,12 @@ import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantMarker;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
 import com.bakjoul.go4lunch.data.repository.GpsModeRepository;
 import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantMarker;
 import com.bakjoul.go4lunch.data.restaurant.RestaurantRepository;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurant.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
@@ -107,11 +107,11 @@ public class MapViewModelTest {
    private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
    private final LocationDistanceUtil locationDistanceUtil = Mockito.mock(LocationDistanceUtil.class);
 
-   private final MutableLiveData<Boolean> isUserModeEnabledLiveData = new MutableLiveData<>();
+   private final Location location = Mockito.mock(Location.class);
    private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
+   private final MutableLiveData<Boolean> isUserModeEnabledLiveData = new MutableLiveData<>();
    private final MutableLiveData<RestaurantResponseWrapper> responseWrapperMutableLiveData = new MutableLiveData<>();
 
-   private final Location location = Mockito.mock(Location.class);
 
    private MapViewModel viewModel;
 
@@ -212,59 +212,48 @@ public class MapViewModelTest {
    }
 
    @Test
-   public void null_nearBySearchResponse_with_ioError_should_expose_viewstate_with_empty_markers_and_retry_bar() {
+   public void nearBySearchResponse_null_with_ioError_should_expose_viewstate_with_empty_markers_and_retry_bar_visible() {
       // Given
       viewModel.onMapReady();
-      doReturn(getNullResponseWithIoError()).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+      responseWrapperMutableLiveData.setValue(getNullResponseWithIoError());
 
       // When
       MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
       Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisibleSingleLiveEvent());
 
       // Then
-      assertEquals(getViewStateWithEmptyMarkersAndRetryBar(), result);
+      assertEquals(getViewStateWithEmptyMarkers(), result);
       assertTrue(isRetryBarVisible);
    }
 
    @Test
-   public void null_nearBySearchResponse_with_criticalError_should_expose_viewstate_with_empty_markers_and_retry_bar() {
+   public void nearBySearchResponse_null_with_criticalError_should_expose_viewstate_with_empty_markers_and_retry_bar_visible() {
       // Given
       viewModel.onMapReady();
-      doReturn(getNullResponseWithCriticalError()).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+      responseWrapperMutableLiveData.setValue(getNullResponseWithCriticalError());
 
       // When
       MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
       Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisibleSingleLiveEvent());
 
       // Then
-      assertEquals(getViewStateWithEmptyMarkersAndRetryBar(), result);
+      assertEquals(getViewStateWithEmptyMarkers(), result);
       assertTrue(isRetryBarVisible);
    }
 
    @Test
-   public void nearBySearchResponse_with_criticalError_should_expose_viewstate_with_empty_markers_and_retry_bar() {
+   public void nearBySearchResponse_with_criticalError_should_expose_viewstate_with_empty_markers_and_retry_bar_visible() {
       // Given
       viewModel.onMapReady();
-      doReturn(getResponseWithCriticalError()).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+      responseWrapperMutableLiveData.setValue(getResponseWithCriticalError());
 
       // When
       MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
       Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisibleSingleLiveEvent());
 
       // Then
-      assertEquals(getViewStateWithEmptyMarkersAndRetryBar(), result);
+      assertEquals(getViewStateWithEmptyMarkers(), result);
       assertTrue(isRetryBarVisible);
-   }
-
-   @Test
-   public void map_is_not_ready_should_expose_null_viewstate() {
-      // Given that we do not call onMapReady()
-
-      // When
-      MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
-
-      // Then
-      assertNull(result);
    }
 
    @Test
@@ -291,18 +280,18 @@ public class MapViewModelTest {
    }
 
    @NonNull
-   private MutableLiveData<RestaurantResponseWrapper> getNullResponseWithIoError() {
-      return new MutableLiveData<>(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.IO_ERROR));
+   private RestaurantResponseWrapper getNullResponseWithIoError() {
+      return new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.IO_ERROR);
    }
 
    @NonNull
-   private MutableLiveData<RestaurantResponseWrapper> getNullResponseWithCriticalError() {
-      return new MutableLiveData<>(new RestaurantResponseWrapper(new NearbySearchResponse(new ArrayList<>(Arrays.asList(RESTAURANT_RESPONSE_1, RESTAURANT_RESPONSE_2, RESTAURANT_RESPONSE_3, RESTAURANT_RESPONSE_4)), "OK"), RestaurantResponseWrapper.State.CRITICAL_ERROR));
+   private RestaurantResponseWrapper getNullResponseWithCriticalError() {
+      return new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.CRITICAL_ERROR);
    }
 
    @NonNull
-   private MutableLiveData<RestaurantResponseWrapper> getResponseWithCriticalError() {
-      return new MutableLiveData<>(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.CRITICAL_ERROR));
+   private RestaurantResponseWrapper getResponseWithCriticalError() {
+      return new RestaurantResponseWrapper(new NearbySearchResponse(new ArrayList<>(Arrays.asList(RESTAURANT_RESPONSE_1, RESTAURANT_RESPONSE_2, RESTAURANT_RESPONSE_3, RESTAURANT_RESPONSE_4)), "OK"), RestaurantResponseWrapper.State.CRITICAL_ERROR);
    }
    // endregion IN
 
@@ -357,14 +346,6 @@ public class MapViewModelTest {
 
    @NonNull
    private MapViewState getViewStateWithEmptyMarkers() {
-      return new MapViewState(
-          new ArrayList<>(),
-          false
-      );
-   }
-
-   @NonNull
-   private MapViewState getViewStateWithEmptyMarkersAndRetryBar() {
       return new MapViewState(
           new ArrayList<>(),
           false

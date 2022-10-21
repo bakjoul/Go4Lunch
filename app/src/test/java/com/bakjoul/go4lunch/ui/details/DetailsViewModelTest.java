@@ -154,12 +154,12 @@ public class DetailsViewModelTest {
 
    @Before
    public void setUp() {
-      given(application.getString(R.string.restaurant_is_open)).willReturn(OPEN);
-      given(application.getString(R.string.restaurant_is_closed)).willReturn(CLOSED);
-      given(application.getString(R.string.information_not_available)).willReturn(NOT_AVAILABLE);
-      given(application.getString(R.string.details_opened_until)).willReturn(UNTIL);
-      given(application.getString(R.string.details_time_separator)).willReturn(TIME_SEPARATOR);
-      given(application.getString(R.string.details_open_at)).willReturn(OPEN_AT);
+      doReturn(OPEN).when(application).getString(R.string.restaurant_is_open);
+      doReturn(CLOSED).when(application).getString(R.string.restaurant_is_closed);
+      doReturn(NOT_AVAILABLE).when(application).getString(R.string.information_not_available);
+      doReturn(UNTIL).when(application).getString(R.string.details_opened_until);
+      doReturn(TIME_SEPARATOR).when(application).getString(R.string.details_time_separator);
+      doReturn(OPEN_AT).when(application).getString(R.string.details_open_at);
 
       doReturn(detailsResponseLiveData).when(restaurantDetailsRepository).getDetailsResponse(anyString(), anyString());
       doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", true);
