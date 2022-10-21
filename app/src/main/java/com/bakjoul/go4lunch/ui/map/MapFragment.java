@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.model.RestaurantMarker;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantMarker;
 import com.bakjoul.go4lunch.databinding.FragmentMapBinding;
 import com.bakjoul.go4lunch.ui.details.DetailsActivity;
 import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
@@ -65,10 +65,8 @@ public class MapFragment extends Fragment {
             googleMap.setOnCameraIdleListener(() -> viewModel.onCameraMoved(googleMap.getCameraPosition().target));
             googleMap.setOnCameraMoveStartedListener(reason -> {
                if (reason == GoogleMap.OnCameraMoveStartedListener.REASON_GESTURE) {
+                  retryBar.dismiss();
                   viewModel.onCameraMovedByUser();
-                  if (retryBar.isShown()) {
-                     retryBar.dismiss();
-                  }
                }
             });
 
@@ -76,7 +74,7 @@ public class MapFragment extends Fragment {
             viewModel.getCameraSingleLiveEvent().observe(getViewLifecycleOwner(), location ->
                 googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, MOVE_CAMERA_ZOOM)));
 
-            viewModel.getIsRetryBarVisible().observe(getViewLifecycleOwner(), isRetryBarVisible -> {
+            viewModel.getIsRetryBarVisibleSingleLiveEvent().observe(getViewLifecycleOwner(), isRetryBarVisible -> {
                if (isRetryBarVisible) {
                   retryBar.show();
                }

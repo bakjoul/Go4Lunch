@@ -46,14 +46,14 @@ public class RestaurantRepository {
        String key
    ) {
       // For testing
-      randomBoolean = random.nextInt(4) == 0;
+      randomBoolean = random.nextInt(2) == 0;
 
       MutableLiveData<RestaurantResponseWrapper> wrapperMutableLiveData = new MutableLiveData<>();
       wrapperMutableLiveData.setValue(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.LOADING));
 
       // For testing
       if (randomBoolean) {
-         Log.d("test", "Request successful");
+         Log.d("test", "Request made");
          restaurantApi.getRestaurants(location, rankBy, type, key).enqueue(new Callback<NearbySearchResponse>() {
             @Override
             public void onResponse(@NonNull Call<NearbySearchResponse> call, @NonNull Response<NearbySearchResponse> response) {

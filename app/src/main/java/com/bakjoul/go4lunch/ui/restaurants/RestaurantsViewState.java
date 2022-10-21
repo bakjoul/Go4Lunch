@@ -7,28 +7,24 @@ import java.util.Objects;
 
 public class RestaurantsViewState {
 
+   @NonNull
    private final List<RestaurantsItemViewState> restaurantsItemViewStates;
    private final boolean isEmptyStateVisible;
-   private final ErrorType errorType;
    private final boolean isProgressBarVisible;
 
-   public RestaurantsViewState(List<RestaurantsItemViewState> restaurantsItemViewStates, boolean isEmptyStateVisible, ErrorType errorType, boolean isProgressBarVisible) {
+   public RestaurantsViewState(@NonNull List<RestaurantsItemViewState> restaurantsItemViewStates, boolean isEmptyStateVisible, boolean isProgressBarVisible) {
       this.restaurantsItemViewStates = restaurantsItemViewStates;
       this.isEmptyStateVisible = isEmptyStateVisible;
-      this.errorType = errorType;
       this.isProgressBarVisible = isProgressBarVisible;
    }
 
+   @NonNull
    public List<RestaurantsItemViewState> getRestaurantsItemViewStates() {
       return restaurantsItemViewStates;
    }
 
    public boolean isEmptyStateVisible() {
       return isEmptyStateVisible;
-   }
-
-   public ErrorType getErrorType() {
-      return errorType;
    }
 
    public boolean isProgressBarVisible() {
@@ -40,12 +36,12 @@ public class RestaurantsViewState {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       RestaurantsViewState that = (RestaurantsViewState) o;
-      return isEmptyStateVisible == that.isEmptyStateVisible && isProgressBarVisible == that.isProgressBarVisible && Objects.equals(restaurantsItemViewStates, that.restaurantsItemViewStates) && errorType == that.errorType;
+      return isEmptyStateVisible == that.isEmptyStateVisible && isProgressBarVisible == that.isProgressBarVisible && restaurantsItemViewStates.equals(that.restaurantsItemViewStates);
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(restaurantsItemViewStates, isEmptyStateVisible, errorType, isProgressBarVisible);
+      return Objects.hash(restaurantsItemViewStates, isEmptyStateVisible, isProgressBarVisible);
    }
 
    @NonNull
@@ -54,7 +50,6 @@ public class RestaurantsViewState {
       return "RestaurantsViewState{" +
           "restaurantsItemViewStates=" + restaurantsItemViewStates +
           ", isEmptyStateVisible=" + isEmptyStateVisible +
-          ", errorType=" + errorType +
           ", isProgressBarVisible=" + isProgressBarVisible +
           '}';
    }

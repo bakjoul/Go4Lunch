@@ -56,17 +56,18 @@ public class RestaurantsFragment extends Fragment implements RestaurantsAdapter.
                 binding.listProgressBar.setVisibility(View.VISIBLE);
              }
 
-             if (viewState.getErrorType() != null) {
-                if (viewState.getErrorType() == ErrorType.TIMEOUT) {
-                   Snackbar
-                       .make(binding.getRoot(), R.string.snackbar_timeout, Snackbar.LENGTH_INDEFINITE)
-                       .setAction(R.string.snackbar_retry, v -> viewModel.onRetryButtonClicked())
-                       .show();
-                }
-             }
              adapter.submitList(viewState.getRestaurantsItemViewStates());
           }
       );
+
+      viewModel.getIsRetryBarVisibleSingleLiveEvent().observe(getViewLifecycleOwner(), isRetryBarVisible -> {
+         if (isRetryBarVisible) {
+            Snackbar
+                .make(binding.getRoot(), R.string.snackbar_message, Snackbar.LENGTH_INDEFINITE)
+                .setAction(R.string.snackbar_retry, v -> viewModel.onRetryButtonClicked())
+                .show();
+         }
+      });
    }
 
    @Override

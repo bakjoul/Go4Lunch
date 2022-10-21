@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.data.repository;
+package com.bakjoul.go4lunch.data.details;
 
 import android.util.Log;
 import android.util.LruCache;

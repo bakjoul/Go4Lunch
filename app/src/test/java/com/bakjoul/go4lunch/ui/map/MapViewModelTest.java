@@ -19,8 +19,8 @@ import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.model.RestaurantMarker;
-import com.bakjoul.go4lunch.data.model.RestaurantResponse;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantMarker;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
 import com.bakjoul.go4lunch.data.repository.GpsModeRepository;
 import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
@@ -219,7 +219,7 @@ public class MapViewModelTest {
 
       // When
       MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
-      Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisible());
+      Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisibleSingleLiveEvent());
 
       // Then
       assertEquals(getViewStateWithEmptyMarkersAndRetryBar(), result);
@@ -234,7 +234,7 @@ public class MapViewModelTest {
 
       // When
       MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
-      Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisible());
+      Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisibleSingleLiveEvent());
 
       // Then
       assertEquals(getViewStateWithEmptyMarkersAndRetryBar(), result);
@@ -249,7 +249,7 @@ public class MapViewModelTest {
 
       // When
       MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
-      Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisible());
+      Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisibleSingleLiveEvent());
 
       // Then
       assertEquals(getViewStateWithEmptyMarkersAndRetryBar(), result);

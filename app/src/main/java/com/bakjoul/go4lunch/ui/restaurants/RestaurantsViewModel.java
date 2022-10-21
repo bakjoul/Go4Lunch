@@ -5,7 +5,7 @@ import static com.bakjoul.go4lunch.data.restaurant.RestaurantRepository.TYPE;
 
 import android.app.Application;
 import android.location.Location;
-import android.util.Log;
+import android.location.LocationManager;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -18,15 +18,17 @@ import androidx.lifecycle.ViewModel;
 import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.model.LocationResponse;
-import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
+import com.bakjoul.go4lunch.data.repository.GpsModeRepository;
 import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
 import com.bakjoul.go4lunch.data.restaurant.RestaurantRepository;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantResponse;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
+import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,8 +39,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 
 @HiltViewModel
 public class RestaurantsViewModel extends ViewModel {
-
-   private static final String TAG = "RestaurantsViewModel";
 
    private static final String BUSINESS_STATUS_OPERATIONAL = "OPERATIONAL";
 
@@ -51,20 +51,21 @@ public class RestaurantsViewModel extends ViewModel {
    @NonNull
    private final RestaurantImageMapper restaurantImageMapper;
 
-   private final MediatorLiveData<RestaurantsViewState> restaurantsViewStateMediatorLiveData = new MediatorLiveData<>();
+   private Location currentLocation = new Location(LocationManager.GPS_PROVIDER);
 
    private final MutableLiveData<Boolean> nearbySearchRequestPingMutableLiveData = new MutableLiveData<>(true);
 
-   private final MutableLiveData<ErrorType> errorTypeMutableLiveData = new MutableLiveData<>();
+   private final SingleLiveEvent<Boolean> isRetryBarVisibleSingleLiveEvent = new SingleLiveEvent<>();
 
-   private final MutableLiveData<Boolean> isProgressBarVisibleLiveData = new MutableLiveData<>(true);
+   private final MediatorLiveData<RestaurantsViewState> restaurantsViewStateMediatorLiveData = new MediatorLiveData<>();
 
    @Inject
    public RestaurantsViewModel(
        @NonNull Application application,
-       @NonNull RestaurantRepository restaurantRepository,
        @NonNull GpsLocationRepository gpsLocationRepository,
        @NonNull MapLocationRepository mapLocationRepository,
+       @NonNull GpsModeRepository gpsModeRepository,
+       @NonNull RestaurantRepository restaurantRepository,
        @NonNull LocationDistanceUtil locationDistanceUtils,
        @NonNull RestaurantImageMapper restaurantImageMapper
    ) {
@@ -72,114 +73,89 @@ public class RestaurantsViewModel extends ViewModel {
       this.locationDistanceUtils = locationDistanceUtils;
       this.restaurantImageMapper = restaurantImageMapper;
 
-      LiveData<Location> gpsLocationLiveData = gpsLocationRepository.getCurrentLocation();
-      LiveData<Location> mapLocationLiveData = mapLocationRepository.getCurrentMapLocation();
-      LiveData<Boolean> isLocationGpsBasedMutableLiveData = gpsLocationRepository.getIsLocationGpsBasedMutableLiveData();
+      LiveData<Boolean> isUserModeEnabledLiveData = gpsModeRepository.isUserModeEnabledLiveData();
 
-      LiveData<List<RestaurantsItemViewState>> restaurantsItemViewStateLiveData = Transformations.switchMap(
-          isLocationGpsBasedMutableLiveData,
-          isLocationGpsBased -> {
-             if (isLocationGpsBased) {
-                return Transformations.switchMap(
-                    gpsLocationLiveData,
-                    gpsLocation -> {
-                       if (gpsLocation == null) {
-                          isProgressBarVisibleLiveData.setValue(false);
-                          return null;
-                       }
-                       return getRestaurantsListLiveData(gpsLocation, restaurantRepository);
-                    }
-                );
+      LiveData<Location> locationLiveData = Transformations.switchMap(
+          isUserModeEnabledLiveData,
+          isUserModeEnabled -> {
+             if (isUserModeEnabled) {
+                return mapLocationRepository.getCurrentMapLocationLiveData();
              } else {
-                return Transformations.switchMap(
-                    mapLocationLiveData,
-                    mapLocation -> {
-                       if (mapLocation == null) {
-                          isProgressBarVisibleLiveData.setValue(false);
-                          return null;
-                       }
-                       return getRestaurantsListLiveData(mapLocation, restaurantRepository);
-                    }
-                );
+                return gpsLocationRepository.getCurrentLocationLiveData();
              }
           }
       );
 
-      restaurantsViewStateMediatorLiveData.addSource(restaurantsItemViewStateLiveData, restaurantsItemViewStateList ->
-          combine(restaurantsItemViewStateList, isProgressBarVisibleLiveData.getValue()));
-      restaurantsViewStateMediatorLiveData.addSource(isProgressBarVisibleLiveData, isProgressBarVisible ->
-          combine(restaurantsItemViewStateLiveData.getValue(), isProgressBarVisible));
-   }
-
-   @NonNull
-   private LiveData<List<RestaurantsItemViewState>> getRestaurantsListLiveData(Location location, @NonNull RestaurantRepository restaurantRepository) {
-      return Transformations.switchMap(
-          nearbySearchRequestPingMutableLiveData,
-          aVoid -> {
-             errorTypeMutableLiveData.setValue(null);
-             isProgressBarVisibleLiveData.setValue(true);
-             return Transformations.map(
-                 restaurantRepository.getNearbySearchResult(RestaurantsViewModel.this.getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY),
-                 result -> {
-                    List<RestaurantsItemViewState> restaurantsItemViewStateList;
-                    if (result.getResponse() != null) {
-                       isProgressBarVisibleLiveData.setValue(false);
-                       restaurantsItemViewStateList = mapData(result.getResponse(), location);
-                    } else if (result.getErrorType() == ErrorType.TIMEOUT) {
-                       isProgressBarVisibleLiveData.setValue(false);
-                       restaurantsItemViewStateList = null;
-                       errorTypeMutableLiveData.setValue(ErrorType.TIMEOUT);
-                       Log.d(TAG, "Socket time out");
-                    } else {
-                       isProgressBarVisibleLiveData.setValue(false);
-                       restaurantsItemViewStateList = null;
-                    }
-                    return restaurantsItemViewStateList;
-                 }
+      LiveData<RestaurantResponseWrapper> responseWrapperLiveData = Transformations.switchMap(
+          locationLiveData,
+          location -> {
+             if (location == null) {
+                return new MutableLiveData<>(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.LOCATION_NULL));
+             }
+             currentLocation = location;
+             return Transformations.switchMap(
+                 nearbySearchRequestPingMutableLiveData,
+                 aVoid -> restaurantRepository.getNearbySearchResponse(getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY)
              );
           }
       );
+
+      restaurantsViewStateMediatorLiveData.addSource(responseWrapperLiveData, responseWrapper ->
+          combine(responseWrapper));
    }
 
-   private void combine(
-       @Nullable List<RestaurantsItemViewState> restaurantsItemViewStateList,
-       @Nullable Boolean isProgressBarVisible) {
-      restaurantsViewStateMediatorLiveData.setValue(
-          new RestaurantsViewState(
-              restaurantsItemViewStateList == null ? new ArrayList<>() : restaurantsItemViewStateList,
-              restaurantsItemViewStateList == null || restaurantsItemViewStateList.isEmpty(),
-              errorTypeMutableLiveData.getValue() == null ? null : errorTypeMutableLiveData.getValue(),
-              Boolean.TRUE.equals(isProgressBarVisible)
-          )
-      );
-   }
-
-   @NonNull
-   private List<RestaurantsItemViewState> mapData(
-       @NonNull NearbySearchResponse response,
-       Location location
-   ) {
-      List<RestaurantsItemViewState> restaurantsItemViewStateList = new ArrayList<>();
-
-      for (RestaurantResponse r : response.getResults()) {
-         if (BUSINESS_STATUS_OPERATIONAL.equals(r.getBusinessStatus())) {
-            restaurantsItemViewStateList.add(
-                new RestaurantsItemViewState(
-                    r.getPlaceId(),
-                    r.getName(),
-                    r.getVicinity(),
-                    isOpen(r.getOpeningHours()),
-                    getDistance(location, r.getGeometry().getLocation()),
-                    "",
-                    getRating(r.getRating()),
-                    isRatingBarVisible(r.getUserRatingsTotal()),
-                    getPhotoUrl(r.getPhotos())
-                )
-            );
-         }
+   private void combine(@Nullable RestaurantResponseWrapper restaurantResponseWrapper) {
+      if (restaurantResponseWrapper == null) {
+         return;
       }
 
-      return restaurantsItemViewStateList;
+      List<RestaurantsItemViewState> restaurantsItemViewStates = new ArrayList<>();
+      boolean isProgressBarVisible = restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.LOADING;
+      isRetryBarVisibleSingleLiveEvent.setValue(false);
+
+      if (restaurantResponseWrapper.getNearbySearchResponse() != null
+          && restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.SUCCESS) {
+
+         isProgressBarVisible = false;
+
+         map(restaurantResponseWrapper, restaurantsItemViewStates);
+      }
+
+      if (restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.IO_ERROR
+          || restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.CRITICAL_ERROR) {
+         isRetryBarVisibleSingleLiveEvent.setValue(true);
+      }
+
+      restaurantsViewStateMediatorLiveData.setValue(
+          new RestaurantsViewState(
+              restaurantsItemViewStates,
+              restaurantsItemViewStates.isEmpty(),
+              isProgressBarVisible
+          )
+      );
+
+   }
+
+   private void map(@NonNull RestaurantResponseWrapper restaurantResponseWrapper, List<RestaurantsItemViewState> restaurantsItemViewStates) {
+      if (restaurantResponseWrapper.getNearbySearchResponse() != null) {
+         for (RestaurantResponse r : restaurantResponseWrapper.getNearbySearchResponse().getResults()) {
+            if (BUSINESS_STATUS_OPERATIONAL.equals(r.getBusinessStatus())) {
+               restaurantsItemViewStates.add(
+                   new RestaurantsItemViewState(
+                       r.getPlaceId(),
+                       r.getName(),
+                       r.getVicinity(),
+                       isOpen(r.getOpeningHours()),
+                       getDistance(currentLocation, r.getGeometry().getLocation()),
+                       "",
+                       getRating(r.getRating()),
+                       isRatingBarVisible(r.getUserRatingsTotal()),
+                       getPhotoUrl(r.getPhotos())
+                   )
+               );
+            }
+         }
+      }
    }
 
    @NonNull
@@ -226,6 +202,10 @@ public class RestaurantsViewModel extends ViewModel {
       return null;
    }
 
+   public SingleLiveEvent<Boolean> getIsRetryBarVisibleSingleLiveEvent() {
+      return isRetryBarVisibleSingleLiveEvent;
+   }
+
    public LiveData<RestaurantsViewState> getRestaurantsViewState() {
       return restaurantsViewStateMediatorLiveData;
    }
@@ -234,7 +214,7 @@ public class RestaurantsViewModel extends ViewModel {
       nearbySearchRequestPingMutableLiveData.setValue(true);
    }
 
-   public MutableLiveData<Boolean> getNearbySearchRequestPingMutableLiveData() {
+   public LiveData<Boolean> getNearbySearchRequestPingMutableLiveData() {
       return nearbySearchRequestPingMutableLiveData;
    }
 }

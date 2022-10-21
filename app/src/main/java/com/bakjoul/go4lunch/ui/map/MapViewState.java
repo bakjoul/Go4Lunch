@@ -2,7 +2,7 @@ package com.bakjoul.go4lunch.ui.map;
 
 import androidx.annotation.NonNull;
 
-import com.bakjoul.go4lunch.data.model.RestaurantMarker;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantMarker;
 
 import java.util.List;
 import java.util.Objects;

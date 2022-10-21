@@ -16,12 +16,12 @@ import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.model.RestaurantMarker;
-import com.bakjoul.go4lunch.data.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
 import com.bakjoul.go4lunch.data.repository.GpsModeRepository;
 import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantMarker;
 import com.bakjoul.go4lunch.data.restaurant.RestaurantRepository;
+import com.bakjoul.go4lunch.data.restaurant.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurant.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
@@ -58,7 +58,7 @@ public class MapViewModel extends ViewModel {
 
    private final SingleLiveEvent<LatLng> cameraSingleLiveEvent = new SingleLiveEvent<>();
 
-   private final SingleLiveEvent<Boolean> isRetryBarVisible = new SingleLiveEvent<>();
+   private final SingleLiveEvent<Boolean> isRetryBarVisibleSingleLiveEvent = new SingleLiveEvent<>();
 
    private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
 
@@ -126,24 +126,22 @@ public class MapViewModel extends ViewModel {
 
       List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
       boolean isProgressBarVisible = restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.LOADING;
-      isRetryBarVisible.setValue(false);
+      isRetryBarVisibleSingleLiveEvent.setValue(false);
 
       if (restaurantResponseWrapper.getNearbySearchResponse() != null
           && restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.SUCCESS) {
 
          isProgressBarVisible = false;
 
-         for (RestaurantResponse response : restaurantResponseWrapper.getNearbySearchResponse().getResults()) {
-            map(restaurantsMarkers, response);
+         map(restaurantResponseWrapper, restaurantsMarkers);
 
-            // Updates last know location
-            lastLocation = currentLocation;
-         }
+         // Updates last know location
+         lastLocation = currentLocation;
       }
 
       if (restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.IO_ERROR
           || restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.CRITICAL_ERROR) {
-         isRetryBarVisible.setValue(true);
+         isRetryBarVisibleSingleLiveEvent.setValue(true);
       }
 
       if (isMapReady) {
@@ -156,19 +154,23 @@ public class MapViewModel extends ViewModel {
       }
    }
 
-   private void map(List<RestaurantMarker> restaurantsMarkers, @NonNull RestaurantResponse response) {
-      if (response.getBusinessStatus() != null && response.getBusinessStatus().equals("OPERATIONAL")) {
-         restaurantsMarkers.add(
-             new RestaurantMarker(
-                 response.getPlaceId(),
-                 new LatLng(
-                     response.getGeometry().getLocation().getLat(),
-                     response.getGeometry().getLocation().getLng()
-                 ),
-                 response.getName(),
-                 R.drawable.ic_restaurant_red_marker
-             )
-         );
+   private void map(@NonNull RestaurantResponseWrapper restaurantResponseWrapper, List<RestaurantMarker> restaurantsMarkers) {
+      if (restaurantResponseWrapper.getNearbySearchResponse() != null) {
+         for (RestaurantResponse response : restaurantResponseWrapper.getNearbySearchResponse().getResults()) {
+            if (response.getBusinessStatus() != null && response.getBusinessStatus().equals("OPERATIONAL")) {
+               restaurantsMarkers.add(
+                   new RestaurantMarker(
+                       response.getPlaceId(),
+                       new LatLng(
+                           response.getGeometry().getLocation().getLat(),
+                           response.getGeometry().getLocation().getLng()
+                       ),
+                       response.getName(),
+                       R.drawable.ic_restaurant_red_marker
+                   )
+               );
+            }
+         }
       }
    }
 
@@ -176,8 +178,8 @@ public class MapViewModel extends ViewModel {
       return cameraSingleLiveEvent;
    }
 
-   public SingleLiveEvent<Boolean> getIsRetryBarVisible() {
-      return isRetryBarVisible;
+   public SingleLiveEvent<Boolean> getIsRetryBarVisibleSingleLiveEvent() {
+      return isRetryBarVisibleSingleLiveEvent;
    }
 
    public LiveData<MapViewState> getMapViewStateLiveData() {
