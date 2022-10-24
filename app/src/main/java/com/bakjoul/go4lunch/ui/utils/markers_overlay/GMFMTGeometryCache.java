@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.ui.markers_overlay;
+package com.bakjoul.go4lunch.ui.utils.markers_overlay;
 
 import android.graphics.Canvas;
 import android.graphics.Point;
