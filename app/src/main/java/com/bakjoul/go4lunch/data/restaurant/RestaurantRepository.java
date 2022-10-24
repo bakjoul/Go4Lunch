@@ -46,7 +46,7 @@ public class RestaurantRepository {
        String key
    ) {
       // For testing
-      randomBoolean = random.nextInt(2) == 0;
+      randomBoolean = random.nextInt(1) == 0;
 
       MutableLiveData<RestaurantResponseWrapper> wrapperMutableLiveData = new MutableLiveData<>();
       wrapperMutableLiveData.setValue(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.LOADING));

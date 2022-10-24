@@ -14,6 +14,8 @@ import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.restaurant.RestaurantMarker;
 import com.bakjoul.go4lunch.databinding.FragmentMapBinding;
 import com.bakjoul.go4lunch.ui.details.DetailsActivity;
+import com.bakjoul.go4lunch.ui.markers_overlay.FloatingMarkerTitlesOverlay;
+import com.bakjoul.go4lunch.ui.markers_overlay.MarkerInfo;
 import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -22,6 +24,8 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
+
+import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -32,6 +36,7 @@ public class MapFragment extends Fragment {
 
    private FragmentMapBinding binding;
    private GoogleMap googleMap;
+   private FloatingMarkerTitlesOverlay floatingMarkerOverlay;
 
    public static MapFragment newInstance() {
       return new MapFragment();
@@ -53,6 +58,7 @@ public class MapFragment extends Fragment {
          // On map ready
          supportMapFragment.getMapAsync(googleMap -> {
             this.googleMap = googleMap;
+            setFloatingMarkersOverlay(googleMap);
             viewModel.onMapReady();
             googleMap.setMinZoomPreference(12);
             googleMap.setMaxZoomPreference(16);
@@ -84,6 +90,7 @@ public class MapFragment extends Fragment {
 
       viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), viewState -> {
          googleMap.clear();
+         floatingMarkerOverlay.clearMarkers();
 
          // Progress bar visibility
          if (!viewState.isProgressBarVisible()) {
@@ -93,14 +100,20 @@ public class MapFragment extends Fragment {
          }
 
          // Adds markers
-         for (RestaurantMarker marker : viewState.getRestaurantsMarkers()) {
+         List<RestaurantMarker> markersList = viewState.getRestaurantsMarkers();
+         for (int i = 0; i < markersList.size(); i++) {
             MarkerOptions markerOptions = new MarkerOptions()
-                .position(marker.getPosition())
-                .title(marker.getTitle())
-                .icon(getIcon(marker));
+                .position(markersList.get(i).getPosition())
+                .title(markersList.get(i).getTitle())
+                .icon(getIcon(markersList.get(i)));
             googleMap
                 .addMarker(markerOptions)
-                .setTag(marker.getId());
+                .setTag(markersList.get(i).getId());
+
+
+            // Adds markers title overlay
+            MarkerInfo markerInfo = new MarkerInfo(markersList.get(i).getPosition(), markersList.get(i).getTitle(), getResources().getColor(R.color.white));
+            floatingMarkerOverlay.addMarker(i, markerInfo);
          }
 
          // Adds markers click listeners
@@ -116,5 +129,13 @@ public class MapFragment extends Fragment {
    @NonNull
    private BitmapDescriptor getIcon(@NonNull RestaurantMarker m) {
       return BitmapDescriptorFactory.fromBitmap(new SvgToBitmap().getBitmapFromVectorDrawable(getContext(), m.getIcon()));
+   }
+
+   private void setFloatingMarkersOverlay(GoogleMap googleMap) {
+      floatingMarkerOverlay = binding.mapOverlay;
+      floatingMarkerOverlay.setSource(googleMap);
+      floatingMarkerOverlay.setTextSizeDIP(12);
+      floatingMarkerOverlay.setMaxTextWidthDIP(128);
+      floatingMarkerOverlay.setMaxTextHeightDIP(32);
    }
 }

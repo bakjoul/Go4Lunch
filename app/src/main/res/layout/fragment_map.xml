@@ -11,6 +11,11 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <com.bakjoul.go4lunch.ui.markers_overlay.FloatingMarkerTitlesOverlay
+        android:id="@+id/map_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
     <ProgressBar
         android:id="@+id/map_progress_bar"
         style="?android:progressBarStyleHorizontal"
