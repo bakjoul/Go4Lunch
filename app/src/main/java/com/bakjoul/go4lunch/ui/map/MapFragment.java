@@ -32,7 +32,9 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MapFragment extends Fragment {
 
-   public static final float MOVE_CAMERA_ZOOM = 13.5f;
+   private static final float MIN_ZOOM_PREFERENCE = 12;
+   private static final float MAX_ZOOM_PREFERENCE = 20;
+   private static final float MOVE_CAMERA_ZOOM = 13.5f;
 
    private FragmentMapBinding binding;
    private GoogleMap googleMap;
@@ -60,8 +62,8 @@ public class MapFragment extends Fragment {
             this.googleMap = googleMap;
             setFloatingMarkersOverlay(googleMap);
             viewModel.onMapReady();
-            googleMap.setMinZoomPreference(12);
-            googleMap.setMaxZoomPreference(16);
+            googleMap.setMinZoomPreference(MIN_ZOOM_PREFERENCE);
+            googleMap.setMaxZoomPreference(MAX_ZOOM_PREFERENCE);
             googleMap.setMyLocationEnabled(true);
             googleMap.setOnMyLocationButtonClickListener(() -> {
                viewModel.onMyLocationButtonClicked();
