@@ -21,12 +21,12 @@ import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
-import com.bakjoul.go4lunch.data.repository.GpsModeRepository;
-import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantRepository;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantResponse;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantResponseWrapper;
+import com.bakjoul.go4lunch.data.location.GpsLocationRepository;
+import com.bakjoul.go4lunch.data.location.LocationModeRepository;
+import com.bakjoul.go4lunch.data.location.MapLocationRepository;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantRepository;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantResponse;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
@@ -100,7 +100,7 @@ public class RestaurantsViewModelTest {
    private final Application application = Mockito.mock(Application.class);
    private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
    private final MapLocationRepository mapLocationRepository = Mockito.mock(MapLocationRepository.class);
-   private final GpsModeRepository gpsModeRepository = Mockito.mock(GpsModeRepository.class);
+   private final LocationModeRepository locationModeRepository = Mockito.mock(LocationModeRepository.class);
    private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
    private final LocationDistanceUtil locationDistanceUtils = Mockito.mock(LocationDistanceUtil.class);
    private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
@@ -123,7 +123,7 @@ public class RestaurantsViewModelTest {
       locationLiveData.setValue(location);
 
       isUserModeEnabledLiveData.setValue(false);
-      doReturn(isUserModeEnabledLiveData).when(gpsModeRepository).isUserModeEnabledLiveData();
+      doReturn(isUserModeEnabledLiveData).when(locationModeRepository).isUserModeEnabledLiveData();
 
       doReturn(locationLiveData).when(gpsLocationRepository).getCurrentLocationLiveData();
       doReturn(locationLiveData).when(mapLocationRepository).getCurrentMapLocationLiveData();
@@ -133,7 +133,7 @@ public class RestaurantsViewModelTest {
       doReturn("50m").when(locationDistanceUtils).getDistanceToStringFormat(location, new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude));
       doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", false);
 
-      viewModel = new RestaurantsViewModel(application, gpsLocationRepository, mapLocationRepository, gpsModeRepository, restaurantRepository, locationDistanceUtils, restaurantImageMapper);
+      viewModel = new RestaurantsViewModel(application, gpsLocationRepository, mapLocationRepository, locationModeRepository, restaurantRepository, locationDistanceUtils, restaurantImageMapper);
    }
 
    @Test

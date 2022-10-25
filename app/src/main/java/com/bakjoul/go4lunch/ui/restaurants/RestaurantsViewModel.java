@@ -1,7 +1,7 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
-import static com.bakjoul.go4lunch.data.restaurant.RestaurantRepository.RANK_BY;
-import static com.bakjoul.go4lunch.data.restaurant.RestaurantRepository.TYPE;
+import static com.bakjoul.go4lunch.data.restaurants.RestaurantRepository.RANK_BY;
+import static com.bakjoul.go4lunch.data.restaurants.RestaurantRepository.TYPE;
 
 import android.app.Application;
 import android.location.Location;
@@ -20,12 +20,12 @@ import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
-import com.bakjoul.go4lunch.data.repository.GpsModeRepository;
-import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantRepository;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantResponse;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantResponseWrapper;
+import com.bakjoul.go4lunch.data.location.GpsLocationRepository;
+import com.bakjoul.go4lunch.data.location.LocationModeRepository;
+import com.bakjoul.go4lunch.data.location.MapLocationRepository;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantRepository;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantResponse;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
@@ -64,7 +64,7 @@ public class RestaurantsViewModel extends ViewModel {
        @NonNull Application application,
        @NonNull GpsLocationRepository gpsLocationRepository,
        @NonNull MapLocationRepository mapLocationRepository,
-       @NonNull GpsModeRepository gpsModeRepository,
+       @NonNull LocationModeRepository locationModeRepository,
        @NonNull RestaurantRepository restaurantRepository,
        @NonNull LocationDistanceUtil locationDistanceUtils,
        @NonNull RestaurantImageMapper restaurantImageMapper
@@ -73,7 +73,7 @@ public class RestaurantsViewModel extends ViewModel {
       this.locationDistanceUtils = locationDistanceUtils;
       this.restaurantImageMapper = restaurantImageMapper;
 
-      LiveData<Boolean> isUserModeEnabledLiveData = gpsModeRepository.isUserModeEnabledLiveData();
+      LiveData<Boolean> isUserModeEnabledLiveData = locationModeRepository.isUserModeEnabledLiveData();
 
       LiveData<Location> locationLiveData = Transformations.switchMap(
           isUserModeEnabledLiveData,

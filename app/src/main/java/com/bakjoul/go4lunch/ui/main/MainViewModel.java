@@ -15,8 +15,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
-import com.bakjoul.go4lunch.data.repository.PermissionRepository;
+import com.bakjoul.go4lunch.data.location.GpsLocationRepository;
+import com.bakjoul.go4lunch.data.location.LocationPermissionRepository;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
@@ -43,7 +43,7 @@ public class MainViewModel extends ViewModel {
    private final GpsLocationRepository gpsLocationRepository;
 
    @NonNull
-   private final PermissionRepository permissionRepository;
+   private final LocationPermissionRepository locationPermissionRepository;
 
    private final MutableLiveData<MainViewState> mainActivityViewStateLiveData = new MutableLiveData<>();
 
@@ -58,12 +58,12 @@ public class MainViewModel extends ViewModel {
        @ApplicationContext @NonNull Context context,
        @NonNull FirebaseAuth firebaseAuth,
        @NonNull GpsLocationRepository gpsLocationRepository,
-       @NonNull PermissionRepository permissionRepository
+       @NonNull LocationPermissionRepository locationPermissionRepository
    ) {
       this.context = context;
       this.firebaseAuth = firebaseAuth;
       this.gpsLocationRepository = gpsLocationRepository;
-      this.permissionRepository = permissionRepository;
+      this.locationPermissionRepository = locationPermissionRepository;
 
       if (firebaseAuth.getCurrentUser() != null) {
          mainActivityViewStateLiveData.setValue(
@@ -75,7 +75,7 @@ public class MainViewModel extends ViewModel {
          );
       }
 
-      LiveData<Boolean> isLocationPermissionEnabledLiveData = permissionRepository.getLocationPermissionLiveData();
+      LiveData<Boolean> isLocationPermissionEnabledLiveData = locationPermissionRepository.getLocationPermissionLiveData();
 
       fragmentToDisplaySingleLiveEvent.addSource(bottomNavigationViewButtonMutableLiveData, bottomNavigationViewButton ->
           combine(bottomNavigationViewButton, isLocationPermissionEnabledLiveData.getValue()));
@@ -129,10 +129,10 @@ public class MainViewModel extends ViewModel {
    public void onResume() {
       if (ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
          gpsLocationRepository.startLocationUpdates();
-         permissionRepository.setLocationPermission(true);
+         locationPermissionRepository.setLocationPermission(true);
       } else {
          gpsLocationRepository.stopLocationUpdates();
-         permissionRepository.setLocationPermission(false);
+         locationPermissionRepository.setLocationPermission(false);
       }
    }
 

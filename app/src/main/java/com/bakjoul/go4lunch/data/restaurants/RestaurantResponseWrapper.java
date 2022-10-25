@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.data.restaurant;
+package com.bakjoul.go4lunch.data.restaurants;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

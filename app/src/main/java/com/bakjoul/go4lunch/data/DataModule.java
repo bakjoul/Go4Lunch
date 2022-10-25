@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.bakjoul.go4lunch.data.api.RestaurantApi;
-import com.bakjoul.go4lunch.data.repository.PermissionRepository;
+import com.bakjoul.go4lunch.data.location.LocationPermissionRepository;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
@@ -45,8 +45,8 @@ public class DataModule {
 
    @Provides
    @Singleton
-   public PermissionRepository providePermissionRepository(@ApplicationContext Context context) {
-      return new PermissionRepository(context);
+   public LocationPermissionRepository providePermissionRepository(@ApplicationContext Context context) {
+      return new LocationPermissionRepository(context);
    }
 
    @Provides

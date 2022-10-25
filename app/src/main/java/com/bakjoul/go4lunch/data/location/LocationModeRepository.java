@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.data.repository;
+package com.bakjoul.go4lunch.data.location;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -7,10 +7,10 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class GpsModeRepository {
+public class LocationModeRepository {
 
     @Inject
-    public GpsModeRepository() {
+    public LocationModeRepository() {
     }
 
     private final MutableLiveData<Boolean> isUserModeEnabledMutableLiveData = new MutableLiveData<>(false);

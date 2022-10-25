@@ -19,13 +19,13 @@ import com.bakjoul.go4lunch.data.model.LocationResponse;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
-import com.bakjoul.go4lunch.data.repository.GpsModeRepository;
-import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantMarker;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantRepository;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantResponse;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantResponseWrapper;
+import com.bakjoul.go4lunch.data.location.GpsLocationRepository;
+import com.bakjoul.go4lunch.data.location.LocationModeRepository;
+import com.bakjoul.go4lunch.data.location.MapLocationRepository;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantMarker;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantRepository;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantResponse;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 import com.google.android.gms.maps.model.LatLng;
@@ -103,7 +103,7 @@ public class MapViewModelTest {
 
    private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
    private final MapLocationRepository mapLocationRepository = Mockito.mock(MapLocationRepository.class);
-   private final GpsModeRepository gpsModeRepository = Mockito.mock(GpsModeRepository.class);
+   private final LocationModeRepository locationModeRepository = Mockito.mock(LocationModeRepository.class);
    private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
    private final LocationDistanceUtil locationDistanceUtil = Mockito.mock(LocationDistanceUtil.class);
 
@@ -122,14 +122,14 @@ public class MapViewModelTest {
       locationLiveData.setValue(location);
 
       isUserModeEnabledLiveData.setValue(false);
-      doReturn(isUserModeEnabledLiveData).when(gpsModeRepository).isUserModeEnabledLiveData();
+      doReturn(isUserModeEnabledLiveData).when(locationModeRepository).isUserModeEnabledLiveData();
 
       doReturn(locationLiveData).when(gpsLocationRepository).getCurrentLocationLiveData();
       doReturn(locationLiveData).when(mapLocationRepository).getCurrentMapLocationLiveData();
 
       doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
 
-      viewModel = new MapViewModel(gpsLocationRepository, mapLocationRepository, gpsModeRepository, restaurantRepository, locationDistanceUtil);
+      viewModel = new MapViewModel(gpsLocationRepository, mapLocationRepository, locationModeRepository, restaurantRepository, locationDistanceUtil);
    }
 
    @Test
@@ -170,7 +170,7 @@ public class MapViewModelTest {
 
       // When
       MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
-      Boolean isModeUserEnabled = LiveDataTestUtil.getValueForTesting(gpsModeRepository.isUserModeEnabledLiveData());
+      Boolean isModeUserEnabled = LiveDataTestUtil.getValueForTesting(locationModeRepository.isUserModeEnabledLiveData());
 
       // Then
       assertEquals(getDefaultMapViewState(), result);

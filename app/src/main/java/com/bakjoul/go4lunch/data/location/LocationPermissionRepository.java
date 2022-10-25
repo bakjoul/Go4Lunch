@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.data.repository;
+package com.bakjoul.go4lunch.data.location;
 
 import android.Manifest;
 import android.content.Context;
@@ -13,14 +13,14 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class PermissionRepository {
+public class LocationPermissionRepository {
 
    private static final String TAG = "PermissionRepository";
 
    private final MutableLiveData<Boolean> isLocationPermissionGranted = new MutableLiveData<>();
 
    @Inject
-   public PermissionRepository(Context context) {
+   public LocationPermissionRepository(Context context) {
       if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
          isLocationPermissionGranted.setValue(true);
       } else {
