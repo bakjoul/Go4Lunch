@@ -16,9 +16,9 @@ import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.repository.GpsLocationRepository;
-import com.bakjoul.go4lunch.data.repository.GpsModeRepository;
-import com.bakjoul.go4lunch.data.repository.MapLocationRepository;
+import com.bakjoul.go4lunch.data.location.GpsLocationRepository;
+import com.bakjoul.go4lunch.data.location.LocationModeRepository;
+import com.bakjoul.go4lunch.data.location.MapLocationRepository;
 import com.bakjoul.go4lunch.data.restaurant.RestaurantMarker;
 import com.bakjoul.go4lunch.data.restaurant.RestaurantRepository;
 import com.bakjoul.go4lunch.data.restaurant.RestaurantResponse;
@@ -43,7 +43,7 @@ public class MapViewModel extends ViewModel {
    private final MapLocationRepository mapLocationRepository;
 
    @NonNull
-   private final GpsModeRepository gpsModeRepository;
+   private final LocationModeRepository locationModeRepository;
 
    @NonNull
    private final LocationDistanceUtil locationDistanceUtil;
@@ -66,15 +66,15 @@ public class MapViewModel extends ViewModel {
    public MapViewModel(
        @NonNull GpsLocationRepository gpsLocationRepository,
        @NonNull MapLocationRepository mapLocationRepository,
-       @NonNull GpsModeRepository gpsModeRepository,
+       @NonNull LocationModeRepository locationModeRepository,
        @NonNull RestaurantRepository restaurantRepository,
        @NonNull LocationDistanceUtil locationDistanceUtil
    ) {
       this.mapLocationRepository = mapLocationRepository;
-      this.gpsModeRepository = gpsModeRepository;
+      this.locationModeRepository = locationModeRepository;
       this.locationDistanceUtil = locationDistanceUtil;
 
-      LiveData<Boolean> isUserModeEnabledLiveData = gpsModeRepository.isUserModeEnabledLiveData();
+      LiveData<Boolean> isUserModeEnabledLiveData = locationModeRepository.isUserModeEnabledLiveData();
 
       LiveData<Location> locationLiveData = Transformations.switchMap(
           isUserModeEnabledLiveData,
@@ -204,11 +204,11 @@ public class MapViewModel extends ViewModel {
    }
 
    public void onCameraMovedByUser() {
-      gpsModeRepository.setModeUserEnabled(true);
+      locationModeRepository.setModeUserEnabled(true);
    }
 
    public void onCameraMoved(@NonNull LatLng cameraPosition) {
-      if (Boolean.TRUE.equals(gpsModeRepository.isUserModeEnabledLiveData().getValue())) {
+      if (Boolean.TRUE.equals(locationModeRepository.isUserModeEnabledLiveData().getValue())) {
          // If no known last location or if distance between new camera position and last location greater than given value
          if (lastLocation == null || locationDistanceUtil.getDistance(cameraPosition, lastLocation) > MAP_MINIMUM_DISPLACEMENT) {
             // Updates current map location
@@ -225,6 +225,6 @@ public class MapViewModel extends ViewModel {
    }
 
    public void onMyLocationButtonClicked() {
-      gpsModeRepository.setModeUserEnabled(false);
+      locationModeRepository.setModeUserEnabled(false);
    }
 }

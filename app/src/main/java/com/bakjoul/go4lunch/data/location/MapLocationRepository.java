@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.data.repository;
+package com.bakjoul.go4lunch.data.location;
 
 import android.location.Location;
 
