@@ -9,6 +9,7 @@ import com.bakjoul.go4lunch.data.repository.PermissionRepository;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.concurrent.TimeUnit;
 
@@ -38,14 +39,20 @@ public class DataModule {
 
    @Provides
    @Singleton
-   public FusedLocationProviderClient provideFusedLocationProviderClient(@ApplicationContext Context context) {
-      return LocationServices.getFusedLocationProviderClient(context);
+   public FirebaseFirestore provideFirebaseFirestore() {
+      return FirebaseFirestore.getInstance();
    }
 
    @Provides
    @Singleton
    public PermissionRepository providePermissionRepository(@ApplicationContext Context context) {
       return new PermissionRepository(context);
+   }
+
+   @Provides
+   @Singleton
+   public FusedLocationProviderClient provideFusedLocationProviderClient(@ApplicationContext Context context) {
+      return LocationServices.getFusedLocationProviderClient(context);
    }
 
    @Provides
