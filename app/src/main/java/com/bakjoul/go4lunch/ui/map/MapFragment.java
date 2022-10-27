@@ -14,9 +14,9 @@ import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.restaurants.RestaurantMarker;
 import com.bakjoul.go4lunch.databinding.FragmentMapBinding;
 import com.bakjoul.go4lunch.ui.details.DetailsActivity;
+import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
 import com.bakjoul.go4lunch.ui.utils.markers_overlay.FloatingMarkerTitlesOverlay;
 import com.bakjoul.go4lunch.ui.utils.markers_overlay.MarkerInfo;
-import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -40,6 +40,7 @@ public class MapFragment extends Fragment {
    private GoogleMap googleMap;
    private FloatingMarkerTitlesOverlay floatingMarkerOverlay;
 
+   @NonNull
    public static MapFragment newInstance() {
       return new MapFragment();
    }

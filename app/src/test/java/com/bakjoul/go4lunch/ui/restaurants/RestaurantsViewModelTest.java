@@ -142,7 +142,7 @@ public class RestaurantsViewModelTest {
       responseWrapperMutableLiveData.setValue(getDefaultRestaurantResponseWrapper());
 
       // When
-      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
+      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewStateLiveData());
 
       // Then
       assertEquals(getDefaultRestaurantViewState(), result);
@@ -155,7 +155,7 @@ public class RestaurantsViewModelTest {
       responseWrapperMutableLiveData.setValue(getDefaultRestaurantResponseWrapper());
 
       // When
-      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
+      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewStateLiveData());
 
       // Then
       assertEquals(getDefaultRestaurantViewState(), result);
@@ -167,7 +167,7 @@ public class RestaurantsViewModelTest {
       locationLiveData.setValue(null);
 
       // When
-      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
+      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewStateLiveData());
 
       // Then
       assertEquals(getViewStateWithEmptyList(), result);
@@ -179,7 +179,7 @@ public class RestaurantsViewModelTest {
       responseWrapperMutableLiveData.setValue(null);
 
       // When
-      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
+      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewStateLiveData());
 
       // Then
       assertNull(result);
@@ -191,7 +191,7 @@ public class RestaurantsViewModelTest {
       responseWrapperMutableLiveData.setValue(getNullResponseWithIoError());
 
       // When
-      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
+      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewStateLiveData());
       Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisibleSingleLiveEvent());
 
       // Then
@@ -205,7 +205,7 @@ public class RestaurantsViewModelTest {
       responseWrapperMutableLiveData.setValue(getNullResponseWithCriticalError());
 
       // When
-      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
+      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewStateLiveData());
       Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisibleSingleLiveEvent());
 
       // Then
@@ -219,7 +219,7 @@ public class RestaurantsViewModelTest {
       responseWrapperMutableLiveData.setValue(getResponseWithCriticalError());
 
       // When
-      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewState());
+      RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewStateLiveData());
       Boolean isRetryBarVisible = LiveDataTestUtil.getValueForTesting(viewModel.getIsRetryBarVisibleSingleLiveEvent());
 
       // Then

@@ -206,7 +206,7 @@ public class RestaurantsViewModel extends ViewModel {
       return isRetryBarVisibleSingleLiveEvent;
    }
 
-   public LiveData<RestaurantsViewState> getRestaurantsViewState() {
+   public LiveData<RestaurantsViewState> getRestaurantsViewStateLiveData() {
       return restaurantsViewStateMediatorLiveData;
    }
 
