@@ -6,7 +6,7 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:id="@+id/details_item_photo"
+        android:id="@+id/workmates_item_photo"
         android:layout_width="56dp"
         android:layout_height="56dp"
         android:layout_marginVertical="8dp"
@@ -18,13 +18,14 @@
         tools:src="@drawable/bkg_oval" />
 
     <TextView
-        android:id="@+id/details_item_text"
+        android:id="@+id/workmates_item_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@id/details_item_photo"
-        app:layout_constraintStart_toEndOf="@id/details_item_photo"
-        app:layout_constraintTop_toTopOf="@id/details_item_photo"
-        tools:text="Scarlett is joining!" />
+        app:layout_constraintBottom_toBottomOf="@id/workmates_item_photo"
+        app:layout_constraintStart_toEndOf="@id/workmates_item_photo"
+        app:layout_constraintTop_toTopOf="@id/workmates_item_photo"
+        tools:text="Scarlett is eating at Le Zinc" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

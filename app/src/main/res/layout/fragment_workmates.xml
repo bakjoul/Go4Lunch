@@ -7,14 +7,11 @@
     android:background="#200000FF"
     tools:context=".ui.workmates.WorkmatesFragment">
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Workmates fragment"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+<androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/workmates_RecyclerView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+    tools:itemCount="5" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

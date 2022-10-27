@@ -1,7 +1,7 @@
 package com.bakjoul.go4lunch.ui.map;
 
-import static com.bakjoul.go4lunch.data.restaurant.RestaurantRepository.RANK_BY;
-import static com.bakjoul.go4lunch.data.restaurant.RestaurantRepository.TYPE;
+import static com.bakjoul.go4lunch.data.restaurants.RestaurantRepository.RANK_BY;
+import static com.bakjoul.go4lunch.data.restaurants.RestaurantRepository.TYPE;
 
 import android.location.Location;
 import android.location.LocationManager;
@@ -19,10 +19,10 @@ import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.data.location.LocationModeRepository;
 import com.bakjoul.go4lunch.data.location.MapLocationRepository;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantMarker;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantRepository;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantResponse;
-import com.bakjoul.go4lunch.data.restaurant.RestaurantResponseWrapper;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantMarker;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantRepository;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantResponse;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.google.android.gms.maps.model.LatLng;
