@@ -1,6 +1,7 @@
 package com.bakjoul.go4lunch.ui.workmates;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -48,7 +49,15 @@ public class WorkmatesFragment extends Fragment {
       itemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(requireContext(), R.drawable.custom_divider)));
       binding.workmatesRecyclerView.addItemDecoration(itemDecoration);
 
-      viewModel.getWorkmatesViewStateMutableLiveData().observe(getViewLifecycleOwner(), workmatesViewState ->
-          adapter.submitList(workmatesViewState.getWorkmatesItemViewStateList()));
+      viewModel.getWorkmatesViewStateMutableLiveData().observe(getViewLifecycleOwner(), workmatesViewState -> {
+             adapter.submitList(workmatesViewState.getWorkmatesItemViewStateList());
+
+             if (workmatesViewState.isEmptyStateVisible()) {
+                binding.workmatesEmpty.setVisibility(View.VISIBLE);
+             } else {
+                binding.workmatesEmpty.setVisibility(View.GONE);
+             }
+          }
+      );
    }
 }

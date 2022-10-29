@@ -51,13 +51,19 @@ public class RestaurantsFragment extends Fragment implements RestaurantsAdapter.
       binding.restaurantsRecyclerView.addItemDecoration(itemDecoration);
 
       viewModel.getRestaurantsViewStateLiveData().observe(getViewLifecycleOwner(), viewState -> {
-             if (!viewState.isProgressBarVisible()) {
-                binding.listProgressBar.setVisibility(View.GONE);
-             } else {
+             if (viewState.isProgressBarVisible()) {
                 binding.listProgressBar.setVisibility(View.VISIBLE);
+             } else {
+                binding.listProgressBar.setVisibility(View.GONE);
              }
 
              adapter.submitList(viewState.getRestaurantsItemViewStates());
+
+             if (viewState.isEmptyStateVisible()) {
+                binding.restaurantsEmpty.setVisibility(View.VISIBLE);
+             } else {
+                binding.restaurantsEmpty.setVisibility(View.GONE);
+             }
           }
       );
 

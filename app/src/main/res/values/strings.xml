@@ -40,5 +40,7 @@
     <string name="snackbar_retry">Réessayer</string>
     <string name="toolbar_title_hungry">I\'m Hungry!</string>
     <string name="toolbar_title_workmates">Available workmates</string>
+    <string name="workmates_empty">Aucun collègue disponible</string>
+    <string name="restaurants_empty">Aucun restaurant trouvé</string>
 
 </resources>

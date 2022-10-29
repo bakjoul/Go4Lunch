@@ -25,4 +25,13 @@
         android:indeterminate="true"
         android:indeterminateTint="@color/primaryColor" />
 
+    <TextView
+        android:id="@+id/restaurants_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:text="@string/restaurants_empty"
+        android:textSize="22sp"
+        tools:visibility="gone" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

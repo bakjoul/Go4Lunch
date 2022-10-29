@@ -37,16 +37,15 @@ public class FirestoreLiveData<T> extends LiveData<T> {
             return;
          }
 
-
+         List<T> itemList = new ArrayList<>();
          if (querySnapshot != null && !querySnapshot.isEmpty()) {
-            List<T> itemList = new ArrayList<>();
             for (DocumentSnapshot snapshot : querySnapshot.getDocuments()) {
                T item = (T) snapshot.toObject(clazz);
                itemList.add(item);
                Log.i(TAG, "Snapshot is " + snapshot.getId());
             }
-            setValue((T) itemList);
          }
+         setValue((T) itemList);
       }
    };
 
