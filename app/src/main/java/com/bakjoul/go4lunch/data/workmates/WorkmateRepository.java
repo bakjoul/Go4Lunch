@@ -4,19 +4,14 @@ import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
+import com.bakjoul.go4lunch.data.FirestoreLiveData;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
-import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -73,26 +68,7 @@ public class WorkmateRepository {
    }
 
    public LiveData<List<Workmate>> getWorkmatesLiveData() {
-      MutableLiveData<List<Workmate>> workmatesListLiveData = new MutableLiveData<>();
-      firestoreDb.collection("users")
-          .addSnapshotListener(new EventListener<QuerySnapshot>() {
-             @Override
-             public void onEvent(@Nullable QuerySnapshot snapshot, @Nullable FirebaseFirestoreException error) {
-                if (error != null) {
-                   Log.w(TAG, "Listen failed", error);
-                }
-
-                if (snapshot != null && snapshot.size() > 0) {
-                   List<Workmate> workmateList = new ArrayList<>();
-                   for (DocumentSnapshot documentSnapshot : snapshot.getDocuments()) {
-                      Workmate workmate = documentSnapshot.toObject(Workmate.class);
-                      workmateList.add(workmate);
-                   }
-                   workmatesListLiveData.setValue(workmateList);
-                }
-             }
-          });
-      return workmatesListLiveData;
+      return new FirestoreLiveData<>(firestoreDb.collection("users"), Workmate.class);
    }
 
 }
