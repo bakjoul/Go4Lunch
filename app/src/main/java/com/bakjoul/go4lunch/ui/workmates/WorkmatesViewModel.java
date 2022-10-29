@@ -44,12 +44,14 @@ public class WorkmatesViewModel extends ViewModel {
           workmateRepository.getWorkmatesLiveData(), workmateList -> {
              List<WorkmatesItemViewState> workmatesItemViewStateList = new ArrayList<>();
              for (Workmate workmate : workmateList) {
-                WorkmatesItemViewState workmatesItemViewState = new WorkmatesItemViewState(
-                    workmate.getId(),
-                    workmate.getPhotoUrl(),
-                    workmate.getUsername()
-                );
-                workmatesItemViewStateList.add(workmatesItemViewState);
+                if (!workmateRepository.getCurrentUser().getId().equals(workmate.getId())) {
+                   WorkmatesItemViewState workmatesItemViewState = new WorkmatesItemViewState(
+                       workmate.getId(),
+                       workmate.getPhotoUrl(),
+                       workmate.getUsername()
+                   );
+                   workmatesItemViewStateList.add(workmatesItemViewState);
+                }
              }
              return workmatesItemViewStateList;
           }

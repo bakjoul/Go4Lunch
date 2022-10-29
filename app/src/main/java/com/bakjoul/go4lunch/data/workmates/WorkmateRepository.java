@@ -71,4 +71,7 @@ public class WorkmateRepository {
       return new FirestoreLiveData<>(firestoreDb.collection("users"), Workmate.class);
    }
 
+   public Workmate getCurrentUser() {
+      return currentUser;
+   }
 }
