@@ -28,13 +28,11 @@ public class WorkmateRepository {
    private Workmate currentUser;
 
    @Inject
-   public WorkmateRepository(@NonNull FirebaseFirestore firestoreDb, @NonNull FirebaseAuth firebaseAuth) {
+   public WorkmateRepository(@NonNull FirebaseFirestore firestoreDb) {
       this.firestoreDb = firestoreDb;
-
-      setCurrentUser(firebaseAuth);
    }
 
-   private void setCurrentUser(@NonNull FirebaseAuth firebaseAuth) {
+   public void setCurrentUser(@NonNull FirebaseAuth firebaseAuth) {
       FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
       if (firebaseUser != null) {
          final Uri photoUrl = firebaseUser.getPhotoUrl();
@@ -46,6 +44,7 @@ public class WorkmateRepository {
          );
       }
 
+      // Checks if user already in database
       firestoreDb.collection("users")
           .whereEqualTo("id", currentUser.getId())
           .get().addOnCompleteListener(task -> {
@@ -56,6 +55,7 @@ public class WorkmateRepository {
                    }
                 }
              }
+             // If not, adds the user
              if (task.getResult().size() == 0) {
                 Log.d(TAG, "Users does not exist");
 
