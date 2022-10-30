@@ -4,7 +4,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.doReturn;
 
 import android.app.Application;
@@ -15,14 +14,15 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.bakjoul.go4lunch.R;
+import com.bakjoul.go4lunch.data.details.RestaurantDetailsRepository;
+import com.bakjoul.go4lunch.data.details.RestaurantDetailsResponse;
 import com.bakjoul.go4lunch.data.model.CloseResponse;
 import com.bakjoul.go4lunch.data.model.DetailsResponse;
 import com.bakjoul.go4lunch.data.model.OpenResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PeriodResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.details.RestaurantDetailsResponse;
-import com.bakjoul.go4lunch.data.details.RestaurantDetailsRepository;
+import com.bakjoul.go4lunch.data.workmates.WorkmateRepository;
 import com.bakjoul.go4lunch.ui.utils.DateTimeProvider;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
@@ -145,6 +145,7 @@ public class DetailsViewModelTest {
    private final Application application = Mockito.mock(Application.class);
    private final RestaurantDetailsRepository restaurantDetailsRepository = Mockito.mock(RestaurantDetailsRepository.class);
    private final SavedStateHandle savedStateHandle = Mockito.mock(SavedStateHandle.class);
+   private final WorkmateRepository workmateRepository = Mockito.mock(WorkmateRepository.class);
    private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
    private final DateTimeProvider dateTimeProvider = Mockito.mock(DateTimeProvider.class);
 
@@ -341,7 +342,7 @@ public class DetailsViewModelTest {
 
    // region IN
    private void initViewModel() {
-      viewModel = new DetailsViewModel(application, restaurantDetailsRepository, savedStateHandle, restaurantImageMapper, dateTimeProvider);
+      viewModel = new DetailsViewModel(application, restaurantDetailsRepository, savedStateHandle, workmateRepository, restaurantImageMapper, dateTimeProvider);
    }
    // endregion IN
 
@@ -359,6 +360,8 @@ public class DetailsViewModelTest {
           RESTAURANT_DETAILS_RESPONSE_1.getFormattedPhoneNumber(),
           RESTAURANT_DETAILS_RESPONSE_1.getWebsite(),
           false,
+          false,
+          false,
           new ArrayList<>()
       );
    }
@@ -375,6 +378,8 @@ public class DetailsViewModelTest {
           null,
           null,
           null,
+          false,
+          false,
           false,
           null
       );

@@ -12,8 +12,10 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.ActivityDetailsBinding;
 import com.bakjoul.go4lunch.ui.utils.DensityUtil;
 import com.bakjoul.go4lunch.ui.utils.ReverseInterpolator;
@@ -67,7 +69,13 @@ public class DetailsActivity extends AppCompatActivity {
          binding.detailsRestaurantAddress.setText(viewState.getAddress());
          binding.detailsRestaurantOpeningStatus.setText(viewState.getOpeningStatus());
 
+         setChooseButton(viewModel, viewState);
          setCallButton(viewState);
+         binding.detailsButtonLike.setSelected(viewState.isLiked());
+         binding.detailsButtonLike.setOnClickListener(view -> {
+            binding.detailsButtonLike.setSelected(!binding.detailsButtonLike.isSelected());
+            viewModel.onLikeButtonClicked(viewState.getId());
+         });
          setWebsiteButton(viewState);
       });
 
@@ -103,6 +111,24 @@ public class DetailsActivity extends AppCompatActivity {
                infoPaddingAnimation.start();
                isInfoAlignedLeft = true;
             }
+         }
+      });
+   }
+
+   private void setChooseButton(DetailsViewModel viewModel, @NonNull DetailsViewState viewState) {
+      binding.detailsFabSelect.setSelected(viewState.isChosen());
+      if (binding.detailsFabSelect.isSelected()) {
+         binding.detailsFabSelect.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.green));
+      }
+      binding.detailsFabSelect.setOnClickListener(view -> {
+         if (binding.detailsFabSelect.isSelected()) {
+            binding.detailsFabSelect.setSelected(false);
+            binding.detailsFabSelect.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.black));
+            viewModel.onRestaurantUnselected();
+         } else {
+            binding.detailsFabSelect.setSelected(true);
+            binding.detailsFabSelect.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.green));
+            viewModel.onRestaurantSelected(viewState.getId());
          }
       });
    }

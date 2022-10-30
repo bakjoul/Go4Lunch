@@ -14,12 +14,13 @@ import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.R;
+import com.bakjoul.go4lunch.data.details.RestaurantDetailsRepository;
+import com.bakjoul.go4lunch.data.details.RestaurantDetailsResponse;
 import com.bakjoul.go4lunch.data.model.DetailsResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PeriodResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.details.RestaurantDetailsResponse;
-import com.bakjoul.go4lunch.data.details.RestaurantDetailsRepository;
+import com.bakjoul.go4lunch.data.workmates.WorkmateRepository;
 import com.bakjoul.go4lunch.ui.utils.DateTimeProvider;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 
@@ -44,7 +45,10 @@ public class DetailsViewModel extends ViewModel {
    @NonNull
    private final Application application;
 
-   private final LiveData<DetailsViewState> detailsViewStateLiveData;
+   private final String restaurantId;
+
+   @NonNull
+   private final WorkmateRepository workmateRepository;
 
    @NonNull
    private final RestaurantImageMapper restaurantImageMapper;
@@ -52,17 +56,21 @@ public class DetailsViewModel extends ViewModel {
    @NonNull
    private final DateTimeProvider dateTimeProvider;
 
+   private final LiveData<DetailsViewState> detailsViewStateLiveData;
+
    @RequiresApi(api = Build.VERSION_CODES.O)
    @Inject
    public DetailsViewModel(
        @NonNull Application application,
        @NonNull RestaurantDetailsRepository restaurantDetailsRepository,
        @NonNull SavedStateHandle savedStateHandle,
+       @NonNull WorkmateRepository workmateRepository,
        @NonNull RestaurantImageMapper restaurantImageMapper,
        @NonNull DateTimeProvider dateTimeProvider) {
 
       this.application = application;
-      String restaurantId = savedStateHandle.get(KEY);
+      restaurantId = savedStateHandle.get(KEY);
+      this.workmateRepository = workmateRepository;
       this.restaurantImageMapper = restaurantImageMapper;
       this.dateTimeProvider = dateTimeProvider;
 
@@ -106,9 +114,28 @@ public class DetailsViewModel extends ViewModel {
           getOpeningStatus(r.getOpeningHoursResponse()),
           r.getFormattedPhoneNumber(),
           r.getWebsite(),
+          isLiked(),
+          isChosen(),
           false,
           new ArrayList<>()
       );
+   }
+
+   private boolean isLiked() {
+      List<String> likedRestaurantsId = workmateRepository.getCurrentUserData().getLikedRestaurantsIds();
+      if (likedRestaurantsId != null) {
+         for (String id : likedRestaurantsId) {
+            if (id.equals(restaurantId)) {
+               return true;
+            }
+         }
+      }
+      return false;
+   }
+
+   private boolean isChosen() {
+      String chosenRestaurantId = workmateRepository.getCurrentUserData().getChosenRestaurantId();
+      return chosenRestaurantId != null && chosenRestaurantId.equals(restaurantId);
    }
 
    @NonNull
@@ -124,6 +151,8 @@ public class DetailsViewModel extends ViewModel {
               null,
               null,
               null,
+              false,
+              false,
               false,
               null
           )
@@ -243,5 +272,26 @@ public class DetailsViewModel extends ViewModel {
          status = new StringBuilder(application.getString(R.string.information_not_available));
       }
       return status.toString();
+   }
+
+   public void onRestaurantUnselected() {
+      workmateRepository.setChosenRestaurant(null);
+   }
+
+   public void onRestaurantSelected(String restaurantId) {
+      workmateRepository.setChosenRestaurant(restaurantId);
+   }
+
+   public void onLikeButtonClicked(String restaurantId) {
+      List<String> likedRestaurants = workmateRepository.getCurrentUserData().getLikedRestaurantsIds();
+      if (likedRestaurants != null && !likedRestaurants.isEmpty()) {
+         for (String id : likedRestaurants) {
+            if (id.equals(restaurantId)) {
+               workmateRepository.removeLikedRestaurant(restaurantId);
+               return;
+            }
+         }
+      }
+      workmateRepository.addLikeRestaurant(restaurantId);
    }
 }
