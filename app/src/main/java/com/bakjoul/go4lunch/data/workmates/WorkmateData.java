@@ -6,27 +6,23 @@ import java.util.List;
 import java.util.Objects;
 
 public class WorkmateData {
-   private String chosenRestaurantId;
-   private List<String> likedRestaurantsIds;
+   private WorkmateChosenRestaurant workmateChosenRestaurant;
+   private List<WorkmateLikedRestaurant> workmateLikedRestaurantList;
 
    public WorkmateData() {
    }
 
-   public WorkmateData(String chosenRestaurantId, List<String> likedRestaurantsIds) {
-      this.chosenRestaurantId = chosenRestaurantId;
-      this.likedRestaurantsIds = likedRestaurantsIds;
+   public WorkmateData(WorkmateChosenRestaurant workmateChosenRestaurant, List<WorkmateLikedRestaurant> workmateLikedRestaurantList) {
+      this.workmateChosenRestaurant = workmateChosenRestaurant;
+      this.workmateLikedRestaurantList = workmateLikedRestaurantList;
    }
 
-   public String getChosenRestaurantId() {
-      return chosenRestaurantId;
+   public WorkmateChosenRestaurant getWorkmateChosenRestaurant() {
+      return workmateChosenRestaurant;
    }
 
-   public List<String> getLikedRestaurantsIds() {
-      return likedRestaurantsIds;
-   }
-
-   public void setLikedRestaurantsIds(List<String> likedRestaurantsIds) {
-      this.likedRestaurantsIds = likedRestaurantsIds;
+   public List<WorkmateLikedRestaurant> getWorkmateLikedRestaurantList() {
+      return workmateLikedRestaurantList;
    }
 
    @Override
@@ -34,20 +30,20 @@ public class WorkmateData {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       WorkmateData that = (WorkmateData) o;
-      return Objects.equals(chosenRestaurantId, that.chosenRestaurantId) && Objects.equals(likedRestaurantsIds, that.likedRestaurantsIds);
+      return Objects.equals(workmateChosenRestaurant, that.workmateChosenRestaurant) && Objects.equals(workmateLikedRestaurantList, that.workmateLikedRestaurantList);
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(chosenRestaurantId, likedRestaurantsIds);
+      return Objects.hash(workmateChosenRestaurant, workmateLikedRestaurantList);
    }
 
    @NonNull
    @Override
    public String toString() {
       return "WorkmateData{" +
-          "chosenRestaurantId='" + chosenRestaurantId + '\'' +
-          ", likedRestaurantsIds=" + likedRestaurantsIds +
+          "workmateChosenRestaurant=" + workmateChosenRestaurant +
+          ", workmateLikedRestaurantList=" + workmateLikedRestaurantList +
           '}';
    }
 }

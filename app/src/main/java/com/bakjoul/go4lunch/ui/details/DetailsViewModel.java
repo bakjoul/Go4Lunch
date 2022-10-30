@@ -20,6 +20,8 @@ import com.bakjoul.go4lunch.data.model.DetailsResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PeriodResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
+import com.bakjoul.go4lunch.data.workmates.WorkmateData;
+import com.bakjoul.go4lunch.data.workmates.WorkmateLikedRestaurant;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepository;
 import com.bakjoul.go4lunch.ui.utils.DateTimeProvider;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
@@ -56,6 +58,8 @@ public class DetailsViewModel extends ViewModel {
    @NonNull
    private final DateTimeProvider dateTimeProvider;
 
+   private final WorkmateData currentUserData;
+
    private final LiveData<DetailsViewState> detailsViewStateLiveData;
 
    @RequiresApi(api = Build.VERSION_CODES.O)
@@ -67,12 +71,13 @@ public class DetailsViewModel extends ViewModel {
        @NonNull WorkmateRepository workmateRepository,
        @NonNull RestaurantImageMapper restaurantImageMapper,
        @NonNull DateTimeProvider dateTimeProvider) {
-
       this.application = application;
       restaurantId = savedStateHandle.get(KEY);
       this.workmateRepository = workmateRepository;
       this.restaurantImageMapper = restaurantImageMapper;
       this.dateTimeProvider = dateTimeProvider;
+
+      currentUserData = workmateRepository.getCurrentUserData();
 
       if (restaurantId != null) {
          detailsViewStateLiveData = Transformations.switchMap(
@@ -93,7 +98,6 @@ public class DetailsViewModel extends ViewModel {
       } else {
          detailsViewStateLiveData = getErrorDetailsViewState();
       }
-
    }
 
    public LiveData<DetailsViewState> getDetailsViewStateLiveData() {
@@ -122,10 +126,10 @@ public class DetailsViewModel extends ViewModel {
    }
 
    private boolean isLiked() {
-      List<String> likedRestaurantsId = workmateRepository.getCurrentUserData().getLikedRestaurantsIds();
-      if (likedRestaurantsId != null) {
-         for (String id : likedRestaurantsId) {
-            if (id.equals(restaurantId)) {
+      List<WorkmateLikedRestaurant> likedRestaurantsId = currentUserData.getWorkmateLikedRestaurantList();
+      if (likedRestaurantsId != null && !likedRestaurantsId.isEmpty()) {
+         for (WorkmateLikedRestaurant likedRestaurant : likedRestaurantsId) {
+            if (likedRestaurant.getRestaurantId().equals(restaurantId)) {
                return true;
             }
          }
@@ -134,7 +138,10 @@ public class DetailsViewModel extends ViewModel {
    }
 
    private boolean isChosen() {
-      String chosenRestaurantId = workmateRepository.getCurrentUserData().getChosenRestaurantId();
+      String chosenRestaurantId = null;
+      if (currentUserData.getWorkmateChosenRestaurant().getRestaurantId() != null) {
+         chosenRestaurantId = currentUserData.getWorkmateChosenRestaurant().getRestaurantId();
+      }
       return chosenRestaurantId != null && chosenRestaurantId.equals(restaurantId);
    }
 
@@ -274,24 +281,22 @@ public class DetailsViewModel extends ViewModel {
       return status.toString();
    }
 
+   @RequiresApi(api = Build.VERSION_CODES.N)
    public void onRestaurantUnselected() {
-      workmateRepository.setChosenRestaurant(null);
+      workmateRepository.setChosenRestaurant("", null);
    }
 
-   public void onRestaurantSelected(String restaurantId) {
-      workmateRepository.setChosenRestaurant(restaurantId);
+   @RequiresApi(api = Build.VERSION_CODES.N)
+   public void onRestaurantSelected(String restaurantName) {
+      workmateRepository.setChosenRestaurant(restaurantId, restaurantName);
    }
 
-   public void onLikeButtonClicked(String restaurantId) {
-      List<String> likedRestaurants = workmateRepository.getCurrentUserData().getLikedRestaurantsIds();
-      if (likedRestaurants != null && !likedRestaurants.isEmpty()) {
-         for (String id : likedRestaurants) {
-            if (id.equals(restaurantId)) {
-               workmateRepository.removeLikedRestaurant(restaurantId);
-               return;
-            }
-         }
-      }
-      workmateRepository.addLikeRestaurant(restaurantId);
+   public void onLikeButtonClicked(String restaurantName) {
+      workmateRepository.addLikeRestaurant(restaurantId, restaurantName);
    }
+
+   public void onDislikeButtonClicked() {
+      workmateRepository.removeLikedRestaurant(restaurantId);
+   }
+
 }

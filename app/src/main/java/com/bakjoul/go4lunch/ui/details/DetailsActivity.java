@@ -6,11 +6,13 @@ import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
@@ -39,6 +41,7 @@ public class DetailsActivity extends AppCompatActivity {
       sourceActivity.startActivity(intent);
    }
 
+   @RequiresApi(api = Build.VERSION_CODES.N)
    @Override
    protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
@@ -71,11 +74,7 @@ public class DetailsActivity extends AppCompatActivity {
 
          setChooseButton(viewModel, viewState);
          setCallButton(viewState);
-         binding.detailsButtonLike.setSelected(viewState.isLiked());
-         binding.detailsButtonLike.setOnClickListener(view -> {
-            binding.detailsButtonLike.setSelected(!binding.detailsButtonLike.isSelected());
-            viewModel.onLikeButtonClicked(viewState.getId());
-         });
+         setLikeButton(viewModel, viewState);
          setWebsiteButton(viewState);
       });
 
@@ -115,6 +114,7 @@ public class DetailsActivity extends AppCompatActivity {
       });
    }
 
+   @RequiresApi(api = Build.VERSION_CODES.N)
    private void setChooseButton(DetailsViewModel viewModel, @NonNull DetailsViewState viewState) {
       binding.detailsFabSelect.setSelected(viewState.isChosen());
       if (binding.detailsFabSelect.isSelected()) {
@@ -128,7 +128,7 @@ public class DetailsActivity extends AppCompatActivity {
          } else {
             binding.detailsFabSelect.setSelected(true);
             binding.detailsFabSelect.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.green));
-            viewModel.onRestaurantSelected(viewState.getId());
+            viewModel.onRestaurantSelected(viewState.getName());
          }
       });
    }
@@ -143,6 +143,18 @@ public class DetailsActivity extends AppCompatActivity {
             DetailsActivity.this.startActivity(intent);
          });
       }
+   }
+
+   private void setLikeButton(DetailsViewModel viewModel, @NonNull DetailsViewState viewState) {
+      binding.detailsButtonLike.setSelected(viewState.isLiked());
+      binding.detailsButtonLike.setOnClickListener(view -> {
+         if (binding.detailsButtonLike.isSelected()) {
+            viewModel.onDislikeButtonClicked();
+         } else {
+            viewModel.onLikeButtonClicked(viewState.getName());
+         }
+         binding.detailsButtonLike.setSelected(!binding.detailsButtonLike.isSelected());
+      });
    }
 
    private void setWebsiteButton(@NonNull DetailsViewState viewState) {
