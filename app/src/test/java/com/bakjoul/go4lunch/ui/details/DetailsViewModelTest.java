@@ -22,8 +22,7 @@ import com.bakjoul.go4lunch.data.model.OpenResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PeriodResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.workmates.WorkmateRepository;
-import com.bakjoul.go4lunch.ui.utils.DateTimeProvider;
+import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 
@@ -145,7 +144,7 @@ public class DetailsViewModelTest {
    private final Application application = Mockito.mock(Application.class);
    private final RestaurantDetailsRepository restaurantDetailsRepository = Mockito.mock(RestaurantDetailsRepository.class);
    private final SavedStateHandle savedStateHandle = Mockito.mock(SavedStateHandle.class);
-   private final WorkmateRepository workmateRepository = Mockito.mock(WorkmateRepository.class);
+   private final WorkmateRepositoryImplementation workmateRepository = Mockito.mock(WorkmateRepositoryImplementation.class);
    private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
    private final DateTimeProvider dateTimeProvider = Mockito.mock(DateTimeProvider.class);
 

@@ -6,8 +6,8 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.bakjoul.go4lunch.data.workmates.Workmate;
-import com.bakjoul.go4lunch.data.workmates.WorkmateRepository;
+import com.bakjoul.go4lunch.data.workmates.WorkmateResponse;
+import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,12 +20,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class WorkmatesViewModel extends ViewModel {
 
    @NonNull
-   private final WorkmateRepository workmateRepository;
+   private final WorkmateRepositoryImplementation workmateRepository;
 
    private final LiveData<WorkmatesViewState> workmatesViewStateMutableLiveData;
 
    @Inject
-   public WorkmatesViewModel(@NonNull WorkmateRepository workmateRepository) {
+   public WorkmatesViewModel(@NonNull WorkmateRepositoryImplementation workmateRepository) {
       this.workmateRepository = workmateRepository;
 
       workmatesViewStateMutableLiveData = Transformations.switchMap(
@@ -43,12 +43,12 @@ public class WorkmatesViewModel extends ViewModel {
       return Transformations.map(
           workmateRepository.getWorkmatesLiveData(), workmateList -> {
              List<WorkmatesItemViewState> workmatesItemViewStateList = new ArrayList<>();
-             for (Workmate workmate : workmateList) {
-                if (!workmateRepository.getCurrentUser().getId().equals(workmate.getId())) {
+             for (WorkmateResponse workmateResponse : workmateList) {
+                if (!workmateRepository.getCurrentUser().getId().equals(workmateResponse.getId())) {
                    WorkmatesItemViewState workmatesItemViewState = new WorkmatesItemViewState(
-                       workmate.getId(),
-                       workmate.getPhotoUrl(),
-                       workmate.getUsername()
+                       workmateResponse.getId(),
+                       workmateResponse.getPhotoUrl(),
+                       workmateResponse.getUsername()
                    );
                    workmatesItemViewStateList.add(workmatesItemViewState);
                 }

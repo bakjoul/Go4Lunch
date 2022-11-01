@@ -5,6 +5,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 
+import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -15,21 +16,14 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FirestoreLiveData<T> extends LiveData<T> {
+@SuppressWarnings("unchecked")
+public abstract class FirestoreCollectionLiveData<Response, Entity> extends LiveData<List<Entity>> {
 
-   private static final String TAG = "FirestoreLiveData";
-
-   private ListenerRegistration registration;
+   private static final String TAG = "FirestoreCollectionLiveData";
 
    private final CollectionReference collectionReference;
-   private final Class<?> clazz;
-
-   public FirestoreLiveData(CollectionReference collectionReference, Class<?> clazz) {
-      this.collectionReference = collectionReference;
-      this.clazz = clazz;
-   }
-
-   EventListener<QuerySnapshot> eventListener = new EventListener<QuerySnapshot>() {
+   private final Class<Response> clazz;
+   private final EventListener<QuerySnapshot> eventListener = new EventListener<QuerySnapshot>() {
       @Override
       public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException error) {
          if (error != null) {
@@ -37,17 +31,31 @@ public class FirestoreLiveData<T> extends LiveData<T> {
             return;
          }
 
-         List<T> itemList = new ArrayList<>();
-         if (querySnapshot != null && !querySnapshot.isEmpty()) {
-            for (DocumentSnapshot snapshot : querySnapshot.getDocuments()) {
-               T item = (T) snapshot.toObject(clazz);
-               itemList.add(item);
-               Log.i(TAG, "Snapshot is " + snapshot.getId());
+         if (querySnapshot != null) {
+            List<Response> responses = querySnapshot.toObjects(clazz);
+            List<Entity> entities = new ArrayList<>(responses.size());
+
+            for (Response response : responses) {
+               Entity entity = map(response);
+
+               if (entity != null) {
+                  entities.add(entity);
+               }
             }
+
+            setValue(entities);
          }
-         setValue((T) itemList);
       }
    };
+
+   private ListenerRegistration registration;
+
+   public FirestoreCollectionLiveData(CollectionReference collectionReference, Class<Response> clazz) {
+      this.collectionReference = collectionReference;
+      this.clazz = clazz;
+   }
+
+   public abstract Entity map(Response response);
 
    @Override
    protected void onActive() {

@@ -17,7 +17,7 @@ import androidx.lifecycle.ViewModel;
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.data.location.LocationPermissionRepository;
-import com.bakjoul.go4lunch.data.workmates.WorkmateRepository;
+import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
@@ -60,7 +60,7 @@ public class MainViewModel extends ViewModel {
        @NonNull FirebaseAuth firebaseAuth,
        @NonNull GpsLocationRepository gpsLocationRepository,
        @NonNull LocationPermissionRepository locationPermissionRepository,
-       @NonNull WorkmateRepository workmateRepository
+       @NonNull WorkmateRepositoryImplementation workmateRepository
    ) {
       this.context = context;
       this.firebaseAuth = firebaseAuth;
