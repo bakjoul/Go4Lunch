@@ -10,12 +10,16 @@ import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 
 import com.bakjoul.go4lunch.data.FirestoreLiveData;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -31,8 +35,6 @@ public class WorkmateRepository {
 
    private Workmate currentUser;
 
-   private WorkmateData currentUserData;
-
    @Inject
    public WorkmateRepository(@NonNull FirebaseFirestore firestoreDb) {
       this.firestoreDb = firestoreDb;
@@ -46,7 +48,9 @@ public class WorkmateRepository {
              firebaseUser.getUid(),
              firebaseUser.getDisplayName(),
              firebaseUser.getEmail(),
-             photoUrl != null ? photoUrl.toString() : null
+             photoUrl != null ? photoUrl.toString() : null,
+             new WorkmateChosenRestaurant("", ""),
+             new ArrayList<>()
          );
       }
 
@@ -65,61 +69,36 @@ public class WorkmateRepository {
              // If not, adds the user
              if (task.getResult().size() == 0) {
                 Log.d(TAG, "Users does not exist");
-                currentUserData = new WorkmateData(new WorkmateChosenRestaurant("", null), null);
 
                 firestoreDb.collection("users").document(currentUser.getId())
                     .set(currentUser)
                     .addOnSuccessListener(documentReference -> Log.d(TAG, "User successfully added"))
-                    .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
-
-                firestoreDb.collection("users").document(currentUser.getId()).collection("chosenRestaurant")
-                    .document("chosenRestaurantDoc")
-                    .set(new WorkmateChosenRestaurant(null, null))
-                    .addOnCompleteListener(documentReference -> Log.d(TAG, "Chosen restaurant document successfully set"))
-                    .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
-
-                firestoreDb.collection("users").document(currentUser.getId()).collection("likedRestaurants")
-                    .document("emptyDoc")
-                    .set(new WorkmateChosenRestaurant(null, null))
-                    .addOnCompleteListener(documentReference -> Log.d(TAG, "Liked restaurant document successfully set"))
                     .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
              }
           });
    }
 
    private void updateCurrentUserData() {
-      List<WorkmateChosenRestaurant> workmateChosenRestaurant = new ArrayList<>();
-      firestoreDb.collection("users").document(currentUser.getId()).collection("chosenRestaurant")
+      firestoreDb.collection("users").document(currentUser.getId())
           .get()
-          .addOnCompleteListener(task -> {
-             if (task.isSuccessful() && task.getResult().size() > 0) {
-                workmateChosenRestaurant.add(task.getResult().getDocuments().get(0).toObject(WorkmateChosenRestaurant.class));
-             }
-          });
+          .addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+             Workmate result;
 
-      List<WorkmateLikedRestaurant> workmateLikedRestaurantList = new ArrayList<>();
-      firestoreDb.collection("users").document(currentUser.getId()).collection("likedRestaurants")
-          .get()
-          .addOnCompleteListener(task -> {
-             if (task.isSuccessful() && task.getResult().size() > 1) {
-                for (DocumentSnapshot documentSnapshot : task.getResult().getDocuments()) {
-                   if (!documentSnapshot.getId().equals("emptyDoc")) {
-                      WorkmateLikedRestaurant likedRestaurant = documentSnapshot.toObject(WorkmateLikedRestaurant.class);
-                      workmateLikedRestaurantList.add(likedRestaurant);
+             @Override
+             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful() && task.getResult().exists()) {
+                   result = task.getResult().toObject(Workmate.class);
+                   if (result != null) {
+                      currentUser.setChosenRestaurant(result.getChosenRestaurant());
+                      currentUser.setLikedRestaurants(result.getLikedRestaurants());
                    }
                 }
              }
-             currentUserData = new WorkmateData(workmateChosenRestaurant.get(0), workmateLikedRestaurantList);
-             Log.d(TAG, "User data updated");
           });
    }
 
    public LiveData<List<Workmate>> getWorkmatesLiveData() {
       return new FirestoreLiveData<>(firestoreDb.collection("users"), Workmate.class);
-   }
-
-   public WorkmateData getCurrentUserData() {
-      return currentUserData;
    }
 
    public Workmate getCurrentUser() {
@@ -128,28 +107,25 @@ public class WorkmateRepository {
 
    @RequiresApi(api = Build.VERSION_CODES.N)
    public void setChosenRestaurant(@NonNull String restaurantId, @Nullable String restaurantName) {
-      firestoreDb.collection("users").document(currentUser.getId()).collection("chosenRestaurant")
-          .document("chosenRestaurantDoc")
-          .update("restaurantId", restaurantId, "restaurantName", restaurantName)
+      firestoreDb.collection("users").document(currentUser.getId())
+          .update("chosenRestaurant.restaurantId", restaurantId, "chosenRestaurant.restaurantName", restaurantName)
           .addOnCompleteListener(documentReference -> Log.d(TAG, "Chosen restaurant successfully updated: " + restaurantId))
           .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
       updateCurrentUserData();
    }
 
-   public void removeLikedRestaurant(String restaurantId) {
-      firestoreDb.collection("users").document(currentUser.getId()).collection("likedRestaurants")
-          .document(restaurantId)
-          .delete()
-          .addOnCompleteListener(documentReference -> Log.d(TAG, restaurantId + " successfully removed from liked restaurants"))
+   public void addLikeRestaurant(String restaurantId, String restaurantName) {
+      firestoreDb.collection("users").document(currentUser.getId())
+          .update("likedRestaurants", FieldValue.arrayUnion(Collections.singletonMap(restaurantId, restaurantName)))
+          .addOnCompleteListener(documentReference -> Log.d(TAG, restaurantId + " successfully added to liked restaurants"))
           .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
       updateCurrentUserData();
    }
 
-   public void addLikeRestaurant(String restaurantId, String restaurantName) {
-      firestoreDb.collection("users").document(currentUser.getId()).collection("likedRestaurants")
-          .document(restaurantId)
-          .set(new WorkmateLikedRestaurant(restaurantId, restaurantName))
-          .addOnCompleteListener(documentReference -> Log.d(TAG, restaurantId + " successfully added to liked restaurants"))
+   public void removeLikedRestaurant(String restaurantId, String restaurantName) {
+      firestoreDb.collection("users").document(currentUser.getId())
+          .update("likedRestaurants", FieldValue.arrayRemove(Collections.singletonMap(restaurantId, restaurantName)))
+          .addOnCompleteListener(documentReference -> Log.d(TAG, restaurantId + " successfully removed from liked restaurants"))
           .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
       updateCurrentUserData();
    }

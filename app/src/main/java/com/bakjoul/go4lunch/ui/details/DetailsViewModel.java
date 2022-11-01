@@ -20,8 +20,7 @@ import com.bakjoul.go4lunch.data.model.DetailsResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PeriodResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.workmates.WorkmateData;
-import com.bakjoul.go4lunch.data.workmates.WorkmateLikedRestaurant;
+import com.bakjoul.go4lunch.data.workmates.Workmate;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepository;
 import com.bakjoul.go4lunch.ui.utils.DateTimeProvider;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
@@ -33,6 +32,7 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -58,7 +58,7 @@ public class DetailsViewModel extends ViewModel {
    @NonNull
    private final DateTimeProvider dateTimeProvider;
 
-   private final WorkmateData currentUserData;
+   private final Workmate currentUser;
 
    private final LiveData<DetailsViewState> detailsViewStateLiveData;
 
@@ -77,7 +77,7 @@ public class DetailsViewModel extends ViewModel {
       this.restaurantImageMapper = restaurantImageMapper;
       this.dateTimeProvider = dateTimeProvider;
 
-      currentUserData = workmateRepository.getCurrentUserData();
+      currentUser = workmateRepository.getCurrentUser();
 
       if (restaurantId != null) {
          detailsViewStateLiveData = Transformations.switchMap(
@@ -126,23 +126,21 @@ public class DetailsViewModel extends ViewModel {
    }
 
    private boolean isLiked() {
-      List<WorkmateLikedRestaurant> likedRestaurantsId = currentUserData.getWorkmateLikedRestaurantList();
-      if (likedRestaurantsId != null && !likedRestaurantsId.isEmpty()) {
-         for (WorkmateLikedRestaurant likedRestaurant : likedRestaurantsId) {
-            if (likedRestaurant.getRestaurantId().equals(restaurantId)) {
-               return true;
-            }
+      List<Map<String, String>> likedRestaurants = currentUser.getLikedRestaurants();
+      for (Map<String, String> entry : likedRestaurants) {
+         if (entry.containsKey(restaurantId)) {
+            return true;
          }
       }
       return false;
    }
 
    private boolean isChosen() {
-      String chosenRestaurantId = null;
-      if (currentUserData.getWorkmateChosenRestaurant().getRestaurantId() != null) {
-         chosenRestaurantId = currentUserData.getWorkmateChosenRestaurant().getRestaurantId();
+      String chosenRestaurantId = "";
+      if (!currentUser.getChosenRestaurant().getRestaurantId().isEmpty()) {
+         chosenRestaurantId = currentUser.getChosenRestaurant().getRestaurantId();
       }
-      return chosenRestaurantId != null && chosenRestaurantId.equals(restaurantId);
+      return !chosenRestaurantId.isEmpty() && chosenRestaurantId.equals(restaurantId);
    }
 
    @NonNull
@@ -283,7 +281,7 @@ public class DetailsViewModel extends ViewModel {
 
    @RequiresApi(api = Build.VERSION_CODES.N)
    public void onRestaurantUnselected() {
-      workmateRepository.setChosenRestaurant("", null);
+      workmateRepository.setChosenRestaurant("", "");
    }
 
    @RequiresApi(api = Build.VERSION_CODES.N)
@@ -295,8 +293,8 @@ public class DetailsViewModel extends ViewModel {
       workmateRepository.addLikeRestaurant(restaurantId, restaurantName);
    }
 
-   public void onDislikeButtonClicked() {
-      workmateRepository.removeLikedRestaurant(restaurantId);
+   public void onDislikeButtonClicked(String restaurantName) {
+      workmateRepository.removeLikedRestaurant(restaurantId, restaurantName);
    }
 
 }

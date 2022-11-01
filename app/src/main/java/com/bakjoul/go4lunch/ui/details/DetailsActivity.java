@@ -149,7 +149,7 @@ public class DetailsActivity extends AppCompatActivity {
       binding.detailsButtonLike.setSelected(viewState.isLiked());
       binding.detailsButtonLike.setOnClickListener(view -> {
          if (binding.detailsButtonLike.isSelected()) {
-            viewModel.onDislikeButtonClicked();
+            viewModel.onDislikeButtonClicked(viewState.getName());
          } else {
             viewModel.onLikeButtonClicked(viewState.getName());
          }
