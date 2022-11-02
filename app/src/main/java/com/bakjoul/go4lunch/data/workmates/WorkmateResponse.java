@@ -54,8 +54,8 @@ public class WorkmateResponse {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        WorkmateResponse workmateResponse = (WorkmateResponse) o;
-        return Objects.equals(id, workmateResponse.id) && Objects.equals(username, workmateResponse.username) && Objects.equals(email, workmateResponse.email) && Objects.equals(photoUrl, workmateResponse.photoUrl) && Objects.equals(chosenRestaurant, workmateResponse.chosenRestaurant) && Objects.equals(likedRestaurants, workmateResponse.likedRestaurants);
+        WorkmateResponse that = (WorkmateResponse) o;
+        return Objects.equals(id, that.id) && Objects.equals(username, that.username) && Objects.equals(email, that.email) && Objects.equals(photoUrl, that.photoUrl);
     }
 
     @Override
@@ -66,7 +66,7 @@ public class WorkmateResponse {
     @NonNull
     @Override
     public String toString() {
-        return "Workmate2{" +
+        return "WorkmateResponse{" +
             "id='" + id + '\'' +
             ", username='" + username + '\'' +
             ", email='" + email + '\'' +

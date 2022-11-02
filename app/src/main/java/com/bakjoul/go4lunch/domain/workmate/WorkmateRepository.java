@@ -6,6 +6,6 @@ import java.util.List;
 
 public interface WorkmateRepository {
 
-    LiveData<List<WorkmateEntity>> getAllWorkmatesForPlaceId(String placeId);
+    LiveData<List<WorkmateEntity>> getAllWorkmatesForRestaurantId(String restaurantId);
 
 }

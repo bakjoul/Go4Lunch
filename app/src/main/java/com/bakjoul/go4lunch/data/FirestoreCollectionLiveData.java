@@ -5,9 +5,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 
-import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
@@ -16,59 +14,58 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-@SuppressWarnings("unchecked")
 public abstract class FirestoreCollectionLiveData<Response, Entity> extends LiveData<List<Entity>> {
 
-   private static final String TAG = "FirestoreCollectionLiveData";
+    private static final String TAG = "FirestoreCollectionLive";
 
-   private final CollectionReference collectionReference;
-   private final Class<Response> clazz;
-   private final EventListener<QuerySnapshot> eventListener = new EventListener<QuerySnapshot>() {
-      @Override
-      public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException error) {
-         if (error != null) {
-            Log.i(TAG, "Listen failed", error);
-            return;
-         }
-
-         if (querySnapshot != null) {
-            List<Response> responses = querySnapshot.toObjects(clazz);
-            List<Entity> entities = new ArrayList<>(responses.size());
-
-            for (Response response : responses) {
-               Entity entity = map(response);
-
-               if (entity != null) {
-                  entities.add(entity);
-               }
+    private final CollectionReference collectionReference;
+    private final Class<Response> clazz;
+    private final EventListener<QuerySnapshot> eventListener = new EventListener<QuerySnapshot>() {
+        @Override
+        public void onEvent(@Nullable QuerySnapshot querySnapshot, @Nullable FirebaseFirestoreException error) {
+            if (error != null) {
+                Log.i(TAG, "Listen failed", error);
+                return;
             }
 
-            setValue(entities);
-         }
-      }
-   };
+            if (querySnapshot != null) {
+                List<Response> responses = querySnapshot.toObjects(clazz);
+                List<Entity> entities = new ArrayList<>(responses.size());
 
-   private ListenerRegistration registration;
+                for (Response response : responses) {
+                    Entity entity = map(response);
 
-   public FirestoreCollectionLiveData(CollectionReference collectionReference, Class<Response> clazz) {
-      this.collectionReference = collectionReference;
-      this.clazz = clazz;
-   }
+                    if (entity != null) {
+                        entities.add(entity);
+                    }
+                }
 
-   public abstract Entity map(Response response);
+                setValue(entities);
+            }
+        }
+    };
 
-   @Override
-   protected void onActive() {
-      super.onActive();
-      registration = collectionReference.addSnapshotListener(eventListener);
-   }
+    private ListenerRegistration registration;
 
-   @Override
-   protected void onInactive() {
-      super.onInactive();
-      if (!hasActiveObservers()) {
-         registration.remove();
-         registration = null;
-      }
-   }
+    public FirestoreCollectionLiveData(CollectionReference collectionReference, Class<Response> clazz) {
+        this.collectionReference = collectionReference;
+        this.clazz = clazz;
+    }
+
+    public abstract Entity map(Response response);
+
+    @Override
+    protected void onActive() {
+        super.onActive();
+        registration = collectionReference.addSnapshotListener(eventListener);
+    }
+
+    @Override
+    protected void onInactive() {
+        super.onInactive();
+        if (!hasActiveObservers()) {
+            registration.remove();
+            registration = null;
+        }
+    }
 }

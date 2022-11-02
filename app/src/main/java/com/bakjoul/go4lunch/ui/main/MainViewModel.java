@@ -68,7 +68,7 @@ public class MainViewModel extends ViewModel {
       this.locationPermissionRepository = locationPermissionRepository;
 
       if (firebaseAuth.getCurrentUser() != null) {
-         workmateRepository.setCurrentUser(firebaseAuth);
+         workmateRepository.setCurrentUser();
 
          mainActivityViewStateLiveData.setValue(
              new MainViewState(
