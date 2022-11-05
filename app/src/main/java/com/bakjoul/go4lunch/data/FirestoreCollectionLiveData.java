@@ -16,7 +16,7 @@ import java.util.List;
 
 public abstract class FirestoreCollectionLiveData<Response, Entity> extends LiveData<List<Entity>> {
 
-    private static final String TAG = "FirestoreCollectionLive";
+    private static final String TAG = "FirestoreCollecLiveData";
 
     private final CollectionReference collectionReference;
     private final Class<Response> clazz;

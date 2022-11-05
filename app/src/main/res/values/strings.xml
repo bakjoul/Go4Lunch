@@ -42,5 +42,6 @@
     <string name="toolbar_title_workmates">Available workmates</string>
     <string name="workmates_empty">Aucun collègue disponible</string>
     <string name="restaurants_empty">Aucun restaurant trouvé</string>
+    <string name="details_text_joining">\u0020is joining!</string>
 
 </resources>

@@ -6,9 +6,8 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.SavedStateHandle;
-import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.BuildConfig;
@@ -19,8 +18,9 @@ import com.bakjoul.go4lunch.data.model.DetailsResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PeriodResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.workmates.UserDataResponse;
+import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
+import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 
 import java.time.Clock;
@@ -31,6 +31,7 @@ import java.time.format.TextStyle;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -45,8 +46,10 @@ public class DetailsViewModel extends ViewModel {
     @NonNull
     private final Application application;
 
+    private final String restaurantId;
+
     @NonNull
-    private final WorkmateRepositoryImplementation workmateRepository;
+    private final UserRepositoryImplementation userRepositoryImplementation;
 
     @NonNull
     private final RestaurantImageMapper restaurantImageMapper;
@@ -54,56 +57,108 @@ public class DetailsViewModel extends ViewModel {
     @NonNull
     private final Clock clock;
 
-    private UserDataResponse currentUserData;
-
-    private final LiveData<DetailsViewState> detailsViewStateLiveData;
+    private final MediatorLiveData<DetailsViewState> detailsViewStateMediatorLiveData = new MediatorLiveData<>();
 
     @Inject
     public DetailsViewModel(
         @NonNull Application application,
         @NonNull RestaurantDetailsRepository restaurantDetailsRepository,
         @NonNull SavedStateHandle savedStateHandle,
-        @NonNull WorkmateRepositoryImplementation workmateRepository,
+        @NonNull UserRepositoryImplementation userRepositoryImplementation,
+        @NonNull WorkmateRepositoryImplementation workmateRepositoryImplementation,
         @NonNull RestaurantImageMapper restaurantImageMapper,
         @NonNull Clock clock
     ) {
         this.application = application;
-        this.workmateRepository = workmateRepository;
+        this.userRepositoryImplementation = userRepositoryImplementation;
         this.restaurantImageMapper = restaurantImageMapper;
         this.clock = clock;
 
-        String restaurantId = savedStateHandle.get(KEY);
-        getCurrentUserData();
+        restaurantId = savedStateHandle.get(KEY);
+
+        final LiveData<DetailsResponse> detailsResponseLiveData;
+        final LiveData<Map<String, Object>> chosenRestaurantLiveData;
+        final LiveData<List<String>> favoriteRestaurantsLiveData;
+        final LiveData<List<WorkmateEntity>> workmatesLiveData;
 
         if (restaurantId != null) {
-            detailsViewStateLiveData = Transformations.switchMap(
-                restaurantDetailsRepository.getDetailsResponse(
-                    restaurantId,
-                    BuildConfig.MAPS_API_KEY
-                ),
-                response -> {
-                    if (response != null) {
-                        return new MutableLiveData<>(map(response, restaurantId));
-                    } else {
-                        return null;
-                    }
-                }
+            detailsResponseLiveData = restaurantDetailsRepository.getDetailsResponse(restaurantId, BuildConfig.MAPS_API_KEY);
+            workmatesLiveData = workmateRepositoryImplementation.getWorkmatesForRestaurantIdLiveData(restaurantId);
+            chosenRestaurantLiveData = userRepositoryImplementation.getChosenRestaurantLiveData();
+            favoriteRestaurantsLiveData = userRepositoryImplementation.getFavoriteRestaurantsLiveData();
+
+            detailsViewStateMediatorLiveData.addSource(detailsResponseLiveData, detailsResponse ->
+                combine(detailsResponse, workmatesLiveData.getValue(), chosenRestaurantLiveData.getValue(), favoriteRestaurantsLiveData.getValue())
             );
-        } else {
-            detailsViewStateLiveData = getErrorDetailsViewState();
+            detailsViewStateMediatorLiveData.addSource(workmatesLiveData, workmateEntities ->
+                combine(detailsResponseLiveData.getValue(), workmateEntities, chosenRestaurantLiveData.getValue(), favoriteRestaurantsLiveData.getValue())
+            );
+            detailsViewStateMediatorLiveData.addSource(chosenRestaurantLiveData, chosenRestaurant ->
+                combine(detailsResponseLiveData.getValue(), workmatesLiveData.getValue(), chosenRestaurant, favoriteRestaurantsLiveData.getValue())
+            );
+            detailsViewStateMediatorLiveData.addSource(favoriteRestaurantsLiveData, favoriteRestaurants ->
+                combine(detailsResponseLiveData.getValue(), workmatesLiveData.getValue(), chosenRestaurantLiveData.getValue(), favoriteRestaurants)
+            );
         }
     }
 
-    public void getCurrentUserData() {
-        currentUserData = workmateRepository.getCurrentUserData();
+    private void combine(
+        @Nullable DetailsResponse response,
+        @Nullable List<WorkmateEntity> workmates,
+        @Nullable Map<String, Object> chosenRestaurant,
+        @Nullable List<String> favoriteRestaurants
+    ) {
+        if (response == null || workmates == null) {
+            return;
+        }
+
+        boolean isRestaurantChosen = false;
+        boolean isRestaurantFavorite = false;
+
+        // Checks if current restaurant is chosen by user
+        if (chosenRestaurant != null) {
+            for (String id : chosenRestaurant.keySet()) {
+                if (id.equals(restaurantId)) {
+                    isRestaurantChosen = true;
+                    break;
+                }
+            }
+        }
+
+        // Checks if current restaurant is in user's favorites
+        if (favoriteRestaurants != null) {
+            for (String id : favoriteRestaurants) {
+                if (id.equals(restaurantId)) {
+                    isRestaurantFavorite = true;
+                    break;
+                }
+            }
+        }
+
+        if (restaurantId != null) {
+            detailsViewStateMediatorLiveData.setValue(
+                mapResponse(
+                    response,
+                    workmates,
+                    isRestaurantChosen,
+                    isRestaurantFavorite
+                )
+            );
+        } else {
+            detailsViewStateMediatorLiveData.setValue(getErrorDetailsViewState());
+        }
     }
 
-    public LiveData<DetailsViewState> getDetailsViewStateLiveData() {
-        return detailsViewStateLiveData;
+    public LiveData<DetailsViewState> getDetailsViewStateMediatorLiveData() {
+        return detailsViewStateMediatorLiveData;
     }
 
     @NonNull
-    private DetailsViewState map(@NonNull DetailsResponse response, String restaurantId) {
+    private DetailsViewState mapResponse(
+        @NonNull DetailsResponse response,
+        @NonNull List<WorkmateEntity> workmates,
+        boolean isRestaurantChosen,
+        boolean isRestaurantFavorite) {
         RestaurantDetailsResponse r = response.getResult();
         return new DetailsViewState(
             r.getPlaceId(),
@@ -115,51 +170,44 @@ public class DetailsViewModel extends ViewModel {
             getOpeningStatus(r.getOpeningHoursResponse()),
             r.getFormattedPhoneNumber(),
             r.getWebsite(),
-            isFavorite(restaurantId),
-            isChosen(restaurantId),
+            isRestaurantChosen,
+            isRestaurantFavorite,
             false,
-            new ArrayList<>()
+            mapWorkmates(workmates)
         );
     }
 
-    private boolean isFavorite(String restaurantId) {
-        List<String> favoriteRestaurants = currentUserData.getFavoriteRestaurants();
-        if (favoriteRestaurants != null) {
-            for (String id : favoriteRestaurants) {
-                if (id.equals(restaurantId)) {
-                    return true;
-                }
-            }
+    @NonNull
+    private List<DetailsItemViewState> mapWorkmates(@NonNull List<WorkmateEntity> workmates) {
+        List<DetailsItemViewState> workmatesList = new ArrayList<>();
+        for (WorkmateEntity workmate : workmates) {
+            DetailsItemViewState workmateItem = new DetailsItemViewState(
+                workmate.getId(),
+                workmate.getUsername(),
+                workmate.getPhotoUrl(),
+                workmate.getUsername() + application.getString(R.string.details_text_joining)
+            );
+            workmatesList.add(workmateItem);
         }
-        return false;
-    }
-
-    private boolean isChosen(String restaurantId) {
-        String chosenRestaurantId = "";
-        if (currentUserData.getChosenRestaurant() != null && !currentUserData.getChosenRestaurant().values().isEmpty()) {
-            chosenRestaurantId = currentUserData.getChosenRestaurant().keySet().toArray()[0].toString();
-        }
-        return !chosenRestaurantId.isEmpty() && chosenRestaurantId.equals(restaurantId);
+        return workmatesList;
     }
 
     @NonNull
-    private MutableLiveData<DetailsViewState> getErrorDetailsViewState() {
-        return new MutableLiveData<>(
-            new DetailsViewState(
-                null,
-                null,
-                application.getString(R.string.details_error_viewstate),
-                0,
-                false,
-                null,
-                null,
-                null,
-                null,
-                false,
-                false,
-                false,
-                null
-            )
+    private DetailsViewState getErrorDetailsViewState() {
+        return new DetailsViewState(
+            null,
+            null,
+            application.getString(R.string.details_error_viewstate),
+            0,
+            false,
+            null,
+            null,
+            null,
+            null,
+            false,
+            false,
+            false,
+            new ArrayList<>()
         );
     }
 
@@ -278,19 +326,19 @@ public class DetailsViewModel extends ViewModel {
         return status.toString();
     }
 
-    public void onRestaurantSelected(String restaurantId, String restaurantName) {
-        workmateRepository.setChosenRestaurant(restaurantId, restaurantName);
+    public void onRestaurantChoosed(String restaurantId, String restaurantName) {
+        userRepositoryImplementation.chooseRestaurant(restaurantId, restaurantName);
     }
 
-    public void onRestaurantUnselected() {
-        workmateRepository.setChosenRestaurant("", "");
+    public void onRestaurantUnchoosed(String restaurantId) {
+        userRepositoryImplementation.unchooseRestaurant(restaurantId);
     }
 
-    public void onLikeButtonClicked(String restaurantId, String restaurantName) {
-        workmateRepository.addLikeRestaurant(restaurantId, restaurantName);
+    public void onFavoriteButtonClicked(String restaurantId, String restaurantName) {
+        userRepositoryImplementation.addRestaurantToFavorites(restaurantId, restaurantName);
     }
 
-    public void onDislikeButtonClicked(String restaurantId) {
-        workmateRepository.removeLikedRestaurant(restaurantId);
+    public void onUnfavoriteButtonClicked(String restaurantId) {
+        userRepositoryImplementation.removeRestaurantFromFavorites(restaurantId);
     }
 }

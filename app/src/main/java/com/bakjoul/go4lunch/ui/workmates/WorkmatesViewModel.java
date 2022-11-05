@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 
@@ -20,13 +21,20 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class WorkmatesViewModel extends ViewModel {
 
     @NonNull
-    private final WorkmateRepositoryImplementation workmateRepository;
+    private final UserRepositoryImplementation userRepositoryImplementation;
+
+    @NonNull
+    private final WorkmateRepositoryImplementation workmateRepositoryImplementation;
 
     private final LiveData<WorkmatesViewState> workmatesViewStateMutableLiveData;
 
     @Inject
-    public WorkmatesViewModel(@NonNull WorkmateRepositoryImplementation workmateRepository) {
-        this.workmateRepository = workmateRepository;
+    public WorkmatesViewModel(
+        @NonNull UserRepositoryImplementation userRepositoryImplementation,
+        @NonNull WorkmateRepositoryImplementation workmateRepositoryImplementation
+    ) {
+        this.userRepositoryImplementation = userRepositoryImplementation;
+        this.workmateRepositoryImplementation = workmateRepositoryImplementation;
 
         workmatesViewStateMutableLiveData = Transformations.switchMap(
             getWorkmatesLiveData(),
@@ -41,10 +49,10 @@ public class WorkmatesViewModel extends ViewModel {
     @NonNull
     private LiveData<List<WorkmatesItemViewState>> getWorkmatesLiveData() {
         return Transformations.map(
-            workmateRepository.getWorkmatesLiveData(), workmateList -> {
+            workmateRepositoryImplementation.getAvailableWorkmatesLiveData(), workmateList -> {
                 List<WorkmatesItemViewState> workmatesItemViewStateList = new ArrayList<>();
                 for (WorkmateEntity workmateResponse : workmateList) {
-                    if (!workmateResponse.getId().equals(workmateRepository.getCurrentUser().getId())) {
+                    if (!workmateResponse.getId().equals(userRepositoryImplementation.getCurrentUser().getId())) {
                         WorkmatesItemViewState workmatesItemViewState = new WorkmatesItemViewState(
                             workmateResponse.getId(),
                             workmateResponse.getPhotoUrl(),

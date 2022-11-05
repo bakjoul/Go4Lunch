@@ -50,11 +50,14 @@ public class DetailsActivity extends AppCompatActivity {
 
         DetailsViewModel viewModel = new ViewModelProvider(this).get(DetailsViewModel.class);
 
+        DetailsAdapter adapter = new DetailsAdapter();
+        binding.detailsRecyclerView.setAdapter(adapter);
+
         binding.detailsFabBack.setOnClickListener(view -> onBackPressed());
 
         ImageView photo = binding.detailsRestaurantPhoto;
 
-        viewModel.getDetailsViewStateLiveData().observe(this, viewState -> {
+        viewModel.getDetailsViewStateMediatorLiveData().observe(this, viewState -> {
             if (!viewState.isProgressBarVisible()) {
                 binding.detailsProgressBar.setVisibility(View.GONE);
             }
@@ -76,6 +79,8 @@ public class DetailsActivity extends AppCompatActivity {
             setCallButton(viewState);
             setLikeButton(viewModel, viewState);
             setWebsiteButton(viewState);
+
+            adapter.submitList(viewState.getWorkmatesList());
         });
 
         binding.detailsAppbar.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
@@ -119,16 +124,14 @@ public class DetailsActivity extends AppCompatActivity {
         binding.detailsFabSelect.setSelected(viewState.isChosen());
         if (binding.detailsFabSelect.isSelected()) {
             binding.detailsFabSelect.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.green));
+        } else {
+            binding.detailsFabSelect.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.black));
         }
         binding.detailsFabSelect.setOnClickListener(view -> {
             if (binding.detailsFabSelect.isSelected()) {
-                binding.detailsFabSelect.setSelected(false);
-                binding.detailsFabSelect.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.black));
-                viewModel.onRestaurantUnselected();
+                viewModel.onRestaurantUnchoosed(viewState.getId());
             } else {
-                binding.detailsFabSelect.setSelected(true);
-                binding.detailsFabSelect.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.green));
-                viewModel.onRestaurantSelected(viewState.getId(), viewState.getName());
+                viewModel.onRestaurantChoosed(viewState.getId(), viewState.getName());
             }
         });
     }
@@ -146,14 +149,13 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void setLikeButton(DetailsViewModel viewModel, @NonNull DetailsViewState viewState) {
-        binding.detailsButtonLike.setSelected(viewState.isLiked());
+        binding.detailsButtonLike.setSelected(viewState.isFavorite());
         binding.detailsButtonLike.setOnClickListener(view -> {
             if (binding.detailsButtonLike.isSelected()) {
-                viewModel.onDislikeButtonClicked(viewState.getId());
+                viewModel.onUnfavoriteButtonClicked(viewState.getId());
             } else {
-                viewModel.onLikeButtonClicked(viewState.getId(), viewState.getName());
+                viewModel.onFavoriteButtonClicked(viewState.getId(), viewState.getName());
             }
-            binding.detailsButtonLike.setSelected(!binding.detailsButtonLike.isSelected());
         });
     }
 

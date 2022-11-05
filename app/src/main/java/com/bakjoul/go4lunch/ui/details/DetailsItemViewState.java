@@ -10,13 +10,18 @@ public class DetailsItemViewState {
    @NonNull
    private final String userId;
 
+   @NonNull
+   private final String username;
+
    @Nullable
    private final String userPhotoUrl;
 
+   @NonNull
    private final String message;
 
-   public DetailsItemViewState(@NonNull String userId, @Nullable String userPhotoUrl, String message) {
+   public DetailsItemViewState(@NonNull String userId, @NonNull String username, @Nullable String userPhotoUrl, @NonNull String message) {
       this.userId = userId;
+      this.username = username;
       this.userPhotoUrl = userPhotoUrl;
       this.message = message;
    }
@@ -26,11 +31,17 @@ public class DetailsItemViewState {
       return userId;
    }
 
+   @NonNull
+   public String getUsername() {
+      return username;
+   }
+
    @Nullable
    public String getUserPhotoUrl() {
       return userPhotoUrl;
    }
 
+   @NonNull
    public String getMessage() {
       return message;
    }
@@ -40,12 +51,12 @@ public class DetailsItemViewState {
       if (this == o) return true;
       if (o == null || getClass() != o.getClass()) return false;
       DetailsItemViewState that = (DetailsItemViewState) o;
-      return userId.equals(that.userId) && Objects.equals(userPhotoUrl, that.userPhotoUrl) && Objects.equals(message, that.message);
+      return userId.equals(that.userId) && username.equals(that.username) && Objects.equals(userPhotoUrl, that.userPhotoUrl) && message.equals(that.message);
    }
 
    @Override
    public int hashCode() {
-      return Objects.hash(userId, userPhotoUrl, message);
+      return Objects.hash(userId, username, userPhotoUrl, message);
    }
 
    @NonNull
@@ -53,6 +64,7 @@ public class DetailsItemViewState {
    public String toString() {
       return "DetailsItemViewState{" +
           "userId='" + userId + '\'' +
+          ", username='" + username + '\'' +
           ", userPhotoUrl='" + userPhotoUrl + '\'' +
           ", message='" + message + '\'' +
           '}';
