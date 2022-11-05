@@ -146,6 +146,9 @@ public class UserRepositoryImplementation implements UserRepository {
             .set(currentUser)
             .addOnCompleteListener(documentReference -> Log.d(TAG, "User " + currentUser.getUsername() + " added to restaurant " + restaurantId + " users"))
             .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
+
+        // Removes current user from other restaurants users
+        // TODO
     }
 
     @Override
