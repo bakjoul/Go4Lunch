@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import com.bakjoul.go4lunch.data.FirestoreCollectionLiveData;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.List;
@@ -19,9 +20,16 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     @NonNull
     private final FirebaseFirestore firestoreDb;
 
+    @NonNull
+    private final FirebaseAuth firebaseAuth;
+
     @Inject
-    public WorkmateRepositoryImplementation(@NonNull FirebaseFirestore firestoreDb) {
+    public WorkmateRepositoryImplementation(
+        @NonNull FirebaseFirestore firestoreDb,
+        @NonNull FirebaseAuth firebaseAuth
+    ) {
         this.firestoreDb = firestoreDb;
+        this.firebaseAuth = firebaseAuth;
     }
 
     @Override
@@ -64,7 +72,9 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
 
                 if (response.getId() != null
                     && response.getUsername() != null
-                    && response.getEmail() != null) {
+                    && response.getEmail() != null
+                    && firebaseAuth.getCurrentUser() != null
+                    && !response.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
                     entity = new WorkmateEntity(
                         response.getId(),
                         response.getUsername(),

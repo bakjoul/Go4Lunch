@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/white"
     android:fitsSystemWindows="true"
     android:orientation="vertical"
     tools:context=".ui.details.DetailsActivity">
@@ -181,7 +182,6 @@
             android:id="@+id/details_RecyclerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@android:color/white"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/activity_details_item" />
     </androidx.core.widget.NestedScrollView>
