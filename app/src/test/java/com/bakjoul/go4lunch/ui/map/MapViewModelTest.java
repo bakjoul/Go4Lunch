@@ -26,6 +26,7 @@ import com.bakjoul.go4lunch.data.restaurants.RestaurantMarker;
 import com.bakjoul.go4lunch.data.restaurants.RestaurantRepository;
 import com.bakjoul.go4lunch.data.restaurants.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.RestaurantResponseWrapper;
+import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 import com.google.android.gms.maps.model.LatLng;
@@ -105,6 +106,7 @@ public class MapViewModelTest {
    private final MapLocationRepository mapLocationRepository = Mockito.mock(MapLocationRepository.class);
    private final LocationModeRepository locationModeRepository = Mockito.mock(LocationModeRepository.class);
    private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
+   private final WorkmateRepositoryImplementation workmateRepositoryImplementation = Mockito.mock(WorkmateRepositoryImplementation.class);
    private final LocationDistanceUtil locationDistanceUtil = Mockito.mock(LocationDistanceUtil.class);
 
    private final Location location = Mockito.mock(Location.class);
@@ -129,7 +131,7 @@ public class MapViewModelTest {
 
       doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
 
-      viewModel = new MapViewModel(gpsLocationRepository, mapLocationRepository, locationModeRepository, restaurantRepository, locationDistanceUtil);
+      viewModel = new MapViewModel(gpsLocationRepository, mapLocationRepository, locationModeRepository, restaurantRepository, workmateRepositoryImplementation, locationDistanceUtil);
    }
 
    @Test

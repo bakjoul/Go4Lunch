@@ -8,6 +8,8 @@ public interface WorkmateRepository {
 
     LiveData<List<WorkmateEntity>> getAvailableWorkmatesLiveData();
 
+    LiveData<List<String>> getChosenRestaurantsLiveData();
+
     LiveData<List<WorkmateEntity>> getWorkmatesForRestaurantIdLiveData(String restaurantId);
 
 }

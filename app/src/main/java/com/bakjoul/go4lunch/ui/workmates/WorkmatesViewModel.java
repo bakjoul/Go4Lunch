@@ -51,12 +51,12 @@ public class WorkmatesViewModel extends ViewModel {
         return Transformations.map(
             workmateRepositoryImplementation.getAvailableWorkmatesLiveData(), workmateList -> {
                 List<WorkmatesItemViewState> workmatesItemViewStateList = new ArrayList<>();
-                for (WorkmateEntity workmateResponse : workmateList) {
-                    if (!workmateResponse.getId().equals(userRepositoryImplementation.getCurrentUser().getId())) {
+                for (WorkmateEntity workmateEntity : workmateList) {
+                    if (!workmateEntity.getId().equals(userRepositoryImplementation.getCurrentUser().getId())) {
                         WorkmatesItemViewState workmatesItemViewState = new WorkmatesItemViewState(
-                            workmateResponse.getId(),
-                            workmateResponse.getPhotoUrl(),
-                            workmateResponse.getUsername()
+                            workmateEntity.getId(),
+                            workmateEntity.getPhotoUrl(),
+                            workmateEntity.getUsername()
                         );
                         workmatesItemViewStateList.add(workmatesItemViewState);
                     }

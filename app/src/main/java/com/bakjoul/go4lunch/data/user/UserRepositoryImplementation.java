@@ -130,20 +130,22 @@ public class UserRepositoryImplementation implements UserRepository {
 
         // Removes current user from any previously chosen restaurant users
         if (chosenRestaurantLiveData.getValue() != null) {
-            String previousRestaurant = chosenRestaurantLiveData.getValue().keySet().toArray()[0].toString();
+            String previousRestaurantId = chosenRestaurantLiveData.getValue().keySet().toArray()[0].toString();
             firestoreDb.collection("restaurants")
-                .document(previousRestaurant).collection("users")
+                .document(previousRestaurantId).collection("users")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         for (DocumentSnapshot documentSnapshot : task.getResult().getDocuments()) {
                             if (documentSnapshot.getId().equals(currentUser.getId())) {
-                                firestoreDb.collection("restaurants").document(previousRestaurant).collection("users")
+                                firestoreDb.collection("restaurants").document(previousRestaurantId).collection("users")
                                     .document(currentUser.getId())
                                     .delete()
                                     .addOnCompleteListener(task2 -> {
                                         if (task2.isSuccessful()) {
-                                            Log.d(TAG, "User " + currentUser.getUsername() + " was removed from restaurant " + previousRestaurant + " users");
+                                            Log.d(TAG, "User " + currentUser.getUsername() + " was removed from restaurant " + previousRestaurantId + " users");
+
+                                            removeRestaurantFromChosenRestaurants(previousRestaurantId);
                                         }
                                     });
                             }
@@ -151,7 +153,6 @@ public class UserRepositoryImplementation implements UserRepository {
                     }
                 });
         }
-
 
         // Updates current user chosen restaurant
         if (currentUser.getId() != null) {
@@ -165,12 +166,17 @@ public class UserRepositoryImplementation implements UserRepository {
                 .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
         }
 
-        // Adds current user to newly chosen restaurant users
-        firestoreDb.collection("restaurants").document(restaurantId).collection("users")
-            .document(currentUser.getId())
-            .set(currentUser)
-            .addOnCompleteListener(documentReference -> Log.d(TAG, "User " + currentUser.getUsername() + " added to restaurant " + restaurantId + " users"))
-            .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
+        firestoreDb.collection("restaurants").document(restaurantId).set(restaurantData).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                // Adds current user to newly chosen restaurant users
+                firestoreDb.collection("restaurants").document(restaurantId)
+                    .collection("users")
+                    .document(currentUser.getId())
+                    .set(currentUser)
+                    .addOnCompleteListener(documentReference -> Log.d(TAG, "User " + currentUser.getUsername() + " added to restaurant " + restaurantId + " users"))
+                    .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
+            }
+        });
     }
 
     @Override
@@ -191,8 +197,29 @@ public class UserRepositoryImplementation implements UserRepository {
         firestoreDb.collection("restaurants").document(restaurantId).collection("users")
             .document(currentUser.getId())
             .delete()
-            .addOnCompleteListener(documentReference -> Log.d(TAG, "User " + currentUser.getUsername() + " removed from restaurant " + restaurantId + " users"))
+            .addOnCompleteListener(documentReference -> {
+                Log.d(TAG, "User " + currentUser.getUsername() + " removed from restaurant " + restaurantId + " users");
+
+                // Removes restaurant from chosen restaurants if no users
+                removeRestaurantFromChosenRestaurants(restaurantId);
+            })
             .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
+    }
+
+    private void removeRestaurantFromChosenRestaurants(@NonNull String restaurantId) {
+        firestoreDb.collection("restaurants").document(restaurantId).collection("users")
+            .get()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful() && task.getResult().size() == 0) {
+                    firestoreDb.collection("restaurants").document(restaurantId)
+                        .delete()
+                        .addOnCompleteListener(task2 -> {
+                            if (task2.isSuccessful()) {
+                                Log.d(TAG, "Empty restaurant " + restaurantId + " removed from chosen restaurants");
+                            }
+                        });
+                }
+            });
     }
 
 
