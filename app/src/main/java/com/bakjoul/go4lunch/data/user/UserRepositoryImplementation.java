@@ -128,6 +128,31 @@ public class UserRepositoryImplementation implements UserRepository {
         final Map<String, Object> restaurantData = new HashMap<>();
         restaurantData.put(restaurantId, restaurantName);
 
+        // Removes current user from any previously chosen restaurant users
+        if (chosenRestaurantLiveData.getValue() != null) {
+            String previousRestaurant = chosenRestaurantLiveData.getValue().keySet().toArray()[0].toString();
+            firestoreDb.collection("restaurants")
+                .document(previousRestaurant).collection("users")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (DocumentSnapshot documentSnapshot : task.getResult().getDocuments()) {
+                            if (documentSnapshot.getId().equals(currentUser.getId())) {
+                                firestoreDb.collection("restaurants").document(previousRestaurant).collection("users")
+                                    .document(currentUser.getId())
+                                    .delete()
+                                    .addOnCompleteListener(task2 -> {
+                                        if (task2.isSuccessful()) {
+                                            Log.d(TAG, "User " + currentUser.getUsername() + " was removed from restaurant " + previousRestaurant + " users");
+                                        }
+                                    });
+                            }
+                        }
+                    }
+                });
+        }
+
+
         // Updates current user chosen restaurant
         if (currentUser.getId() != null) {
             firestoreDb.collection("users").document(currentUser.getId()).collection("chosenRestaurant")
@@ -140,15 +165,12 @@ public class UserRepositoryImplementation implements UserRepository {
                 .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
         }
 
-        // Adds current user to restaurant users
+        // Adds current user to newly chosen restaurant users
         firestoreDb.collection("restaurants").document(restaurantId).collection("users")
             .document(currentUser.getId())
             .set(currentUser)
             .addOnCompleteListener(documentReference -> Log.d(TAG, "User " + currentUser.getUsername() + " added to restaurant " + restaurantId + " users"))
             .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
-
-        // Removes current user from other restaurants users
-        // TODO
     }
 
     @Override
