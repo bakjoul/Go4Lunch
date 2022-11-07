@@ -29,12 +29,8 @@ public class UserRepositoryImplementation implements UserRepository {
 
     @NonNull
     private final FirebaseFirestore firestoreDb;
-
-    private WorkmateResponse currentUser;
-
-    private final MutableLiveData<Map<String, Object>> chosenRestaurantLiveData = new MutableLiveData<>();
-
-    private final MutableLiveData<List<String>> favoriteRestaurantsLiveData = new MutableLiveData<>();
+    @NonNull
+    private final FirebaseAuth firebaseAuth;
 
     @Inject
     public UserRepositoryImplementation(
@@ -42,20 +38,10 @@ public class UserRepositoryImplementation implements UserRepository {
         @NonNull FirebaseAuth firebaseAuth
     ) {
         this.firestoreDb = firestoreDb;
-
-        FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
-        if (firebaseUser != null) {
-            final Uri photoUrl = firebaseUser.getPhotoUrl();
-            currentUser = new WorkmateResponse(
-                firebaseUser.getUid(),
-                firebaseUser.getDisplayName(),
-                firebaseUser.getEmail(),
-                photoUrl != null ? photoUrl.toString() : null
-            );
-        }
+        this.firebaseAuth = firebaseAuth;
     }
 
-    public LiveData<Map<String, Object>> getChosenRestaurantLiveData() {
+    public LiveData<Map<String, String>> getChosenRestaurantLiveData() {
         return chosenRestaurantLiveData;
     }
 
@@ -64,62 +50,18 @@ public class UserRepositoryImplementation implements UserRepository {
     }
 
     @Override
-    public void initCurrentUser() {
-        // Search for user on database
-        firestoreDb.collection("users")
-            .whereEqualTo("id", currentUser.getId())
-            .get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    for (DocumentSnapshot snapshot : task.getResult()) {
-                        if (snapshot.getId().equals(currentUser.getId())) {
-                            Log.d(TAG, "User already exists");
-                        }
-                    }
+    public void createFirestoreUser() {
+         FirebaseUser firebaseUser = firebaseAuth.getCurrentUser();
 
-                    // If user already exists, retrieve their data
-                    // Requests user's chosen restaurant data
-                    if (currentUser.getId() != null) {
-                        firestoreDb.collection("users").document(currentUser.getId()).collection("chosenRestaurant").document("value")
-                            .get()
-                            .addOnCompleteListener(task2 -> {
-                                if (task2.isSuccessful()) {
-                                    chosenRestaurantLiveData.setValue(task2.getResult().getData());
-                                }
-
-                                // Requests user's favorite restaurants data
-                                List<String> favoriteRestaurants = new ArrayList<>();
-                                firestoreDb.collection("users").document(currentUser.getId()).collection("favoriteRestaurants")
-                                    .get()
-                                    .addOnCompleteListener(task3 -> {
-                                        if (task3.isSuccessful()) {
-                                            for (DocumentSnapshot documentSnapshot : task3.getResult().getDocuments()) {
-                                                favoriteRestaurants.add(documentSnapshot.getId());
-                                            }
-                                        }
-
-                                        // Updates current user data
-                                        favoriteRestaurantsLiveData.setValue(favoriteRestaurants);
-                                    });
-                            });
-                    }
-
-                }
-                // If user does not exists, push their basic info to database
-                if (task.getResult().size() == 0) {
-                    if (currentUser.getId() != null) {
-                        firestoreDb.collection("users")
-                            .document(currentUser.getId())
-                            .set(currentUser)
-                            .addOnSuccessListener(documentReference -> Log.d(TAG, "User successfully added"))
-                            .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
-                    }
-                }
-            });
+         if (firebaseUser != null) {
+             firestoreDb.collection("users")
+                 .document(firebaseUser.getUid())
+                 .set(map(firebaseUser));
+         }
     }
 
     @Override
-    public WorkmateResponse getCurrentUser() {
+    public LiveData<WorkmateResponse> getCurrentUser() {
         return currentUser;
     }
 
@@ -130,9 +72,10 @@ public class UserRepositoryImplementation implements UserRepository {
 
         // Removes current user from any previously chosen restaurant users
         if (chosenRestaurantLiveData.getValue() != null) {
-            String previousRestaurantId = chosenRestaurantLiveData.getValue().keySet().toArray()[0].toString();
+            String previousRestaurantId = chosenRestaurantLiveData.getValue().keySet().toArray()[0];
             firestoreDb.collection("restaurants")
-                .document(previousRestaurantId).collection("users")
+                .document(previousRestaurantId)
+                .collection("users")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
@@ -266,4 +209,14 @@ public class UserRepositoryImplementation implements UserRepository {
         }
     }
 
+    private WorkmateResponse map(@NonNull FirebaseUser firebaseUser) {
+        final Uri photoUrl = firebaseUser.getPhotoUrl();
+
+        return new WorkmateResponse(
+            firebaseUser.getUid(),
+            firebaseUser.getDisplayName(),
+            firebaseUser.getEmail(),
+            photoUrl != null ? photoUrl.toString() : null
+        );
+    }
 }

@@ -56,16 +56,12 @@ public abstract class FirestoreCollectionLiveData<Response, Entity> extends Live
 
     @Override
     protected void onActive() {
-        super.onActive();
         registration = collectionReference.addSnapshotListener(eventListener);
     }
 
     @Override
     protected void onInactive() {
-        super.onInactive();
-        if (!hasActiveObservers()) {
-            registration.remove();
-            registration = null;
-        }
+        registration.remove();
+        registration = null;
     }
 }

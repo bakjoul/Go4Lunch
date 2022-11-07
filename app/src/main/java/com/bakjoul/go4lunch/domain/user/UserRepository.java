@@ -1,20 +1,21 @@
 package com.bakjoul.go4lunch.domain.user;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 
 import com.bakjoul.go4lunch.data.workmates.WorkmateResponse;
 
 public interface UserRepository {
 
-    void initCurrentUser();
+    public void createFirestoreUser();
 
-    WorkmateResponse getCurrentUser();
+    public LiveData<WorkmateResponse> getCurrentUser();
 
-    void chooseRestaurant(@NonNull String restaurantId, @NonNull String restaurantName);
+    public void chooseRestaurant(@NonNull String restaurantId, @NonNull String restaurantName);
 
-    void unchooseRestaurant(@NonNull String restaurantId);
+    public void unchooseRestaurant(@NonNull String restaurantId);
 
-    void addRestaurantToFavorites(@NonNull String restaurantId, @NonNull String restaurantName);
+    public void addRestaurantToFavorites(@NonNull String restaurantId, @NonNull String restaurantName);
 
-    void removeRestaurantFromFavorites(@NonNull String restaurantId);
+    public void removeRestaurantFromFavorites(@NonNull String restaurantId);
 }

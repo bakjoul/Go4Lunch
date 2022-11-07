@@ -31,6 +31,7 @@ import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -112,7 +113,7 @@ public class MapViewModel extends ViewModel {
             }
         );
 
-        LiveData<List<String>> chosenRestaurantsLiveData = workmateRepositoryImplementation.getChosenRestaurantsLiveData();
+        LiveData<Collection<String>> chosenRestaurantsLiveData = workmateRepositoryImplementation.getChosenRestaurantsLiveData();
 
         mapViewStateMediatorLiveData.addSource(isMapReadyMutableLiveData, isMapReady ->
             combine(isMapReady, responseWrapperLiveData.getValue(), chosenRestaurantsLiveData.getValue())
@@ -120,9 +121,9 @@ public class MapViewModel extends ViewModel {
         mapViewStateMediatorLiveData.addSource(responseWrapperLiveData, responseWrapper ->
             combine(isMapReadyMutableLiveData.getValue(), responseWrapper, chosenRestaurantsLiveData.getValue())
         );
-        mapViewStateMediatorLiveData.addSource(chosenRestaurantsLiveData, new Observer<List<String>>() {
+        mapViewStateMediatorLiveData.addSource(chosenRestaurantsLiveData, new Observer<Collection<String>>() {
             @Override
-            public void onChanged(List<String> chosenRestaurants) {
+            public void onChanged(Collection<String> chosenRestaurants) {
                 Log.d("test", "onChanged: " + chosenRestaurants);
                 combine(isMapReadyMutableLiveData.getValue(), responseWrapperLiveData.getValue(), chosenRestaurants);
             }
@@ -132,7 +133,7 @@ public class MapViewModel extends ViewModel {
     private void combine(
         @Nullable Boolean isMapReady,
         @Nullable RestaurantResponseWrapper restaurantResponseWrapper,
-        @Nullable List<String> chosenRestaurants) {
+        @Nullable Collection<String> chosenRestaurants) {
         if (isMapReady == null || restaurantResponseWrapper == null || chosenRestaurants == null) {
             return;
         }
@@ -170,7 +171,7 @@ public class MapViewModel extends ViewModel {
     private void map(
         @NonNull RestaurantResponseWrapper restaurantResponseWrapper,
         @NonNull List<RestaurantMarker> restaurantsMarkers,
-        @NonNull List<String> chosenRestaurants
+        @NonNull Collection<String> chosenRestaurants
     ) {
         if (restaurantResponseWrapper.getNearbySearchResponse() != null) {
             for (RestaurantResponse response : restaurantResponseWrapper.getNearbySearchResponse().getResults()) {
@@ -178,12 +179,10 @@ public class MapViewModel extends ViewModel {
 
                     int drawableRes = R.drawable.ic_restaurant_red_marker;
 
-                    if (!chosenRestaurants.isEmpty()) {
-                        for (String id : chosenRestaurants) {
-                            if (id.equals(response.getPlaceId())) {
-                                drawableRes = R.drawable.ic_restaurant_green_marker;
-                                break;
-                            }
+                    for (String id : chosenRestaurants) {
+                        if (id.equals(response.getPlaceId())) {
+                            drawableRes = R.drawable.ic_restaurant_green_marker;
+                            break;
                         }
                     }
 

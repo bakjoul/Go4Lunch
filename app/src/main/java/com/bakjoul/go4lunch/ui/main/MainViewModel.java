@@ -68,7 +68,7 @@ public class MainViewModel extends ViewModel {
         this.locationPermissionRepository = locationPermissionRepository;
 
         if (firebaseAuth.getCurrentUser() != null) {
-            userRepositoryImplementation.initCurrentUser();
+            userRepositoryImplementation.createFirestoreUser();
 
             mainActivityViewStateLiveData.setValue(
                 new MainViewState(

@@ -54,9 +54,7 @@ public abstract class FirestoreDocumentLiveData<Response, Entity> extends LiveDa
     @Override
     protected void onInactive() {
         super.onInactive();
-        if (!hasActiveObservers()) {
-            registration.remove();
-            registration = null;
-        }
+        registration.remove();
+        registration = null;
     }
 }
