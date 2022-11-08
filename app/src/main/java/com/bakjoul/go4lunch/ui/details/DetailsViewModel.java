@@ -29,9 +29,9 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.inject.Inject;
@@ -77,15 +77,15 @@ public class DetailsViewModel extends ViewModel {
         restaurantId = savedStateHandle.get(KEY);
 
         final LiveData<DetailsResponse> detailsResponseLiveData;
-        final LiveData<Map<String, Object>> chosenRestaurantLiveData;
-        final LiveData<List<String>> favoriteRestaurantsLiveData;
         final LiveData<List<WorkmateEntity>> workmatesLiveData;
+        final LiveData<String> chosenRestaurantLiveData;
+        final LiveData<Collection<String>> favoriteRestaurantsLiveData;
 
         if (restaurantId != null) {
             detailsResponseLiveData = restaurantDetailsRepository.getDetailsResponse(restaurantId, BuildConfig.MAPS_API_KEY);
             workmatesLiveData = workmateRepositoryImplementation.getWorkmatesForRestaurantIdLiveData(restaurantId);
             chosenRestaurantLiveData = userRepositoryImplementation.getChosenRestaurantLiveData();
-            favoriteRestaurantsLiveData = userRepositoryImplementation.getFavoriteRestaurantsLiveData();
+            favoriteRestaurantsLiveData = userRepositoryImplementation.getFavoritesRestaurantsLiveData();
 
             detailsViewStateMediatorLiveData.addSource(detailsResponseLiveData, detailsResponse ->
                 combine(detailsResponse, workmatesLiveData.getValue(), chosenRestaurantLiveData.getValue(), favoriteRestaurantsLiveData.getValue())
@@ -105,10 +105,10 @@ public class DetailsViewModel extends ViewModel {
     private void combine(
         @Nullable DetailsResponse response,
         @Nullable List<WorkmateEntity> workmates,
-        @Nullable Map<String, Object> chosenRestaurant,
-        @Nullable List<String> favoriteRestaurants
+        @Nullable String chosenRestaurant,
+        @Nullable Collection<String> favoriteRestaurants
     ) {
-        if (response == null || workmates == null) {
+        if (response == null || workmates == null || chosenRestaurant == null || favoriteRestaurants == null) {
             return;
         }
 
@@ -116,22 +116,15 @@ public class DetailsViewModel extends ViewModel {
         boolean isRestaurantFavorite = false;
 
         // Checks if current restaurant is chosen by user
-        if (chosenRestaurant != null) {
-            for (String id : chosenRestaurant.keySet()) {
-                if (id.equals(restaurantId)) {
-                    isRestaurantChosen = true;
-                    break;
-                }
-            }
+        if (chosenRestaurant.equals(restaurantId)) {
+            isRestaurantChosen = true;
         }
 
         // Checks if current restaurant is in user's favorites
-        if (favoriteRestaurants != null) {
-            for (String id : favoriteRestaurants) {
-                if (id.equals(restaurantId)) {
-                    isRestaurantFavorite = true;
-                    break;
-                }
+        for (String id : favoriteRestaurants) {
+            if (id.equals(restaurantId)) {
+                isRestaurantFavorite = true;
+                break;
             }
         }
 

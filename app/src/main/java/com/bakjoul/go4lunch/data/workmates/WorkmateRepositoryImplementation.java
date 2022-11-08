@@ -3,8 +3,8 @@ package com.bakjoul.go4lunch.data.workmates;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 
-import com.bakjoul.go4lunch.data.FirestoreCollectionIdsLiveData;
-import com.bakjoul.go4lunch.data.FirestoreCollectionLiveData;
+import com.bakjoul.go4lunch.data.utils.FirestoreCollectionIdsLiveData;
+import com.bakjoul.go4lunch.data.utils.FirestoreCollectionLiveData;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.google.firebase.auth.FirebaseAuth;

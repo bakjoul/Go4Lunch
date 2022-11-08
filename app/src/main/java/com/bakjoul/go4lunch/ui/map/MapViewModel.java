@@ -5,14 +5,12 @@ import static com.bakjoul.go4lunch.data.restaurants.RestaurantRepository.TYPE;
 
 import android.location.Location;
 import android.location.LocationManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
@@ -121,13 +119,9 @@ public class MapViewModel extends ViewModel {
         mapViewStateMediatorLiveData.addSource(responseWrapperLiveData, responseWrapper ->
             combine(isMapReadyMutableLiveData.getValue(), responseWrapper, chosenRestaurantsLiveData.getValue())
         );
-        mapViewStateMediatorLiveData.addSource(chosenRestaurantsLiveData, new Observer<Collection<String>>() {
-            @Override
-            public void onChanged(Collection<String> chosenRestaurants) {
-                Log.d("test", "onChanged: " + chosenRestaurants);
-                combine(isMapReadyMutableLiveData.getValue(), responseWrapperLiveData.getValue(), chosenRestaurants);
-            }
-        });
+        mapViewStateMediatorLiveData.addSource(chosenRestaurantsLiveData, chosenRestaurants ->
+            combine(isMapReadyMutableLiveData.getValue(), responseWrapperLiveData.getValue(), chosenRestaurants)
+        );
     }
 
     private void combine(
@@ -178,7 +172,6 @@ public class MapViewModel extends ViewModel {
                 if (response.getBusinessStatus() != null && response.getBusinessStatus().equals("OPERATIONAL")) {
 
                     int drawableRes = R.drawable.ic_restaurant_red_marker;
-
                     for (String id : chosenRestaurants) {
                         if (id.equals(response.getPlaceId())) {
                             drawableRes = R.drawable.ic_restaurant_green_marker;

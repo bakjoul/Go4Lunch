@@ -6,9 +6,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,20 +21,20 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class WorkmatesViewModel extends ViewModel {
 
     @NonNull
-    private final UserRepositoryImplementation userRepositoryImplementation;
+    private final WorkmateRepositoryImplementation workmateRepositoryImplementation;
 
     @NonNull
-    private final WorkmateRepositoryImplementation workmateRepositoryImplementation;
+    private final FirebaseAuth firebaseAuth;
 
     private final LiveData<WorkmatesViewState> workmatesViewStateMutableLiveData;
 
     @Inject
     public WorkmatesViewModel(
-        @NonNull UserRepositoryImplementation userRepositoryImplementation,
-        @NonNull WorkmateRepositoryImplementation workmateRepositoryImplementation
+        @NonNull WorkmateRepositoryImplementation workmateRepositoryImplementation,
+        @NonNull FirebaseAuth firebaseAuth
     ) {
-        this.userRepositoryImplementation = userRepositoryImplementation;
         this.workmateRepositoryImplementation = workmateRepositoryImplementation;
+        this.firebaseAuth = firebaseAuth;
 
         workmatesViewStateMutableLiveData = Transformations.switchMap(
             getWorkmatesLiveData(),
@@ -52,7 +52,8 @@ public class WorkmatesViewModel extends ViewModel {
             workmateRepositoryImplementation.getAvailableWorkmatesLiveData(), workmateList -> {
                 List<WorkmatesItemViewState> workmatesItemViewStateList = new ArrayList<>();
                 for (WorkmateEntity workmateEntity : workmateList) {
-                    if (!workmateEntity.getId().equals(userRepositoryImplementation.getCurrentUser().getId())) {
+                    if (firebaseAuth.getCurrentUser() != null
+                        && !workmateEntity.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
                         WorkmatesItemViewState workmatesItemViewState = new WorkmatesItemViewState(
                             workmateEntity.getId(),
                             workmateEntity.getPhotoUrl(),

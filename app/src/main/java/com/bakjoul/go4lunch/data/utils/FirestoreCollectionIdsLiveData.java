@@ -1,14 +1,12 @@
-package com.bakjoul.go4lunch.data;
+package com.bakjoul.go4lunch.data.utils;
 
 import android.util.Log;
 
-import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 
@@ -32,7 +30,6 @@ public class FirestoreCollectionIdsLiveData extends LiveData<Collection<String>>
             for (DocumentSnapshot document : querySnapshot.getDocuments()) {
                 ids.add(document.getId());
             }
-            Log.d("test", "onEvent: " + ids); // TODO DELETE ?
 
             setValue(ids);
         }

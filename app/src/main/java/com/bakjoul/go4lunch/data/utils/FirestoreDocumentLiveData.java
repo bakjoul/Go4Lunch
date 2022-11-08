@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.data;
+package com.bakjoul.go4lunch.data.utils;
 
 import android.util.Log;
 
