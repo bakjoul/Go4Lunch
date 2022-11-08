@@ -132,7 +132,9 @@ public class UserRepositoryImplementation implements UserRepository {
         }
 
         // Creates restaurant document
-        firestoreDb.collection("restaurants").document(restaurantId).set(chosenRestaurantData).addOnCompleteListener(task -> {
+        final Map<String, Object> restaurantDocumentData = new HashMap<>();
+        restaurantDocumentData.put("restaurantName", restaurantName);
+        firestoreDb.collection("restaurants").document(restaurantId).set(restaurantDocumentData).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 // Adds current user to newly chosen restaurant users
                 firestoreDb.collection("restaurants").document(restaurantId)
