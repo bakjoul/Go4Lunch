@@ -154,6 +154,7 @@ public class DetailsViewModel extends ViewModel {
         boolean isRestaurantFavorite
     ) {
         RestaurantDetailsResponse r = response.getResult();
+        List<DetailsItemViewState> workmatesList = mapWorkmates(workmates);
         return new DetailsViewState(
             r.getPlaceId(),
             getPhotoUrl(r.getPhotoResponses()),
@@ -167,8 +168,8 @@ public class DetailsViewModel extends ViewModel {
             isRestaurantChosen,
             isRestaurantFavorite,
             false,
-            mapWorkmates(workmates)
-        );
+            workmatesList,
+            workmatesList.isEmpty());
     }
 
     @NonNull
@@ -201,8 +202,8 @@ public class DetailsViewModel extends ViewModel {
             false,
             false,
             false,
-            new ArrayList<>()
-        );
+            new ArrayList<>(),
+            true);
     }
 
     @Nullable

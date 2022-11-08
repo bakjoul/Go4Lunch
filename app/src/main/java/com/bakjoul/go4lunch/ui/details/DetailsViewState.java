@@ -41,7 +41,9 @@ public class DetailsViewState {
 
     private final List<DetailsItemViewState> workmatesList;
 
-    public DetailsViewState(@Nullable String id, @Nullable String photoUrl, @Nullable String name, float rating, boolean isRatingBarVisible, @Nullable String address, @Nullable String openingStatus, @Nullable String phoneNumber, @Nullable String websiteUrl, boolean isChosen, boolean isFavorite, boolean isProgressBarVisible, List<DetailsItemViewState> workmatesList) {
+    private final boolean isWorkmatesListEmptyStateVisible;
+
+    public DetailsViewState(@Nullable String id, @Nullable String photoUrl, @Nullable String name, float rating, boolean isRatingBarVisible, @Nullable String address, @Nullable String openingStatus, @Nullable String phoneNumber, @Nullable String websiteUrl, boolean isChosen, boolean isFavorite, boolean isProgressBarVisible, List<DetailsItemViewState> workmatesList, boolean isWorkmatesListEmptyStateVisible) {
         this.id = id;
         this.photoUrl = photoUrl;
         this.name = name;
@@ -55,6 +57,7 @@ public class DetailsViewState {
         this.isFavorite = isFavorite;
         this.isProgressBarVisible = isProgressBarVisible;
         this.workmatesList = workmatesList;
+        this.isWorkmatesListEmptyStateVisible = isWorkmatesListEmptyStateVisible;
     }
 
     @Nullable
@@ -108,12 +111,16 @@ public class DetailsViewState {
         return isFavorite;
     }
 
-    public boolean isProgressBarVisible() {
-        return isProgressBarVisible;
+    public boolean isProgressBarGone() {
+        return !isProgressBarVisible;
     }
 
     public List<DetailsItemViewState> getWorkmatesList() {
         return workmatesList;
+    }
+
+    public boolean isWorkmatesListEmptyStateVisible() {
+        return isWorkmatesListEmptyStateVisible;
     }
 
     @Override
@@ -121,12 +128,12 @@ public class DetailsViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         DetailsViewState that = (DetailsViewState) o;
-        return Float.compare(that.rating, rating) == 0 && isRatingBarVisible == that.isRatingBarVisible && isChosen == that.isChosen && isFavorite == that.isFavorite && isProgressBarVisible == that.isProgressBarVisible && Objects.equals(id, that.id) && Objects.equals(photoUrl, that.photoUrl) && Objects.equals(name, that.name) && Objects.equals(address, that.address) && Objects.equals(openingStatus, that.openingStatus) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(websiteUrl, that.websiteUrl) && Objects.equals(workmatesList, that.workmatesList);
+        return Float.compare(that.rating, rating) == 0 && isRatingBarVisible == that.isRatingBarVisible && isChosen == that.isChosen && isFavorite == that.isFavorite && isProgressBarVisible == that.isProgressBarVisible && isWorkmatesListEmptyStateVisible == that.isWorkmatesListEmptyStateVisible && Objects.equals(id, that.id) && Objects.equals(photoUrl, that.photoUrl) && Objects.equals(name, that.name) && Objects.equals(address, that.address) && Objects.equals(openingStatus, that.openingStatus) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(websiteUrl, that.websiteUrl) && Objects.equals(workmatesList, that.workmatesList);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, photoUrl, name, rating, isRatingBarVisible, address, openingStatus, phoneNumber, websiteUrl, isChosen, isFavorite, isProgressBarVisible, workmatesList);
+        return Objects.hash(id, photoUrl, name, rating, isRatingBarVisible, address, openingStatus, phoneNumber, websiteUrl, isChosen, isFavorite, isProgressBarVisible, workmatesList, isWorkmatesListEmptyStateVisible);
     }
 
     @NonNull
@@ -146,6 +153,7 @@ public class DetailsViewState {
             ", isFavorite=" + isFavorite +
             ", isProgressBarVisible=" + isProgressBarVisible +
             ", workmatesList=" + workmatesList +
+            ", isWorkmatesListEmptyStateVisible=" + isWorkmatesListEmptyStateVisible +
             '}';
     }
 }

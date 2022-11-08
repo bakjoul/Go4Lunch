@@ -154,6 +154,7 @@
         android:layout_marginEnd="16dp"
         android:backgroundTint="@color/white"
         android:contentDescription="@string/details_select_restaurant_desc"
+        android:enabled="false"
         android:src="@drawable/ic_baseline_check_circle_24"
         app:layout_anchor="@id/details_toolbar"
         app:layout_anchorGravity="top|right" />
@@ -174,6 +175,7 @@
         app:tint="@color/white" />
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/details_NestedScrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -185,6 +187,17 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/activity_details_item" />
     </androidx.core.widget.NestedScrollView>
+
+    <TextView
+        android:id="@+id/details_workmates_empty"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingTop="100dp"
+        android:text="@string/workmates_empty"
+        android:textSize="22sp"
+        android:visibility="gone"
+        app:layout_anchor="@id/details_NestedScrollView"
+        app:layout_anchorGravity="top|center_horizontal" />
 
     <ProgressBar
         android:id="@+id/details_ProgressBar"

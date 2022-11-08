@@ -58,9 +58,15 @@ public class DetailsActivity extends AppCompatActivity {
         ImageView photo = binding.detailsRestaurantPhoto;
 
         viewModel.getDetailsViewStateMediatorLiveData().observe(this, viewState -> {
-            if (!viewState.isProgressBarVisible()) {
+            if (viewState.isProgressBarGone()) {
                 binding.detailsProgressBar.setVisibility(View.GONE);
             }
+            if (viewState.isWorkmatesListEmptyStateVisible()) {
+                binding.detailsWorkmatesEmpty.setVisibility(View.VISIBLE);
+            } else {
+                binding.detailsWorkmatesEmpty.setVisibility(View.GONE);
+            }
+
             Glide.with(photo.getContext())
                 .load(viewState.getPhotoUrl())
                 .centerCrop()
@@ -119,8 +125,8 @@ public class DetailsActivity extends AppCompatActivity {
         });
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
     private void setChooseButton(DetailsViewModel viewModel, @NonNull DetailsViewState viewState) {
+        binding.detailsFabSelect.setEnabled(viewState.isProgressBarGone());
         binding.detailsFabSelect.setSelected(viewState.isChosen());
         if (binding.detailsFabSelect.isSelected()) {
             binding.detailsFabSelect.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.green));
@@ -137,10 +143,9 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void setCallButton(@NonNull DetailsViewState viewState) {
-        if (viewState.getPhoneNumber() == null) {
-            binding.detailsButtonCall.setEnabled(false);
-            binding.detailsButtonCall.setAlpha(0.25f);
-        } else {
+        if (viewState.isProgressBarGone() && viewState.getPhoneNumber() != null) {
+            binding.detailsButtonCall.setEnabled(true);
+            binding.detailsButtonCall.setAlpha(1);
             binding.detailsButtonCall.setOnClickListener(view -> {
                 Intent intent = new Intent(Intent.ACTION_DIAL, Uri.fromParts("tel", viewState.getPhoneNumber(), null));
                 DetailsActivity.this.startActivity(intent);
@@ -149,21 +154,24 @@ public class DetailsActivity extends AppCompatActivity {
     }
 
     private void setLikeButton(DetailsViewModel viewModel, @NonNull DetailsViewState viewState) {
-        binding.detailsButtonLike.setSelected(viewState.isFavorite());
-        binding.detailsButtonLike.setOnClickListener(view -> {
-            if (binding.detailsButtonLike.isSelected()) {
-                viewModel.onUnfavoriteButtonClicked(viewState.getId());
-            } else {
-                viewModel.onFavoriteButtonClicked(viewState.getId(), viewState.getName());
-            }
-        });
+        if (viewState.isProgressBarGone()) {
+            binding.detailsButtonLike.setEnabled(true);
+            binding.detailsButtonLike.setAlpha(1);
+            binding.detailsButtonLike.setSelected(viewState.isFavorite());
+            binding.detailsButtonLike.setOnClickListener(view -> {
+                if (binding.detailsButtonLike.isSelected()) {
+                    viewModel.onUnfavoriteButtonClicked(viewState.getId());
+                } else {
+                    viewModel.onFavoriteButtonClicked(viewState.getId(), viewState.getName());
+                }
+            });
+        }
     }
 
     private void setWebsiteButton(@NonNull DetailsViewState viewState) {
-        if (viewState.getWebsiteUrl() == null) {
-            binding.detailsButtonWebsite.setEnabled(false);
-            binding.detailsButtonWebsite.setAlpha(0.25f);
-        } else {
+        if (viewState.isProgressBarGone() && viewState.getWebsiteUrl() != null) {
+            binding.detailsButtonWebsite.setEnabled(true);
+            binding.detailsButtonWebsite.setAlpha(1);
             binding.detailsButtonWebsite.setOnClickListener(view -> {
                 Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(viewState.getWebsiteUrl()));
                 startActivity(intent);
