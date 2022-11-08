@@ -151,7 +151,8 @@ public class DetailsViewModel extends ViewModel {
         @NonNull DetailsResponse response,
         @NonNull List<WorkmateEntity> workmates,
         boolean isRestaurantChosen,
-        boolean isRestaurantFavorite) {
+        boolean isRestaurantFavorite
+    ) {
         RestaurantDetailsResponse r = response.getResult();
         return new DetailsViewState(
             r.getPlaceId(),

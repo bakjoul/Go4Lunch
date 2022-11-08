@@ -19,8 +19,6 @@ import javax.inject.Singleton;
 @Singleton
 public class WorkmateRepositoryImplementation implements WorkmateRepository {
 
-    private static final String TAG = "WorkmateRepositoryImple";
-
     @NonNull
     private final FirebaseFirestore firestoreDb;
 

@@ -3,13 +3,15 @@ package com.bakjoul.go4lunch.domain.user;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 
+import com.bakjoul.go4lunch.data.workmates.WorkmateResponse;
+
 import java.util.Collection;
 
 public interface UserRepository {
 
     void createFirestoreUser();
 
-    /*LiveData<WorkmateResponse> getCurrentUser();*/
+    WorkmateResponse getCurrentUser();
 
     LiveData<String> getChosenRestaurantLiveData();
 

@@ -63,18 +63,17 @@ public class UserRepositoryImplementation implements UserRepository {
         return null;
     }
 
-/*    @Override
-    public LiveData<WorkmateResponse> getCurrentUser() {
+    @Override
+    public WorkmateResponse getCurrentUser() {
         final Uri photoUrl = firebaseAuth.getCurrentUser() != null ? firebaseAuth.getCurrentUser().getPhotoUrl() : null;
-        final WorkmateResponse currentUser = new WorkmateResponse(
+
+        return new WorkmateResponse(
             firebaseAuth.getCurrentUser().getUid(),
             firebaseAuth.getCurrentUser().getDisplayName(),
             firebaseAuth.getCurrentUser().getEmail(),
             photoUrl != null ? photoUrl.toString() : null
         );
-
-        return new MutableLiveData<>(currentUser);
-    }*/
+    }
 
     @Override
     public void chooseRestaurant(@NonNull String restaurantId, @NonNull String restaurantName) {
@@ -135,13 +134,11 @@ public class UserRepositoryImplementation implements UserRepository {
         // Creates restaurant document
         firestoreDb.collection("restaurants").document(restaurantId).set(chosenRestaurantData).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
-                final Map<String, Object> userData = new HashMap<>();
-                userData.put("username", firebaseAuth.getCurrentUser().getDisplayName());
                 // Adds current user to newly chosen restaurant users
                 firestoreDb.collection("restaurants").document(restaurantId)
                     .collection("users")
                     .document(firebaseAuth.getCurrentUser().getUid())
-                    .set(userData)
+                    .set(getCurrentUser())
                     .addOnCompleteListener(documentReference -> Log.d(TAG, "User " + firebaseAuth.getCurrentUser().getDisplayName() + " added to restaurant " + restaurantId + " users"))
                     .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
             }
