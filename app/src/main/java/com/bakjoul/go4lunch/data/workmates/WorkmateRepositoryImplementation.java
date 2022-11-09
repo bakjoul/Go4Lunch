@@ -63,7 +63,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     }
 
     @Override
-    public LiveData<Collection<String>> getChosenRestaurantsLiveData() {
+    public LiveData<Collection<String>> getAllChosenRestaurantsLiveData() {
         return new FirestoreCollectionIdsLiveData(firestoreDb.collection("restaurants"));
     }
 

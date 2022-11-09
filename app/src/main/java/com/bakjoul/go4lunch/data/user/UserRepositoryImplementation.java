@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 
 import com.bakjoul.go4lunch.data.utils.FirestoreCollectionIdsLiveData;
-import com.bakjoul.go4lunch.data.utils.FirestoreStringIdLiveData;
+import com.bakjoul.go4lunch.data.utils.FirestoreSingleIdLiveData;
 import com.bakjoul.go4lunch.data.workmates.WorkmateResponse;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
 import com.google.firebase.auth.FirebaseAuth;
@@ -55,7 +55,7 @@ public class UserRepositoryImplementation implements UserRepository {
     @Override
     public LiveData<String> getChosenRestaurantLiveData() {
         if (firebaseAuth.getCurrentUser() != null) {
-            return new FirestoreStringIdLiveData(
+            return new FirestoreSingleIdLiveData(
                 firestoreDb.collection("users").document(firebaseAuth.getCurrentUser().getUid())
                     .collection("chosenRestaurant").document("value")
             );

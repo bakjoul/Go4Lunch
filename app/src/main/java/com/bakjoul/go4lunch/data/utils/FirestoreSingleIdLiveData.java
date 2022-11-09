@@ -11,9 +11,9 @@ import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.Map;
 
-public class FirestoreStringIdLiveData extends LiveData<String> {
+public class FirestoreSingleIdLiveData extends LiveData<String> {
 
-    private static final String TAG = "FirestoreStringIdLiveDa";
+    private static final String TAG = "FirestoreSingleIdLiveDa";
 
     private final DocumentReference documentReference;
     private final EventListener<DocumentSnapshot> eventListener = (documentSnapshot, error) -> {
@@ -35,7 +35,7 @@ public class FirestoreStringIdLiveData extends LiveData<String> {
 
     private ListenerRegistration registration;
 
-    public FirestoreStringIdLiveData(DocumentReference documentReference) {
+    public FirestoreSingleIdLiveData(DocumentReference documentReference) {
         this.documentReference = documentReference;
     }
 

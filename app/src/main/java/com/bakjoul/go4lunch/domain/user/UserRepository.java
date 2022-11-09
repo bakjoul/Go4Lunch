@@ -11,17 +11,17 @@ public interface UserRepository {
 
     void createFirestoreUser();
 
-    WorkmateResponse getCurrentUser();
-
-    LiveData<String> getChosenRestaurantLiveData();
-
     void chooseRestaurant(@NonNull String restaurantId, @NonNull String restaurantName);
 
     void unchooseRestaurant(@NonNull String restaurantId);
 
-    LiveData<Collection<String>> getFavoritesRestaurantsLiveData();
-
     void addRestaurantToFavorites(@NonNull String restaurantId, @NonNull String restaurantName);
 
     void removeRestaurantFromFavorites(@NonNull String restaurantId);
+
+    WorkmateResponse getCurrentUser();
+
+    LiveData<String> getChosenRestaurantLiveData();
+
+    LiveData<Collection<String>> getFavoritesRestaurantsLiveData();
 }

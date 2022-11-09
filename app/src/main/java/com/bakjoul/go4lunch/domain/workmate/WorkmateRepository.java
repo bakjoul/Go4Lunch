@@ -9,7 +9,7 @@ public interface WorkmateRepository {
 
     LiveData<List<WorkmateEntity>> getAvailableWorkmatesLiveData();
 
-    LiveData<Collection<String>> getChosenRestaurantsLiveData();
+    LiveData<Collection<String>> getAllChosenRestaurantsLiveData();
 
     LiveData<List<WorkmateEntity>> getWorkmatesForRestaurantIdLiveData(String restaurantId);
 

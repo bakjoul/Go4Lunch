@@ -67,7 +67,7 @@ public class RestaurantRepository {
 
             @Override
             public void onFailure(@NonNull Call<NearbySearchResponse> call, @NonNull Throwable t) {
-               Log.d(TAG, "onFailure: ");
+               Log.d(TAG, "onFailure: "+t.getMessage());
                if (t instanceof IOException) {
                   wrapperMutableLiveData.setValue(
                       new RestaurantResponseWrapper(
