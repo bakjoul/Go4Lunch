@@ -172,11 +172,8 @@ public class MapViewModel extends ViewModel {
                 if (response.getBusinessStatus() != null && response.getBusinessStatus().equals("OPERATIONAL")) {
 
                     int drawableRes = R.drawable.ic_restaurant_red_marker;
-                    for (String id : chosenRestaurants) {
-                        if (id.equals(response.getPlaceId())) {
-                            drawableRes = R.drawable.ic_restaurant_green_marker;
-                            break;
-                        }
+                    if (chosenRestaurants.contains(response.getPlaceId())) {
+                        drawableRes = R.drawable.ic_restaurant_green_marker;
                     }
 
                     restaurantsMarkers.add(

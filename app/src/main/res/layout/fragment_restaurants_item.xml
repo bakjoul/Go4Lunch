@@ -77,12 +77,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:gravity="bottom"
-        android:textSize="11sp"
+        android:textSize="12sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/restaurants_item_location"
         app:layout_constraintEnd_toEndOf="@+id/restaurants_item_distance"
         app:layout_constraintTop_toBottomOf="@id/restaurants_item_distance"
-        tools:drawableStartCompat="@drawable/ic_baseline_person_outline_16"
         tools:text="(6)" />
 
     <RatingBar

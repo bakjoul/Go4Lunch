@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 public interface WorkmateRepository {
 
@@ -14,5 +15,7 @@ public interface WorkmateRepository {
     LiveData<Collection<String>> getWorkmatesChosenRestaurantsLiveData();
 
     LiveData<List<WorkmateEntity>> getWorkmatesForRestaurantIdLiveData(String restaurantId);
+
+    LiveData<Map<String, Integer>> getRestaurantsAttendance();
 
 }

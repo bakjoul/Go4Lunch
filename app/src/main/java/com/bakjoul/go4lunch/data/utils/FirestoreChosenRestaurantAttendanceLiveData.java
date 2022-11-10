@@ -14,13 +14,12 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.ListenerRegistration;
 import com.google.firebase.firestore.QuerySnapshot;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
 
-public class FirestoreRestaurantCollectionIdsLiveData extends LiveData<Collection<String>> {
+public class FirestoreChosenRestaurantAttendanceLiveData extends LiveData<Map<String, Integer>> {
 
-    private static final String TAG = "FirestoreColIdsLiveData";
+    private static final String TAG = "FirestoreAttendanceLive";
 
     private final CollectionReference collectionReference;
     private FirebaseFirestore firestoreDb;
@@ -32,7 +31,7 @@ public class FirestoreRestaurantCollectionIdsLiveData extends LiveData<Collectio
         }
 
         if (querySnapshot != null) {
-            Set<String> ids = new HashSet<>(querySnapshot.size());
+            Map<String, Integer> restaurantsAttendance = new HashMap<>(querySnapshot.size());
             for (DocumentSnapshot document : querySnapshot.getDocuments()) {
                 firestoreDb.collection("restaurants").document(document.getId()).collection("users")
                     .get()
@@ -40,26 +39,31 @@ public class FirestoreRestaurantCollectionIdsLiveData extends LiveData<Collectio
                         @Override
                         public void onComplete(@NonNull Task<QuerySnapshot> task) {
                             if (task.isSuccessful() && task.getResult().size() > 0) {
+                                int attendance = task.getResult().size();
                                 for (DocumentSnapshot documentSnapshot : task.getResult().getDocuments()) {
-                                    if (task.getResult().size() > 1 || (task.getResult().size() == 1 && !documentSnapshot.getId().equals(userId))) {
-                                        ids.add(document.getId());
+                                    if (documentSnapshot.getId().equals(userId)) {
+                                        attendance -= 1;
                                     }
                                 }
+                                if (attendance > 0) {
+                                    restaurantsAttendance.put(document.getId(), attendance);
+                                }
                             }
-                            setValue(ids);
+                            setValue(restaurantsAttendance);
                         }
                     });
             }
-            setValue(ids);
+            setValue(restaurantsAttendance);
         }
     };
 
     private ListenerRegistration registration;
 
-    public FirestoreRestaurantCollectionIdsLiveData(
+    public FirestoreChosenRestaurantAttendanceLiveData(
         CollectionReference collectionReference,
         FirebaseFirestore firestoreDb,
-        String userId) {
+        String userId
+    ) {
         this.collectionReference = collectionReference;
         this.firestoreDb = firestoreDb;
         this.userId = userId;

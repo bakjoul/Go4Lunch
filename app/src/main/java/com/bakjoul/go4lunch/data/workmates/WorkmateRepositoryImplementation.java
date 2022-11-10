@@ -4,17 +4,20 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bakjoul.go4lunch.data.utils.FirestoreChosenRestaurantAttendanceLiveData;
 import com.bakjoul.go4lunch.data.utils.FirestoreCollectionIdsLiveData;
 import com.bakjoul.go4lunch.data.utils.FirestoreCollectionLiveData;
-import com.bakjoul.go4lunch.data.utils.FirestoreRestaurantCollectionIdsLiveData;
+import com.bakjoul.go4lunch.data.utils.FirestoreChosenRestaurantIdsLiveData;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -73,7 +76,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     @Override
     public LiveData<Collection<String>> getWorkmatesChosenRestaurantsLiveData() {
         if (firebaseAuth.getCurrentUser() != null) {
-            return new FirestoreRestaurantCollectionIdsLiveData(
+            return new FirestoreChosenRestaurantIdsLiveData(
                 firestoreDb.collection("restaurants"),
                 firestoreDb,
                 firebaseAuth.getCurrentUser().getUid()
@@ -110,6 +113,18 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
                 return entity;
             }
         };
+    }
+
+    @Override
+    public LiveData<Map<String, Integer>> getRestaurantsAttendance() {
+        if (firebaseAuth.getCurrentUser() != null) {
+            return new FirestoreChosenRestaurantAttendanceLiveData(
+                firestoreDb.collection("restaurants"),
+                firestoreDb,
+                firebaseAuth.getCurrentUser().getUid()
+            );
+        }
+        return new MutableLiveData<>(new HashMap<>());
     }
 
 }
