@@ -111,7 +111,7 @@ public class MapViewModel extends ViewModel {
             }
         );
 
-        LiveData<Collection<String>> chosenRestaurantsLiveData = workmateRepositoryImplementation.getAllChosenRestaurantsLiveData();
+        LiveData<Collection<String>> chosenRestaurantsLiveData = workmateRepositoryImplementation.getWorkmatesChosenRestaurantsLiveData();
 
         mapViewStateMediatorLiveData.addSource(isMapReadyMutableLiveData, isMapReady ->
             combine(isMapReady, responseWrapperLiveData.getValue(), chosenRestaurantsLiveData.getValue())

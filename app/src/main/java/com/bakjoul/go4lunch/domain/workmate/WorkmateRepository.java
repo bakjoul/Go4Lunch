@@ -11,6 +11,8 @@ public interface WorkmateRepository {
 
     LiveData<Collection<String>> getAllChosenRestaurantsLiveData();
 
+    LiveData<Collection<String>> getWorkmatesChosenRestaurantsLiveData();
+
     LiveData<List<WorkmateEntity>> getWorkmatesForRestaurantIdLiveData(String restaurantId);
 
 }
