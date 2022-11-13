@@ -145,6 +145,25 @@ public class UserRepositoryImplementation implements UserRepository {
                     .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
             }
         });
+
+        // Delete user from users with choice collection
+        firestoreDb.collection("workmatesWithChoice")
+            .document(firebaseAuth.getCurrentUser().getUid())
+            .delete()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    // Then adds user to collection
+                    firestoreDb.collection("workmatesWithChoice")
+                        .document(firebaseAuth.getCurrentUser().getUid())
+                        .set(getCurrentUser())
+                        .addOnCompleteListener(task2 -> {
+                            if (task2.isSuccessful()) {
+                                Log.d(TAG, "User added to users with choice collection");
+                            }
+                        });
+                }
+            });
+
     }
 
     @Override
@@ -170,6 +189,15 @@ public class UserRepositoryImplementation implements UserRepository {
                 removeRestaurantFromWorkmatesChosenRestaurants(restaurantId);
             })
             .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
+
+        // Removes current user from users with choice collection
+        firestoreDb.collection("workmatesWithChoice").document(firebaseAuth.getCurrentUser().getUid())
+            .delete()
+            .addOnCompleteListener(task -> {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "User " + firebaseAuth.getCurrentUser().getUid() + " removed from users with choice collection");
+                }
+            });
     }
 
     @Override

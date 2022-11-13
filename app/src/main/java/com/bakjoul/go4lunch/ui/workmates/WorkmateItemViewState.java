@@ -5,7 +5,7 @@ import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-public class WorkmatesItemViewState {
+public class WorkmateItemViewState {
 
     @NonNull
     private final String id;
@@ -16,10 +16,14 @@ public class WorkmatesItemViewState {
     @NonNull
     private final String name;
 
-    public WorkmatesItemViewState(@NonNull String id, @Nullable String photoUrl, @NonNull String name) {
+    @Nullable
+    private final String chosenRestaurant;
+
+    public WorkmateItemViewState(@NonNull String id, @Nullable String photoUrl, @NonNull String name, @Nullable String chosenRestaurant) {
         this.id = id;
         this.photoUrl = photoUrl;
         this.name = name;
+        this.chosenRestaurant = chosenRestaurant;
     }
 
     @NonNull
@@ -37,17 +41,22 @@ public class WorkmatesItemViewState {
         return name;
     }
 
+    @Nullable
+    public String getChosenRestaurant() {
+        return chosenRestaurant;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        WorkmatesItemViewState that = (WorkmatesItemViewState) o;
-        return id.equals(that.id) && Objects.equals(photoUrl, that.photoUrl) && name.equals(that.name);
+        WorkmateItemViewState that = (WorkmateItemViewState) o;
+        return id.equals(that.id) && Objects.equals(photoUrl, that.photoUrl) && name.equals(that.name) && Objects.equals(chosenRestaurant, that.chosenRestaurant);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, photoUrl, name);
+        return Objects.hash(id, photoUrl, name, chosenRestaurant);
     }
 
     @NonNull
@@ -57,6 +66,7 @@ public class WorkmatesItemViewState {
             "id='" + id + '\'' +
             ", photoUrl='" + photoUrl + '\'' +
             ", name='" + name + '\'' +
+            ", chosenRestaurant='" + chosenRestaurant + '\'' +
             '}';
     }
 }

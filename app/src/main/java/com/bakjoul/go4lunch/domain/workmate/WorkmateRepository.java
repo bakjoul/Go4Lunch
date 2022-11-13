@@ -10,12 +10,11 @@ public interface WorkmateRepository {
 
     LiveData<List<WorkmateEntity>> getAvailableWorkmatesLiveData();
 
-    LiveData<Collection<String>> getAllChosenRestaurantsLiveData();
-
     LiveData<Collection<String>> getWorkmatesChosenRestaurantsLiveData();
 
     LiveData<List<WorkmateEntity>> getWorkmatesForRestaurantIdLiveData(String restaurantId);
 
     LiveData<Map<String, Integer>> getRestaurantsAttendance();
 
+    LiveData<Map<String, String>> getWorkmatesWithChoiceLiveData();
 }

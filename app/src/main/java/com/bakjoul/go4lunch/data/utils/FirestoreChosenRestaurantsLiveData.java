@@ -18,9 +18,9 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-public class FirestoreChosenRestaurantIdsLiveData extends LiveData<Collection<String>> {
+public class FirestoreChosenRestaurantsLiveData extends LiveData<Collection<String>> {
 
-    private static final String TAG = "FirestoreRestaurantIds";
+    private static final String TAG = "FirestoreChosenRestsLiv";
 
     private final CollectionReference collectionReference;
     private FirebaseFirestore firestoreDb;
@@ -56,7 +56,7 @@ public class FirestoreChosenRestaurantIdsLiveData extends LiveData<Collection<St
 
     private ListenerRegistration registration;
 
-    public FirestoreChosenRestaurantIdsLiveData(
+    public FirestoreChosenRestaurantsLiveData(
         CollectionReference collectionReference,
         FirebaseFirestore firestoreDb,
         String userId) {

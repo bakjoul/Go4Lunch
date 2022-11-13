@@ -49,7 +49,7 @@ public class WorkmatesFragment extends Fragment {
       itemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(requireContext(), R.drawable.custom_divider)));
       binding.workmatesRecyclerView.addItemDecoration(itemDecoration);
 
-      viewModel.getWorkmatesViewStateMutableLiveData().observe(getViewLifecycleOwner(), workmatesViewState -> {
+      viewModel.getWorkmatesViewStateMediatorLiveData().observe(getViewLifecycleOwner(), workmatesViewState -> {
              adapter.submitList(workmatesViewState.getWorkmatesItemViewStateList());
 
              if (workmatesViewState.isEmptyStateVisible()) {

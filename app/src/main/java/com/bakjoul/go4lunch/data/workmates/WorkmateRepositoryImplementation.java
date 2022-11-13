@@ -5,9 +5,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.data.utils.FirestoreChosenRestaurantAttendanceLiveData;
-import com.bakjoul.go4lunch.data.utils.FirestoreCollectionIdsLiveData;
+import com.bakjoul.go4lunch.data.utils.FirestoreChosenRestaurantsLiveData;
 import com.bakjoul.go4lunch.data.utils.FirestoreCollectionLiveData;
-import com.bakjoul.go4lunch.data.utils.FirestoreChosenRestaurantIdsLiveData;
+import com.bakjoul.go4lunch.data.utils.FirestoreWorkmatesWithChoiceLiveData;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.google.firebase.auth.FirebaseAuth;
@@ -52,7 +52,9 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
 
                 if (response.getId() != null
                     && response.getUsername() != null
-                    && response.getEmail() != null) {
+                    && response.getEmail() != null
+                    && firebaseAuth.getCurrentUser() != null
+                    && !response.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
                     entity = new WorkmateEntity(
                         response.getId(),
                         response.getUsername(),
@@ -69,14 +71,9 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     }
 
     @Override
-    public LiveData<Collection<String>> getAllChosenRestaurantsLiveData() {
-        return new FirestoreCollectionIdsLiveData(firestoreDb.collection("restaurants"));
-    }
-
-    @Override
     public LiveData<Collection<String>> getWorkmatesChosenRestaurantsLiveData() {
         if (firebaseAuth.getCurrentUser() != null) {
-            return new FirestoreChosenRestaurantIdsLiveData(
+            return new FirestoreChosenRestaurantsLiveData(
                 firestoreDb.collection("restaurants"),
                 firestoreDb,
                 firebaseAuth.getCurrentUser().getUid()
@@ -125,6 +122,14 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
             );
         }
         return new MutableLiveData<>(new HashMap<>());
+    }
+
+    @Override
+    public LiveData<Map<String, String>> getWorkmatesWithChoiceLiveData() {
+        return new FirestoreWorkmatesWithChoiceLiveData(
+            firestoreDb.collection("workmatesWithChoice"),
+            firestoreDb
+        );
     }
 
 }

@@ -19,11 +19,15 @@
 
     <TextView
         android:id="@+id/workmates_item_text"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="12dp"
+        android:layout_marginEnd="8dp"
+        android:gravity="center_vertical"
+        android:lines="2"
         android:textStyle="bold"
         app:layout_constraintBottom_toBottomOf="@id/workmates_item_photo"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/workmates_item_photo"
         app:layout_constraintTop_toTopOf="@id/workmates_item_photo"
         tools:text="Scarlett is eating at Le Zinc" />
