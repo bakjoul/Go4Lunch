@@ -147,13 +147,13 @@ public class UserRepositoryImplementation implements UserRepository {
         });
 
         // Delete user from users with choice collection
-        firestoreDb.collection("workmatesWithChoice")
+        firestoreDb.collection("usersWithChoice")
             .document(firebaseAuth.getCurrentUser().getUid())
             .delete()
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {
                     // Then adds user to collection
-                    firestoreDb.collection("workmatesWithChoice")
+                    firestoreDb.collection("usersWithChoice")
                         .document(firebaseAuth.getCurrentUser().getUid())
                         .set(getCurrentUser())
                         .addOnCompleteListener(task2 -> {
@@ -191,7 +191,7 @@ public class UserRepositoryImplementation implements UserRepository {
             .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
 
         // Removes current user from users with choice collection
-        firestoreDb.collection("workmatesWithChoice").document(firebaseAuth.getCurrentUser().getUid())
+        firestoreDb.collection("usersWithChoice").document(firebaseAuth.getCurrentUser().getUid())
             .delete()
             .addOnCompleteListener(task -> {
                 if (task.isSuccessful()) {

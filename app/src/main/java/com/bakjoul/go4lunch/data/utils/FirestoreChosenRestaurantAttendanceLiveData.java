@@ -32,6 +32,8 @@ public class FirestoreChosenRestaurantAttendanceLiveData extends LiveData<Map<St
 
         if (querySnapshot != null) {
             Map<String, Integer> restaurantsAttendance = new HashMap<>(querySnapshot.size());
+            setValue(restaurantsAttendance);
+
             for (DocumentSnapshot document : querySnapshot.getDocuments()) {
                 firestoreDb.collection("restaurants").document(document.getId()).collection("users")
                     .get()
@@ -53,7 +55,6 @@ public class FirestoreChosenRestaurantAttendanceLiveData extends LiveData<Map<St
                         }
                     });
             }
-            setValue(restaurantsAttendance);
         }
     };
 

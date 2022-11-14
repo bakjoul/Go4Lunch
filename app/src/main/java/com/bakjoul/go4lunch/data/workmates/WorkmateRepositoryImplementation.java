@@ -127,7 +127,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     @Override
     public LiveData<Map<String, String>> getWorkmatesWithChoiceLiveData() {
         return new FirestoreWorkmatesWithChoiceLiveData(
-            firestoreDb.collection("workmatesWithChoice"),
+            firestoreDb.collection("usersWithChoice"),
             firestoreDb
         );
     }

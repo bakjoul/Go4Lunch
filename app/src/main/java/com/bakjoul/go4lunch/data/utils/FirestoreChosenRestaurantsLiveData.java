@@ -33,6 +33,8 @@ public class FirestoreChosenRestaurantsLiveData extends LiveData<Collection<Stri
 
         if (querySnapshot != null) {
             Set<String> ids = new HashSet<>(querySnapshot.size());
+            setValue(ids);
+
             for (DocumentSnapshot document : querySnapshot.getDocuments()) {
                 firestoreDb.collection("restaurants").document(document.getId()).collection("users")
                     .get()
@@ -50,7 +52,6 @@ public class FirestoreChosenRestaurantsLiveData extends LiveData<Collection<Stri
                         }
                     });
             }
-            setValue(ids);
         }
     };
 

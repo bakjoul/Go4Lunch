@@ -33,6 +33,7 @@ public class FirestoreWorkmatesWithChoiceLiveData extends LiveData<Map<String, S
 
             if (querySnapshot != null) {
                 Map<String, String> result = new HashMap<>();
+                setValue(result);
 
                 for (DocumentSnapshot document : querySnapshot.getDocuments()) {
                     final String[] chosenRestaurant = {null};
@@ -50,7 +51,6 @@ public class FirestoreWorkmatesWithChoiceLiveData extends LiveData<Map<String, S
                             setValue(result);
                         });
                 }
-                setValue(result);
             }
         }
     };
