@@ -16,5 +16,5 @@ public interface WorkmateRepository {
 
     LiveData<Map<String, Integer>> getRestaurantsAttendance();
 
-    LiveData<Map<String, String>> getWorkmatesWithChoiceLiveData();
+    LiveData<Map<String, Map<String, Object>>> getWorkmatesWithChoiceLiveData();
 }

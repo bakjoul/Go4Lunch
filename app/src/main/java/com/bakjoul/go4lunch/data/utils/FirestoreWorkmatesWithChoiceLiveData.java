@@ -16,7 +16,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 import java.util.HashMap;
 import java.util.Map;
 
-public class FirestoreWorkmatesWithChoiceLiveData extends LiveData<Map<String, String>> {
+public class FirestoreWorkmatesWithChoiceLiveData extends LiveData<Map<String, Map<String, Object>>> {
 
     private static final String TAG = "FirestoreWorkmatesWithC";
 
@@ -32,21 +32,16 @@ public class FirestoreWorkmatesWithChoiceLiveData extends LiveData<Map<String, S
             }
 
             if (querySnapshot != null) {
-                Map<String, String> result = new HashMap<>();
+                Map<String, Map<String, Object>> result = new HashMap<>();
                 setValue(result);
 
                 for (DocumentSnapshot document : querySnapshot.getDocuments()) {
-                    final String[] chosenRestaurant = {null};
                     firestoreDb.collection("users").document(document.getId()).collection("chosenRestaurant")
                         .document("value")
                         .get()
                         .addOnCompleteListener(task -> {
                             if (task.isSuccessful() && task.getResult().exists()) {
-                                Map<String, Object> chosenRestaurantData = task.getResult().getData();
-                                if (chosenRestaurantData != null) {
-                                    chosenRestaurant[0] = chosenRestaurantData.values().toArray()[0].toString();
-                                    result.put(document.getId(), chosenRestaurant[0]);
-                                }
+                                result.put(document.getId(), task.getResult().getData());
                             }
                             setValue(result);
                         });

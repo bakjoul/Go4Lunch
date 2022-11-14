@@ -17,13 +17,17 @@ public class WorkmateItemViewState {
     private final String name;
 
     @Nullable
-    private final String chosenRestaurant;
+    private final String chosenRestaurantId;
 
-    public WorkmateItemViewState(@NonNull String id, @Nullable String photoUrl, @NonNull String name, @Nullable String chosenRestaurant) {
+    @Nullable
+    private final String chosenRestaurantName;
+
+    public WorkmateItemViewState(@NonNull String id, @Nullable String photoUrl, @NonNull String name, @Nullable String chosenRestaurantId, @Nullable String chosenRestaurantName) {
         this.id = id;
         this.photoUrl = photoUrl;
         this.name = name;
-        this.chosenRestaurant = chosenRestaurant;
+        this.chosenRestaurantId = chosenRestaurantId;
+        this.chosenRestaurantName = chosenRestaurantName;
     }
 
     @NonNull
@@ -42,8 +46,13 @@ public class WorkmateItemViewState {
     }
 
     @Nullable
-    public String getChosenRestaurant() {
-        return chosenRestaurant;
+    public String getChosenRestaurantId() {
+        return chosenRestaurantId;
+    }
+
+    @Nullable
+    public String getChosenRestaurantName() {
+        return chosenRestaurantName;
     }
 
     @Override
@@ -51,22 +60,23 @@ public class WorkmateItemViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WorkmateItemViewState that = (WorkmateItemViewState) o;
-        return id.equals(that.id) && Objects.equals(photoUrl, that.photoUrl) && name.equals(that.name) && Objects.equals(chosenRestaurant, that.chosenRestaurant);
+        return id.equals(that.id) && Objects.equals(photoUrl, that.photoUrl) && name.equals(that.name) && Objects.equals(chosenRestaurantId, that.chosenRestaurantId) && Objects.equals(chosenRestaurantName, that.chosenRestaurantName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, photoUrl, name, chosenRestaurant);
+        return Objects.hash(id, photoUrl, name, chosenRestaurantId, chosenRestaurantName);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "WorkmatesItemViewState{" +
+        return "WorkmateItemViewState{" +
             "id='" + id + '\'' +
             ", photoUrl='" + photoUrl + '\'' +
             ", name='" + name + '\'' +
-            ", chosenRestaurant='" + chosenRestaurant + '\'' +
+            ", chosenRestaurantId='" + chosenRestaurantId + '\'' +
+            ", chosenRestaurantName='" + chosenRestaurantName + '\'' +
             '}';
     }
 }

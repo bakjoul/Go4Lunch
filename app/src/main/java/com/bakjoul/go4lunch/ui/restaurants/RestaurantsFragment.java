@@ -78,7 +78,7 @@ public class RestaurantsFragment extends Fragment implements RestaurantsAdapter.
    }
 
    @Override
-   public void OnRestaurantClicked(int position) {
+   public void onRestaurantClicked(int position) {
       DetailsActivity.navigate(
           binding.restaurantsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString(), getActivity()
       );

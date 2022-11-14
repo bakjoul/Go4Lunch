@@ -25,7 +25,7 @@ public class WorkmatesViewModel extends ViewModel {
     @Inject
     public WorkmatesViewModel(@NonNull WorkmateRepositoryImplementation workmateRepositoryImplementation) {
         LiveData<List<WorkmateEntity>> availableWorkmatesLiveData = workmateRepositoryImplementation.getAvailableWorkmatesLiveData();
-        LiveData<Map<String, String>> workmatesWithChoiceLiveData = workmateRepositoryImplementation.getWorkmatesWithChoiceLiveData();
+        LiveData<Map<String, Map<String, Object>>> workmatesWithChoiceLiveData = workmateRepositoryImplementation.getWorkmatesWithChoiceLiveData();
 
         workmatesViewStateMediatorLiveData.addSource(availableWorkmatesLiveData, availableWorkmates ->
             combine(availableWorkmates, workmatesWithChoiceLiveData.getValue())
@@ -37,7 +37,7 @@ public class WorkmatesViewModel extends ViewModel {
 
     private void combine(
         @Nullable List<WorkmateEntity> availableWorkmates,
-        @Nullable Map<String, String> workmatesWithChoice) {
+        @Nullable Map<String, Map<String, Object>> workmatesWithChoice) {
         if (availableWorkmates == null || workmatesWithChoice == null) {
             return;
         }
@@ -55,19 +55,22 @@ public class WorkmatesViewModel extends ViewModel {
     @NonNull
     private List<WorkmateItemViewState> mapWorkmateResponse(
         @NonNull List<WorkmateEntity> availableWorkmates,
-        @NonNull Map<String, String> workmatesWithChoice
+        @NonNull Map<String, Map<String, Object>> workmatesWithChoice
     ) {
         List<WorkmateItemViewState> workmateItemViewStateList = new ArrayList<>();
         for (WorkmateEntity workmateEntity : availableWorkmates) {
-            String chosenRestaurant = null;
+            String chosenRestaurantId = null;
+            String chosenRestaurantName = null;
             if (workmatesWithChoice.containsKey(workmateEntity.getId())) {
-                chosenRestaurant = workmatesWithChoice.get(workmateEntity.getId());
+                chosenRestaurantId = workmatesWithChoice.get(workmateEntity.getId()).keySet().toArray()[0].toString();
+                chosenRestaurantName = workmatesWithChoice.get(workmateEntity.getId()).values().toArray()[0].toString();
             }
             WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
                 workmateEntity.getId(),
                 workmateEntity.getPhotoUrl(),
                 workmateEntity.getUsername(),
-                chosenRestaurant
+                chosenRestaurantId,
+                chosenRestaurantName
             );
             workmateItemViewStateList.add(workmateItemViewState);
         }

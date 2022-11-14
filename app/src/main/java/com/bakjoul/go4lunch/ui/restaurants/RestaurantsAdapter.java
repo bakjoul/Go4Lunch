@@ -74,7 +74,7 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
 
         @Override
         public void onClick(View view) {
-            this.onRestaurantClickListener.OnRestaurantClicked(getAdapterPosition());
+            this.onRestaurantClickListener.onRestaurantClicked(getAdapterPosition());
         }
     }
 
@@ -92,6 +92,6 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
     }
 
     public interface OnRestaurantClickListener {
-        void OnRestaurantClicked(int position);
+        void onRestaurantClicked(int position);
     }
 }
