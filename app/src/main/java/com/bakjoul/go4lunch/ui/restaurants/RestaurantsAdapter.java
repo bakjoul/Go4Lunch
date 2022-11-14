@@ -52,6 +52,11 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
             binding.restaurantsItemName.setText(viewState.getName());
             binding.restaurantsItemLocation.setText(viewState.getAddress());
             binding.restaurantsItemIsOpen.setText(viewState.getIsOpen());
+            if (viewState.getIsOpen().equals(itemView.getResources().getString(R.string.restaurant_is_closed))) {
+                binding.restaurantsItemIsOpen.setTextColor(itemView.getResources().getColor(R.color.red));
+            } else {
+                binding.restaurantsItemIsOpen.setTextColor(itemView.getResources().getColor(R.color.black));
+            }
             binding.restaurantsItemDistance.setText(viewState.getDistance());
             if (viewState.getAttendance().isEmpty()) {
                 binding.restaurantsItemAttendance.setCompoundDrawablesWithIntrinsicBounds(null, null, null, null);
