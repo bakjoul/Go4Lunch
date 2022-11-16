@@ -6,7 +6,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
 import com.bakjoul.go4lunch.data.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.data.location.LocationPermissionRepository;
-import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
+import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.junit.Before;
@@ -22,13 +22,13 @@ public class MainViewModelTest {
     private final FirebaseAuth firebaseAuth = Mockito.mock(FirebaseAuth.class);
     private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
     private final LocationPermissionRepository locationPermissionRepository = Mockito.mock(LocationPermissionRepository.class);
-    private final WorkmateRepositoryImplementation workmateRepository = Mockito.mock(WorkmateRepositoryImplementation.class);
+    private final UserRepositoryImplementation userRepositoryImplementation = Mockito.mock(UserRepositoryImplementation.class);
 
     private MainViewModel viewModel;
 
     @Before
     public void setUp() {
-        viewModel = new MainViewModel(context, firebaseAuth, gpsLocationRepository, locationPermissionRepository, workmateRepository);
+        viewModel = new MainViewModel(context, firebaseAuth, gpsLocationRepository, locationPermissionRepository, userRepositoryImplementation);
     }
 
 }
