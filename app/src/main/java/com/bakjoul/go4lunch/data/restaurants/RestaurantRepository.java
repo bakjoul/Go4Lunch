@@ -1,6 +1,8 @@
 package com.bakjoul.go4lunch.data.restaurants;
 
+import android.location.Location;
 import android.util.Log;
+import android.util.LruCache;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
@@ -10,6 +12,8 @@ import com.bakjoul.go4lunch.data.api.RestaurantApi;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Random;
 
 import javax.inject.Inject;
@@ -22,75 +26,114 @@ import retrofit2.Response;
 @Singleton
 public class RestaurantRepository {
 
-   private static final String TAG = "RestaurantRepository";
+    private static final String TAG = "RestaurantRepository";
+    private static final int GPS_SCALE = 2;
 
-   public static final String RANK_BY = "distance";
-   public static final String TYPE = "restaurant";
+    public static final String RANK_BY = "distance";
+    public static final String TYPE = "restaurant";
 
-   @NonNull
-   private final RestaurantApi restaurantApi;
+    @NonNull
+    private final RestaurantApi restaurantApi;
 
-   @Inject
-   public RestaurantRepository(@NonNull RestaurantApi restaurantApi) {
-      this.restaurantApi = restaurantApi;
-   }
+    private final LruCache<NearbySearchQuery, NearbySearchResponse> lruCache = new LruCache<>(500);
 
-   // For testing
-   Random random = new Random();
-   boolean randomBoolean = false;
+    @Inject
+    public RestaurantRepository(@NonNull RestaurantApi restaurantApi) {
+        this.restaurantApi = restaurantApi;
+    }
 
-   public LiveData<RestaurantResponseWrapper> getNearbySearchResponse(
-       String location,
-       String rankBy,
-       String type,
-       String key
-   ) {
-      // For testing
-      randomBoolean = random.nextInt(1) == 0;
+    // For testing
+    Random random = new Random();
+    boolean randomBoolean = false;
 
-      MutableLiveData<RestaurantResponseWrapper> wrapperMutableLiveData = new MutableLiveData<>();
-      wrapperMutableLiveData.setValue(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.LOADING));
+    public LiveData<RestaurantResponseWrapper> getNearbyRestaurants(
+        Location location,
+        String rankBy,
+        String type,
+        String key
+    ) {
+        // For testing
+        randomBoolean = random.nextInt(1) == 0;
+        //
 
-      // For testing
-      if (randomBoolean) {
-         Log.d("test", "Request made");
-         restaurantApi.getRestaurants(location, rankBy, type, key).enqueue(new Callback<NearbySearchResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<NearbySearchResponse> call, @NonNull Response<NearbySearchResponse> response) {
-               wrapperMutableLiveData.setValue(
-                   new RestaurantResponseWrapper(
-                       response.body(),
-                       RestaurantResponseWrapper.State.SUCCESS
-                   )
-               );
+        MutableLiveData<RestaurantResponseWrapper> wrapperMutableLiveData = new MutableLiveData<>();
+        wrapperMutableLiveData.setValue(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.LOADING));
+
+        // For testing
+        if (randomBoolean) {
+            Log.d("test", "Request made");
+            //
+
+            NearbySearchQuery query = generateQuery(location.getLatitude(), location.getLongitude());
+            NearbySearchResponse existingResponse = lruCache.get(query);
+
+            if (existingResponse != null) {
+                Log.d("test", "getNearbyRestaurants: from cache");
+                wrapperMutableLiveData.setValue(
+                    new RestaurantResponseWrapper(
+                        existingResponse,
+                        RestaurantResponseWrapper.State.SUCCESS
+                    )
+                );
+            } else {
+                restaurantApi.getRestaurants(locationToString(location), rankBy, type, key).enqueue(new Callback<NearbySearchResponse>() {
+                    @Override
+                    public void onResponse(@NonNull Call<NearbySearchResponse> call, @NonNull Response<NearbySearchResponse> response) {
+                        NearbySearchResponse body = response.body();
+
+                        if (response.isSuccessful() && body != null && body.getStatus().equals("OK")) {
+                            lruCache.put(query, body);
+                        }
+
+                        wrapperMutableLiveData.setValue(
+                            new RestaurantResponseWrapper(
+                                body,
+                                RestaurantResponseWrapper.State.SUCCESS
+                            )
+                        );
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<NearbySearchResponse> call, @NonNull Throwable t) {
+                        Log.d(TAG, "onFailure: " + t.getMessage());
+                        if (t instanceof IOException) {
+                            wrapperMutableLiveData.setValue(
+                                new RestaurantResponseWrapper(
+                                    null,
+                                    RestaurantResponseWrapper.State.IO_ERROR
+                                )
+                            );
+                        } else {
+                            wrapperMutableLiveData.setValue(
+                                new RestaurantResponseWrapper(
+                                    null,
+                                    RestaurantResponseWrapper.State.CRITICAL_ERROR
+                                )
+                            );
+                        }
+                    }
+                });
             }
+        }
+        // For testing
+        else {
+            Log.d("test", "Request failed");
+            wrapperMutableLiveData.setValue(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.IO_ERROR));
+        }
+        //
+        return wrapperMutableLiveData;
+    }
 
-            @Override
-            public void onFailure(@NonNull Call<NearbySearchResponse> call, @NonNull Throwable t) {
-               Log.d(TAG, "onFailure: "+t.getMessage());
-               if (t instanceof IOException) {
-                  wrapperMutableLiveData.setValue(
-                      new RestaurantResponseWrapper(
-                          null,
-                          RestaurantResponseWrapper.State.IO_ERROR
-                      )
-                  );
-               } else {
-                  wrapperMutableLiveData.setValue(
-                      new RestaurantResponseWrapper(
-                          null,
-                          RestaurantResponseWrapper.State.CRITICAL_ERROR
-                      )
-                  );
-               }
-            }
-         });
-      }
-      // For testing
-      else {
-         Log.d("test", "Request failed");
-         wrapperMutableLiveData.setValue(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.IO_ERROR));
-      }
-      return wrapperMutableLiveData;
-   }
+    @NonNull
+    private NearbySearchQuery generateQuery(double latitude, double longitude) {
+        return new NearbySearchQuery(
+            BigDecimal.valueOf(latitude).setScale(GPS_SCALE, RoundingMode.HALF_UP),
+            BigDecimal.valueOf(longitude).setScale(GPS_SCALE, RoundingMode.HALF_UP)
+        );
+    }
+
+    @NonNull
+    private String locationToString(@NonNull Location location) {
+        return location.getLatitude() + "," + location.getLongitude();
+    }
 }

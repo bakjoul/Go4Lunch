@@ -25,7 +25,7 @@ public class RestaurantDetailsRepository {
    @NonNull
    private final RestaurantApi restaurantApi;
 
-   private final LruCache<String, DetailsResponse> lruCache = new LruCache<>(1000);
+   private final LruCache<String, DetailsResponse> lruCache = new LruCache<>(500);
 
    @Inject
    public RestaurantDetailsRepository(@NonNull RestaurantApi restaurantApi) {

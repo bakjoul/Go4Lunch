@@ -5,6 +5,7 @@ import static com.bakjoul.go4lunch.data.restaurants.RestaurantRepository.TYPE;
 
 import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -106,7 +107,7 @@ public class MapViewModel extends ViewModel {
                 currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
                 return Transformations.switchMap(
                     nearbySearchRequestPingMutableLiveData,
-                    aVoid -> restaurantRepository.getNearbySearchResponse(getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY)
+                    aVoid -> restaurantRepository.getNearbyRestaurants(location, RANK_BY, TYPE, BuildConfig.MAPS_API_KEY)
                 );
             }
         );
@@ -202,11 +203,6 @@ public class MapViewModel extends ViewModel {
 
     public LiveData<MapViewState> getMapViewStateLiveData() {
         return mapViewStateMediatorLiveData;
-    }
-
-    @NonNull
-    private String getLocation(@NonNull Location location) {
-        return location.getLatitude() + "," + location.getLongitude();
     }
 
     public void onMapReady() {

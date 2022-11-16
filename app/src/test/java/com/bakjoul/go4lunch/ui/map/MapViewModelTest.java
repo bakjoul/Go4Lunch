@@ -1,3 +1,4 @@
+/*
 package com.bakjoul.go4lunch.ui.map;
 
 import static org.junit.Assert.assertEquals;
@@ -129,7 +130,7 @@ public class MapViewModelTest {
       doReturn(locationLiveData).when(gpsLocationRepository).getCurrentLocationLiveData();
       doReturn(locationLiveData).when(mapLocationRepository).getCurrentMapLocationLiveData();
 
-      doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbySearchResponse(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
+      doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbyRestaurants(eq(getLatLngToString(FAKE_LOCATION)), eq("distance"), eq("restaurant"), anyString());
 
       viewModel = new MapViewModel(gpsLocationRepository, mapLocationRepository, locationModeRepository, restaurantRepository, workmateRepositoryImplementation, locationDistanceUtil);
    }
@@ -354,4 +355,4 @@ public class MapViewModelTest {
       );
    }
    // endregion OUT
-}
+}*/

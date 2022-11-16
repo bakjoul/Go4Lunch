@@ -98,7 +98,7 @@ public class RestaurantsViewModel extends ViewModel {
                 currentLocation = location;
                 return Transformations.switchMap(
                     nearbySearchRequestPingMutableLiveData,
-                    aVoid -> restaurantRepository.getNearbySearchResponse(getLocation(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY)
+                    aVoid -> restaurantRepository.getNearbyRestaurants(location, RANK_BY, TYPE, BuildConfig.MAPS_API_KEY)
                 );
             }
         );
@@ -182,11 +182,6 @@ public class RestaurantsViewModel extends ViewModel {
             }
         }
         return "";
-    }
-
-    @NonNull
-    private String getLocation(@NonNull Location location) {
-        return location.getLatitude() + "," + location.getLongitude();
     }
 
     @NonNull
