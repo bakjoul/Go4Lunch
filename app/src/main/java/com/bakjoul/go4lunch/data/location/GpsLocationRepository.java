@@ -23,61 +23,60 @@ import javax.inject.Singleton;
 @Singleton
 public class GpsLocationRepository {
 
-   private static final String TAG = "GpsLocationRepository";
+    private static final String TAG = "GpsLocationRepository";
 
-   private static final long INTERVAL = 10000;
-   private static final long FASTEST_INTERVAL = INTERVAL / 2;
-   private static final float SMALLEST_DISPLACEMENT = 20f;
+    private static final long INTERVAL = 10000;
+    private static final long FASTEST_INTERVAL = INTERVAL / 2;
+    private static final float SMALLEST_DISPLACEMENT = 20f;
 
-   private final MutableLiveData<Boolean> isLocationPermissionAllowedLiveData = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> isLocationPermissionAllowedLiveData = new MutableLiveData<>(false);
 
-   @NonNull
-   private final FusedLocationProviderClient fusedLocationProvider;
+    @NonNull
+    private final FusedLocationProviderClient fusedLocationProvider;
 
-   private final LocationCallback locationCallback;
+    private final LocationCallback locationCallback;
 
-   private final MutableLiveData<Location> locationMutableLiveData = new MutableLiveData<>(null);
+    private final MutableLiveData<Location> locationMutableLiveData = new MutableLiveData<>(null);
 
-   private final LocationRequest locationRequest = LocationRequest.create()
-       .setInterval(INTERVAL)
-       .setFastestInterval(FASTEST_INTERVAL)
-       .setPriority(PRIORITY_HIGH_ACCURACY)
-       .setSmallestDisplacement(SMALLEST_DISPLACEMENT);
+    private final LocationRequest locationRequest = new LocationRequest.Builder(PRIORITY_HIGH_ACCURACY, INTERVAL)
+        .setMinUpdateIntervalMillis(FASTEST_INTERVAL)
+        .setMinUpdateDistanceMeters(SMALLEST_DISPLACEMENT)
+        .build();
 
-   @Inject
-   public GpsLocationRepository(@NonNull FusedLocationProviderClient fusedLocationProvider) {
-      this.fusedLocationProvider = fusedLocationProvider;
-      locationCallback = new LocationCallback() {
-         @Override
-         public void onLocationResult(@NonNull LocationResult locationResult) {
-            Log.d(TAG, "onLocationResult() called with: locationResult = [" + locationResult + "]");
-            locationMutableLiveData.setValue(locationResult.getLastLocation());
-         }
-      };
-   }
+    @Inject
+    public GpsLocationRepository(@NonNull FusedLocationProviderClient fusedLocationProvider) {
+        this.fusedLocationProvider = fusedLocationProvider;
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                Log.d(TAG, "onLocationResult() called with: locationResult = [" + locationResult + "]");
+                locationMutableLiveData.setValue(locationResult.getLastLocation());
+            }
+        };
+    }
 
-   @SuppressLint("MissingPermission")
-   public LiveData<Location> getCurrentLocationLiveData() {
-      return Transformations.switchMap(isLocationPermissionAllowedLiveData, isLocationPermissionAllowed -> {
-         Log.d(TAG, "switchMap() called with: isLocationPermissionAllowed = [" + isLocationPermissionAllowed + "]");
+    @SuppressLint("MissingPermission")
+    public LiveData<Location> getCurrentLocationLiveData() {
+        return Transformations.switchMap(isLocationPermissionAllowedLiveData, isLocationPermissionAllowed -> {
+            Log.d(TAG, "switchMap() called with: isLocationPermissionAllowed = [" + isLocationPermissionAllowed + "]");
 
-         if (isLocationPermissionAllowed) {
-            fusedLocationProvider.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-         } else {
-            fusedLocationProvider.removeLocationUpdates(locationCallback);
-         }
+            if (isLocationPermissionAllowed) {
+                fusedLocationProvider.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+            } else {
+                fusedLocationProvider.removeLocationUpdates(locationCallback);
+            }
 
-         return locationMutableLiveData;
-      });
-   }
+            return locationMutableLiveData;
+        });
+    }
 
-   public void startLocationUpdates() {
-      Log.d(TAG, "startLocationUpdates() called");
-      isLocationPermissionAllowedLiveData.setValue(true);
-   }
+    public void startLocationUpdates() {
+        Log.d(TAG, "startLocationUpdates() called");
+        isLocationPermissionAllowedLiveData.setValue(true);
+    }
 
-   public void stopLocationUpdates() {
-      Log.d(TAG, "stopLocationUpdates() called");
-      isLocationPermissionAllowedLiveData.setValue(false);
-   }
+    public void stopLocationUpdates() {
+        Log.d(TAG, "stopLocationUpdates() called");
+        isLocationPermissionAllowedLiveData.setValue(false);
+    }
 }
