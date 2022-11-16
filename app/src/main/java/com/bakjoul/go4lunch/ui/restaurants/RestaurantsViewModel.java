@@ -210,7 +210,7 @@ public class RestaurantsViewModel extends ViewModel {
     }
 
     private float getRating(double restaurantRating) {
-        return (float) Math.round(((restaurantRating * 3 / 5) / 0.5) * 0.5);
+        return (float) Math.round((restaurantRating * 3 / 5) * 2) / 2;
     }
 
     private boolean isRatingBarVisible(int userRatingsTotal) {
