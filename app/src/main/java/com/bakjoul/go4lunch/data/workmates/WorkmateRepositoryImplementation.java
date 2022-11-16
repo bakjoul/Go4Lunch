@@ -3,11 +3,12 @@ package com.bakjoul.go4lunch.data.workmates;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 
-import com.bakjoul.go4lunch.data.utils.FirestoreChosenRestaurantAttendanceLiveData;
-import com.bakjoul.go4lunch.data.utils.FirestoreChosenRestaurantsLiveData;
+import com.bakjoul.go4lunch.data.user.UserGoingToRestaurantResponse;
 import com.bakjoul.go4lunch.data.utils.FirestoreCollectionLiveData;
-import com.bakjoul.go4lunch.data.utils.FirestoreWorkmatesWithChoiceLiveData;
+import com.bakjoul.go4lunch.data.utils.FirestoreQueryLiveData;
+import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.google.firebase.auth.FirebaseAuth;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -38,6 +40,116 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     ) {
         this.firestoreDb = firestoreDb;
         this.firebaseAuth = firebaseAuth;
+    }
+
+    @Override
+    public LiveData<List<UserGoingToRestaurantEntity>> getWorkmatesGoingToRestaurantLiveData() {
+        return new FirestoreCollectionLiveData<UserGoingToRestaurantResponse, UserGoingToRestaurantEntity>(
+            firestoreDb.collection("chosenRestaurants"),
+            UserGoingToRestaurantResponse.class
+        ) {
+            @Override
+            public UserGoingToRestaurantEntity map(UserGoingToRestaurantResponse response) {
+                final UserGoingToRestaurantEntity entity;
+
+                if (response.getId() != null
+                    && response.getUsername() != null
+                    && response.getEmail() != null
+                    && response.getPhotoUrl() != null
+                    && response.getChosenRestaurantId() != null
+                    && response.getChosenRestaurantName() != null
+                    && firebaseAuth.getCurrentUser() != null
+                    && !response.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
+                    entity = new UserGoingToRestaurantEntity(
+                        response.getId(),
+                        response.getUsername(),
+                        response.getEmail(),
+                        response.getPhotoUrl(),
+                        response.getChosenRestaurantId(),
+                        response.getChosenRestaurantName()
+                    );
+                } else {
+                    entity = null;
+                }
+
+                return entity;
+            }
+        };
+    }
+
+    @Override
+    public LiveData<Collection<String>> getWorkmatesChosenRestaurantsLiveData() {
+        return Transformations.switchMap(
+            getWorkmatesGoingToRestaurantLiveData(),
+            response -> {
+                MutableLiveData<Collection<String>> chosenRestaurantsLiveData = new MutableLiveData<>();
+                Set<String> ids = new HashSet<>();
+                if (response != null) {
+                    for (UserGoingToRestaurantEntity entity : response) {
+                        if (!entity.getId().equals(firebaseAuth.getUid())) {
+                            ids.add(entity.getChosenRestaurantId());
+                        }
+                    }
+                }
+                chosenRestaurantsLiveData.setValue(ids);
+                return chosenRestaurantsLiveData;
+            }
+        );
+    }
+
+    @Override
+    public LiveData<List<UserGoingToRestaurantEntity>> getWorkmatesGoingToRestaurantIdLiveData(String restaurantId) {
+        return new FirestoreQueryLiveData<UserGoingToRestaurantResponse, UserGoingToRestaurantEntity>(
+            firestoreDb.collection("chosenRestaurants").whereEqualTo("chosenRestaurantId", restaurantId),
+            UserGoingToRestaurantResponse.class
+        ) {
+            @Override
+            public UserGoingToRestaurantEntity map(UserGoingToRestaurantResponse response) {
+                final UserGoingToRestaurantEntity entity;
+
+                if (response.getId() != null
+                    && response.getUsername() != null
+                    && response.getEmail() != null
+                    && response.getPhotoUrl() != null
+                    && response.getChosenRestaurantId() != null
+                    && response.getChosenRestaurantName() != null
+                    && firebaseAuth.getCurrentUser() != null
+                    && !response.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
+                    entity = new UserGoingToRestaurantEntity(
+                        response.getId(),
+                        response.getUsername(),
+                        response.getEmail(),
+                        response.getPhotoUrl(),
+                        response.getChosenRestaurantId(),
+                        response.getChosenRestaurantName()
+                    );
+                } else {
+                    entity = null;
+                }
+
+                return entity;
+            }
+        };
+    }
+
+    @Override
+    public LiveData<Map<String, Integer>> getRestaurantsAttendance() {
+        return Transformations.switchMap(
+            getWorkmatesGoingToRestaurantLiveData(),
+            response -> {
+                MutableLiveData<Map<String, Integer>> restaurantsAttendanceLiveData = new MutableLiveData<>();
+                Map<String, Integer> restaurantsAttendance = new HashMap<>();
+                if (response != null) {
+                    for (UserGoingToRestaurantEntity entity : response) {
+                        if (!entity.getId().equals(firebaseAuth.getUid())) {
+                            restaurantsAttendance.merge(entity.getChosenRestaurantId(), 1, Integer::sum);
+                        }
+                    }
+                }
+                restaurantsAttendanceLiveData.setValue(restaurantsAttendance);
+                return restaurantsAttendanceLiveData;
+            }
+        );
     }
 
     @Override
@@ -69,67 +181,4 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
             }
         };
     }
-
-    @Override
-    public LiveData<Collection<String>> getWorkmatesChosenRestaurantsLiveData() {
-        if (firebaseAuth.getCurrentUser() != null) {
-            return new FirestoreChosenRestaurantsLiveData(
-                firestoreDb.collection("restaurants"),
-                firestoreDb,
-                firebaseAuth.getCurrentUser().getUid()
-            );
-        }
-        return new MutableLiveData<>(new HashSet<>());
-    }
-
-    @Override
-    public LiveData<List<WorkmateEntity>> getWorkmatesForRestaurantIdLiveData(String restaurantId) {
-        return new FirestoreCollectionLiveData<WorkmateResponse, WorkmateEntity>(
-            firestoreDb.collection("restaurants").document(restaurantId).collection("users"),
-            WorkmateResponse.class
-        ) {
-            @Override
-            public WorkmateEntity map(WorkmateResponse response) {
-                final WorkmateEntity entity;
-
-                if (response.getId() != null
-                    && response.getUsername() != null
-                    && response.getEmail() != null
-                    && firebaseAuth.getCurrentUser() != null
-                    && !response.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
-                    entity = new WorkmateEntity(
-                        response.getId(),
-                        response.getUsername(),
-                        response.getEmail(),
-                        response.getPhotoUrl()
-                    );
-                } else {
-                    entity = null;
-                }
-
-                return entity;
-            }
-        };
-    }
-
-    @Override
-    public LiveData<Map<String, Integer>> getRestaurantsAttendance() {
-        if (firebaseAuth.getCurrentUser() != null) {
-            return new FirestoreChosenRestaurantAttendanceLiveData(
-                firestoreDb.collection("restaurants"),
-                firestoreDb,
-                firebaseAuth.getCurrentUser().getUid()
-            );
-        }
-        return new MutableLiveData<>(new HashMap<>());
-    }
-
-    @Override
-    public LiveData<Map<String, Map<String, Object>>> getWorkmatesWithChoiceLiveData() {
-        return new FirestoreWorkmatesWithChoiceLiveData(
-            firestoreDb.collection("usersWithChoice"),
-            firestoreDb
-        );
-    }
-
 }

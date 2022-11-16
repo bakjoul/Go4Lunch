@@ -135,7 +135,7 @@ public class DetailsActivity extends AppCompatActivity {
         }
         binding.detailsFabSelect.setOnClickListener(view -> {
             if (binding.detailsFabSelect.isSelected()) {
-                viewModel.onRestaurantUnchoosed(viewState.getId());
+                viewModel.onRestaurantUnchoosed();
             } else {
                 viewModel.onRestaurantChoosed(viewState.getId(), viewState.getName());
             }

@@ -8,10 +8,10 @@ import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
+import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -23,26 +23,28 @@ public class WorkmatesViewModel extends ViewModel {
     private final MediatorLiveData<WorkmatesViewState> workmatesViewStateMediatorLiveData = new MediatorLiveData<>();
 
     @Inject
-    public WorkmatesViewModel(@NonNull WorkmateRepositoryImplementation workmateRepositoryImplementation) {
+    public WorkmatesViewModel(
+        @NonNull WorkmateRepositoryImplementation workmateRepositoryImplementation
+    ) {
         LiveData<List<WorkmateEntity>> availableWorkmatesLiveData = workmateRepositoryImplementation.getAvailableWorkmatesLiveData();
-        LiveData<Map<String, Map<String, Object>>> workmatesWithChoiceLiveData = workmateRepositoryImplementation.getWorkmatesWithChoiceLiveData();
+        LiveData<List<UserGoingToRestaurantEntity>> workmatesGoingToRestaurantLiveData = workmateRepositoryImplementation.getWorkmatesGoingToRestaurantLiveData();
 
         workmatesViewStateMediatorLiveData.addSource(availableWorkmatesLiveData, availableWorkmates ->
-            combine(availableWorkmates, workmatesWithChoiceLiveData.getValue())
+            combine(availableWorkmates, workmatesGoingToRestaurantLiveData.getValue())
         );
-        workmatesViewStateMediatorLiveData.addSource(workmatesWithChoiceLiveData, workmatesWithChoice ->
+        workmatesViewStateMediatorLiveData.addSource(workmatesGoingToRestaurantLiveData, workmatesWithChoice ->
             combine(availableWorkmatesLiveData.getValue(), workmatesWithChoice)
         );
     }
 
     private void combine(
         @Nullable List<WorkmateEntity> availableWorkmates,
-        @Nullable Map<String, Map<String, Object>> workmatesWithChoice) {
-        if (availableWorkmates == null || workmatesWithChoice == null) {
+        @Nullable List<UserGoingToRestaurantEntity> workmatesGoingToRestaurant) {
+        if (availableWorkmates == null || workmatesGoingToRestaurant == null) {
             return;
         }
 
-        List<WorkmateItemViewState> workmateItemViewStateList = mapWorkmateResponse(availableWorkmates, workmatesWithChoice);
+        List<WorkmateItemViewState> workmateItemViewStateList = mapWorkmateResponse(availableWorkmates, workmatesGoingToRestaurant);
         workmatesViewStateMediatorLiveData.setValue(
             new WorkmatesViewState(workmateItemViewStateList, workmateItemViewStateList.isEmpty())
         );
@@ -55,16 +57,19 @@ public class WorkmatesViewModel extends ViewModel {
     @NonNull
     private List<WorkmateItemViewState> mapWorkmateResponse(
         @NonNull List<WorkmateEntity> availableWorkmates,
-        @NonNull Map<String, Map<String, Object>> workmatesWithChoice
+        @NonNull List<UserGoingToRestaurantEntity> workmateGoingToRestaurantList
     ) {
         List<WorkmateItemViewState> workmateItemViewStateList = new ArrayList<>();
         for (WorkmateEntity workmateEntity : availableWorkmates) {
             String chosenRestaurantId = null;
             String chosenRestaurantName = null;
-            if (workmatesWithChoice.containsKey(workmateEntity.getId())) {
-                chosenRestaurantId = workmatesWithChoice.get(workmateEntity.getId()).keySet().toArray()[0].toString();
-                chosenRestaurantName = workmatesWithChoice.get(workmateEntity.getId()).values().toArray()[0].toString();
+            for (UserGoingToRestaurantEntity userGoingToRestaurantEntity : workmateGoingToRestaurantList) {
+                if (userGoingToRestaurantEntity.getId().equals(workmateEntity.getId())) {
+                    chosenRestaurantId = userGoingToRestaurantEntity.getChosenRestaurantId();
+                    chosenRestaurantName = userGoingToRestaurantEntity.getChosenRestaurantName();
+                }
             }
+
             WorkmateItemViewState workmateItemViewState = new WorkmateItemViewState(
                 workmateEntity.getId(),
                 workmateEntity.getPhotoUrl(),

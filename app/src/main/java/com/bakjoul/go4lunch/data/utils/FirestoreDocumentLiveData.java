@@ -29,9 +29,7 @@ public abstract class FirestoreDocumentLiveData<Response, Entity> extends LiveDa
                 Response response = documentSnapshot.toObject(clazz);
                 Entity entity = map(response);
 
-                if (entity != null) {
-                    setValue(entity);
-                }
+                setValue(entity);
             }
         }
     };

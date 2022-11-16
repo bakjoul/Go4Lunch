@@ -7,12 +7,12 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 
 import com.bakjoul.go4lunch.data.utils.FirestoreCollectionIdsLiveData;
-import com.bakjoul.go4lunch.data.utils.FirestoreSingleIdLiveData;
+import com.bakjoul.go4lunch.data.utils.FirestoreDocumentLiveData;
 import com.bakjoul.go4lunch.data.workmates.WorkmateResponse;
+import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Collection;
@@ -52,209 +52,6 @@ public class UserRepositoryImplementation implements UserRepository {
         }
     }
 
-    @Override
-    public LiveData<String> getChosenRestaurantLiveData() {
-        if (firebaseAuth.getCurrentUser() != null) {
-            return new FirestoreSingleIdLiveData(
-                firestoreDb.collection("users").document(firebaseAuth.getCurrentUser().getUid())
-                    .collection("chosenRestaurant").document("value")
-            );
-        }
-        return null;
-    }
-
-    @Override
-    public WorkmateResponse getCurrentUser() {
-        final Uri photoUrl = firebaseAuth.getCurrentUser() != null ? firebaseAuth.getCurrentUser().getPhotoUrl() : null;
-
-        return new WorkmateResponse(
-            firebaseAuth.getCurrentUser().getUid(),
-            firebaseAuth.getCurrentUser().getDisplayName(),
-            firebaseAuth.getCurrentUser().getEmail(),
-            photoUrl != null ? photoUrl.toString() : null
-        );
-    }
-
-    @Override
-    public void chooseRestaurant(@NonNull String restaurantId, @NonNull String restaurantName) {
-        final Map<String, Object> chosenRestaurantData = new HashMap<>();
-        chosenRestaurantData.put(restaurantId, restaurantName);
-
-        // Gets any previously chosen restaurant id
-        final String[] previousChosenRestaurantId = new String[1];
-        if (firebaseAuth.getCurrentUser() != null) {
-            firestoreDb.collection("users")
-                .document(firebaseAuth.getCurrentUser().getUid()).collection("chosenRestaurant").document("value")
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful() && task.getResult().exists()) {
-                        Map<String, Object> previouslyChosenRestaurantData = task.getResult().getData();
-                        if (previouslyChosenRestaurantData != null) {
-                            previousChosenRestaurantId[0] = previouslyChosenRestaurantData.keySet().toArray()[0].toString();
-                        }
-
-                        // Removes current user from previously chosen restaurant users
-                        firestoreDb.collection("restaurants").document(previousChosenRestaurantId[0])
-                            .collection("users")
-                            .get()
-                            .addOnCompleteListener(task2 -> {
-                                if (task2.isSuccessful()) {
-                                    for (DocumentSnapshot documentSnapshot : task2.getResult().getDocuments()) {
-                                        if (documentSnapshot.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
-                                            firestoreDb.collection("restaurants")
-                                                .document(previousChosenRestaurantId[0]).collection("users")
-                                                .document(firebaseAuth.getCurrentUser().getUid())
-                                                .delete()
-                                                .addOnCompleteListener(task3 -> {
-                                                    if (task3.isSuccessful()) {
-                                                        Log.d(TAG, "User " + firebaseAuth.getCurrentUser().getDisplayName() + " was removed from restaurant " + previousChosenRestaurantId[0] + " users");
-
-                                                        // Removes restaurant document from chosen restaurants if no users
-                                                        removeRestaurantFromWorkmatesChosenRestaurants(previousChosenRestaurantId[0]);
-                                                    }
-                                                });
-                                        }
-                                    }
-                                }
-                            });
-                    }
-                });
-        }
-
-        // Updates current user chosen restaurant
-        if (firebaseAuth.getCurrentUser() != null) {
-            firestoreDb.collection("users").document(firebaseAuth.getCurrentUser().getUid())
-                .collection("chosenRestaurant")
-                .document("value")
-                .set(chosenRestaurantData)
-                .addOnCompleteListener(documentReference -> Log.d(TAG, "Chosen restaurant updated: " + restaurantId))
-                .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
-        }
-
-        // Creates restaurant document
-        final Map<String, Object> restaurantDocumentData = new HashMap<>();
-        restaurantDocumentData.put("restaurantName", restaurantName);
-        firestoreDb.collection("restaurants").document(restaurantId).set(restaurantDocumentData).addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                // Adds current user to newly chosen restaurant users
-                firestoreDb.collection("restaurants").document(restaurantId)
-                    .collection("users")
-                    .document(firebaseAuth.getCurrentUser().getUid())
-                    .set(getCurrentUser())
-                    .addOnCompleteListener(documentReference -> Log.d(TAG, "User " + firebaseAuth.getCurrentUser().getDisplayName() + " added to restaurant " + restaurantId + " users"))
-                    .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
-            }
-        });
-
-        // Delete user from users with choice collection
-        firestoreDb.collection("usersWithChoice")
-            .document(firebaseAuth.getCurrentUser().getUid())
-            .delete()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    // Then adds user to collection
-                    firestoreDb.collection("usersWithChoice")
-                        .document(firebaseAuth.getCurrentUser().getUid())
-                        .set(getCurrentUser())
-                        .addOnCompleteListener(task2 -> {
-                            if (task2.isSuccessful()) {
-                                Log.d(TAG, "User added to users with choice collection");
-                            }
-                        });
-                }
-            });
-
-    }
-
-    @Override
-    public void unchooseRestaurant(@NonNull String restaurantId) {
-        // Removes current user's chosen restaurant
-        if (firebaseAuth.getCurrentUser() != null) {
-            firestoreDb.collection("users").document(firebaseAuth.getCurrentUser().getUid())
-                .collection("chosenRestaurant")
-                .document("value")
-                .delete()
-                .addOnCompleteListener(documentReference -> Log.d(TAG, "Chosen restaurant deleted"))
-                .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
-        }
-
-        // Removes current user from restaurant users
-        firestoreDb.collection("restaurants").document(restaurantId).collection("users")
-            .document(firebaseAuth.getCurrentUser().getUid())
-            .delete()
-            .addOnCompleteListener(documentReference -> {
-                Log.d(TAG, "User " + firebaseAuth.getCurrentUser().getDisplayName() + " removed from restaurant " + restaurantId + " users");
-
-                // Removes restaurant document from chosen restaurants if no users
-                removeRestaurantFromWorkmatesChosenRestaurants(restaurantId);
-            })
-            .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
-
-        // Removes current user from users with choice collection
-        firestoreDb.collection("usersWithChoice").document(firebaseAuth.getCurrentUser().getUid())
-            .delete()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    Log.d(TAG, "User " + firebaseAuth.getCurrentUser().getUid() + " removed from users with choice collection");
-                }
-            });
-    }
-
-    @Override
-    public LiveData<Collection<String>> getFavoritesRestaurantsLiveData() {
-        if (firebaseAuth.getCurrentUser() != null) {
-            return new FirestoreCollectionIdsLiveData(
-                firestoreDb.collection("users").document(firebaseAuth.getCurrentUser().getUid())
-                    .collection("favoriteRestaurants")
-            );
-        }
-        return null;
-    }
-
-    private void removeRestaurantFromWorkmatesChosenRestaurants(@NonNull String restaurantId) {
-        firestoreDb.collection("restaurants").document(restaurantId).collection("users")
-            .get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful() && task.getResult().size() == 0) {
-                    firestoreDb.collection("restaurants").document(restaurantId)
-                        .delete()
-                        .addOnCompleteListener(task2 -> {
-                            if (task2.isSuccessful()) {
-                                Log.d(TAG, "Empty restaurant " + restaurantId + " removed from chosen restaurants");
-                            }
-                        });
-                }
-            });
-    }
-
-
-    @Override
-    public void addRestaurantToFavorites(@NonNull String restaurantId, @NonNull String restaurantName) {
-        final Map<String, Object> restaurantData = new HashMap<>();
-        restaurantData.put("restaurantName", restaurantName);
-
-        if (firebaseAuth.getCurrentUser() != null) {
-            firestoreDb.collection("users").document(firebaseAuth.getCurrentUser().getUid())
-                .collection("favoriteRestaurants")
-                .document(restaurantId)
-                .set(restaurantData)
-                .addOnCompleteListener(documentReference -> Log.d(TAG, restaurantId + " added to favorites"))
-                .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
-        }
-    }
-
-    @Override
-    public void removeRestaurantFromFavorites(@NonNull String restaurantId) {
-        if (firebaseAuth.getCurrentUser() != null) {
-            firestoreDb.collection("users").document(firebaseAuth.getCurrentUser().getUid())
-                .collection("favoriteRestaurants")
-                .document(restaurantId)
-                .delete()
-                .addOnCompleteListener(documentReference -> Log.d(TAG, restaurantId + " removed from favorites"))
-                .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
-        }
-    }
-
     @NonNull
     private WorkmateResponse map(@NonNull FirebaseUser firebaseUser) {
         final Uri photoUrl = firebaseUser.getPhotoUrl();
@@ -265,5 +62,125 @@ public class UserRepositoryImplementation implements UserRepository {
             firebaseUser.getEmail(),
             photoUrl != null ? photoUrl.toString() : null
         );
+    }
+
+    @Override
+    public void chooseRestaurant(@NonNull String restaurantId, @NonNull String restaurantName) {
+        final Map<String, Object> chosenRestaurantData = getCurrentUserData();
+        chosenRestaurantData.put("chosenRestaurantId", restaurantId);
+        chosenRestaurantData.put("chosenRestaurantName", restaurantName);
+
+        if (firebaseAuth.getUid() != null) {
+            firestoreDb
+                .collection("chosenRestaurants")
+                .document(firebaseAuth.getUid())
+                .set(chosenRestaurantData)
+                .addOnCompleteListener(documentReference -> Log.d(TAG, "Chosen restaurant updated (" + restaurantId + ") for user " + firebaseAuth.getUid()))
+                .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
+        }
+    }
+
+    @NonNull
+    private Map<String, Object> getCurrentUserData() {
+        final Map<String, Object> userData = new HashMap<>();
+        if (firebaseAuth.getCurrentUser() != null) {
+            userData.put("id", firebaseAuth.getCurrentUser().getUid());
+            userData.put("username", firebaseAuth.getCurrentUser().getDisplayName());
+            userData.put("email", firebaseAuth.getCurrentUser().getEmail());
+            userData.put("photoUrl", firebaseAuth.getCurrentUser().getPhotoUrl());
+        }
+        return userData;
+    }
+
+    @Override
+    public void unchooseRestaurant() {
+        if (firebaseAuth.getUid() != null) {
+            firestoreDb
+                .collection("chosenRestaurants")
+                .document(firebaseAuth.getUid())
+                .delete()
+                .addOnCompleteListener(documentReference -> Log.d(TAG, "Chosen restaurant deleted for user " + firebaseAuth.getUid()))
+                .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
+        }
+    }
+
+    @Override
+    public void addRestaurantToFavorites(@NonNull String restaurantId, @NonNull String restaurantName) {
+        final Map<String, Object> restaurantData = new HashMap<>();
+        restaurantData.put("restaurantId", restaurantId);
+        restaurantData.put("restaurantName", restaurantName);
+
+        if (firebaseAuth.getUid() != null) {
+            firestoreDb.collection("users")
+                .document(firebaseAuth.getUid())
+                .collection("favoriteRestaurants")
+                .document(restaurantId)
+                .set(restaurantData)
+                .addOnCompleteListener(documentReference -> Log.d(TAG, restaurantId + " added to favorites"))
+                .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
+        }
+    }
+
+    @Override
+    public void removeRestaurantFromFavorites(@NonNull String restaurantId) {
+        if (firebaseAuth.getUid() != null) {
+            firestoreDb.collection("users")
+                .document(firebaseAuth.getUid())
+                .collection("favoriteRestaurants")
+                .document(restaurantId)
+                .delete()
+                .addOnCompleteListener(documentReference -> Log.d(TAG, restaurantId + " removed from favorites"))
+                .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
+        }
+    }
+
+    @Override
+    public LiveData<UserGoingToRestaurantEntity> getChosenRestaurantLiveData() {
+        if (firebaseAuth.getUid() != null) {
+            return new FirestoreDocumentLiveData<UserGoingToRestaurantResponse, UserGoingToRestaurantEntity>(
+                firestoreDb.collection("chosenRestaurants").document(firebaseAuth.getUid()),
+                UserGoingToRestaurantResponse.class
+            ) {
+                @Override
+                public UserGoingToRestaurantEntity map(UserGoingToRestaurantResponse response) {
+                    final UserGoingToRestaurantEntity entity;
+
+                    if (response != null
+                        && response.getId() != null
+                        && response.getUsername() != null
+                        && response.getEmail() != null
+                        && response.getPhotoUrl() != null
+                        && response.getChosenRestaurantId() != null
+                        && response.getChosenRestaurantName() != null) {
+                        entity = new UserGoingToRestaurantEntity(
+                            response.getId(),
+                            response.getUsername(),
+                            response.getEmail(),
+                            response.getPhotoUrl(),
+                            response.getChosenRestaurantId(),
+                            response.getChosenRestaurantName()
+                        );
+                    } else {
+                        entity = null;
+                    }
+
+                    return entity;
+                }
+            };
+        }
+        return null;
+    }
+
+    @Override
+    public LiveData<Collection<String>> getFavoritesRestaurantsLiveData() {
+        if (firebaseAuth.getUid() != null) {
+            return new FirestoreCollectionIdsLiveData(
+                firestoreDb
+                    .collection("users")
+                    .document(firebaseAuth.getUid())
+                    .collection("favoriteRestaurants")
+            );
+        }
+        return null;
     }
 }

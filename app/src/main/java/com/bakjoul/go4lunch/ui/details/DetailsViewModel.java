@@ -20,7 +20,7 @@ import com.bakjoul.go4lunch.data.model.PeriodResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
-import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
+import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 
 import java.time.Clock;
@@ -77,13 +77,13 @@ public class DetailsViewModel extends ViewModel {
         restaurantId = savedStateHandle.get(KEY);
 
         final LiveData<DetailsResponse> detailsResponseLiveData;
-        final LiveData<List<WorkmateEntity>> workmatesLiveData;
-        final LiveData<String> chosenRestaurantLiveData;
+        final LiveData<List<UserGoingToRestaurantEntity>> workmatesLiveData;
+        final LiveData<UserGoingToRestaurantEntity> chosenRestaurantLiveData;
         final LiveData<Collection<String>> favoriteRestaurantsLiveData;
 
         if (restaurantId != null) {
             detailsResponseLiveData = restaurantDetailsRepository.getDetailsResponse(restaurantId, BuildConfig.MAPS_API_KEY);
-            workmatesLiveData = workmateRepositoryImplementation.getWorkmatesForRestaurantIdLiveData(restaurantId);
+            workmatesLiveData = workmateRepositoryImplementation.getWorkmatesGoingToRestaurantIdLiveData(restaurantId);
             chosenRestaurantLiveData = userRepositoryImplementation.getChosenRestaurantLiveData();
             favoriteRestaurantsLiveData = userRepositoryImplementation.getFavoritesRestaurantsLiveData();
 
@@ -104,11 +104,11 @@ public class DetailsViewModel extends ViewModel {
 
     private void combine(
         @Nullable DetailsResponse response,
-        @Nullable List<WorkmateEntity> workmates,
-        @Nullable String chosenRestaurant,
+        @Nullable List<UserGoingToRestaurantEntity> workmates,
+        @Nullable UserGoingToRestaurantEntity chosenRestaurant,
         @Nullable Collection<String> favoriteRestaurants
     ) {
-        if (response == null || workmates == null || chosenRestaurant == null || favoriteRestaurants == null) {
+        if (response == null || workmates == null || favoriteRestaurants == null) {
             return;
         }
 
@@ -116,7 +116,7 @@ public class DetailsViewModel extends ViewModel {
         boolean isRestaurantFavorite = false;
 
         // Checks if current restaurant is chosen by user
-        if (chosenRestaurant.equals(restaurantId)) {
+        if (chosenRestaurant != null && chosenRestaurant.getChosenRestaurantId().equals(restaurantId)) {
             isRestaurantChosen = true;
         }
 
@@ -149,7 +149,7 @@ public class DetailsViewModel extends ViewModel {
     @NonNull
     private DetailsViewState mapResponse(
         @NonNull DetailsResponse response,
-        @NonNull List<WorkmateEntity> workmates,
+        @NonNull List<UserGoingToRestaurantEntity> workmates,
         boolean isRestaurantChosen,
         boolean isRestaurantFavorite
     ) {
@@ -173,14 +173,14 @@ public class DetailsViewModel extends ViewModel {
     }
 
     @NonNull
-    private List<DetailsItemViewState> mapWorkmates(@NonNull List<WorkmateEntity> workmates) {
+    private List<DetailsItemViewState> mapWorkmates(@NonNull List<UserGoingToRestaurantEntity> workmates) {
         List<DetailsItemViewState> workmatesList = new ArrayList<>();
-        for (WorkmateEntity workmate : workmates) {
+        for (UserGoingToRestaurantEntity entity : workmates) {
             DetailsItemViewState workmateItem = new DetailsItemViewState(
-                workmate.getId(),
-                workmate.getUsername(),
-                workmate.getPhotoUrl(),
-                workmate.getUsername() + application.getString(R.string.details_text_joining)
+                entity.getId(),
+                entity.getUsername(),
+                entity.getPhotoUrl(),
+                entity.getUsername() + application.getString(R.string.details_text_joining)
             );
             workmatesList.add(workmateItem);
         }
@@ -325,8 +325,8 @@ public class DetailsViewModel extends ViewModel {
         userRepositoryImplementation.chooseRestaurant(restaurantId, restaurantName);
     }
 
-    public void onRestaurantUnchoosed(String restaurantId) {
-        userRepositoryImplementation.unchooseRestaurant(restaurantId);
+    public void onRestaurantUnchoosed() {
+        userRepositoryImplementation.unchooseRestaurant();
     }
 
     public void onFavoriteButtonClicked(String restaurantId, String restaurantName) {

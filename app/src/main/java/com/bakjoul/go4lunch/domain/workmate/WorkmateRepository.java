@@ -2,19 +2,21 @@ package com.bakjoul.go4lunch.domain.workmate;
 
 import androidx.lifecycle.LiveData;
 
+import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
+
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
 public interface WorkmateRepository {
 
-    LiveData<List<WorkmateEntity>> getAvailableWorkmatesLiveData();
+    LiveData<List<UserGoingToRestaurantEntity>> getWorkmatesGoingToRestaurantLiveData();
 
     LiveData<Collection<String>> getWorkmatesChosenRestaurantsLiveData();
 
-    LiveData<List<WorkmateEntity>> getWorkmatesForRestaurantIdLiveData(String restaurantId);
+    LiveData<List<UserGoingToRestaurantEntity>> getWorkmatesGoingToRestaurantIdLiveData(String restaurantId);
 
     LiveData<Map<String, Integer>> getRestaurantsAttendance();
 
-    LiveData<Map<String, Map<String, Object>>> getWorkmatesWithChoiceLiveData();
+    LiveData<List<WorkmateEntity>> getAvailableWorkmatesLiveData();
 }
