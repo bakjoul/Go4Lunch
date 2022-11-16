@@ -20,43 +20,43 @@ import retrofit2.Response;
 @Singleton
 public class RestaurantDetailsRepository {
 
-   private static final String TAG = "RestaurantDetailsRepo";
+    private static final String TAG = "RestaurantDetailsRepo";
 
-   @NonNull
-   private final RestaurantApi restaurantApi;
+    @NonNull
+    private final RestaurantApi restaurantApi;
 
-   private final LruCache<String, DetailsResponse> lruCache = new LruCache<>(500);
+    private final LruCache<String, DetailsResponse> lruCache = new LruCache<>(500);
 
-   @Inject
-   public RestaurantDetailsRepository(@NonNull RestaurantApi restaurantApi) {
-      this.restaurantApi = restaurantApi;
-   }
+    @Inject
+    public RestaurantDetailsRepository(@NonNull RestaurantApi restaurantApi) {
+        this.restaurantApi = restaurantApi;
+    }
 
-   public LiveData<DetailsResponse> getDetailsResponse(@NonNull String restaurantId, @NonNull String key) {
-      MutableLiveData<DetailsResponse> detailsResponseMutableLiveData = new MutableLiveData<>();
+    public LiveData<DetailsResponse> getDetailsResponse(@NonNull String restaurantId, @NonNull String key) {
+        MutableLiveData<DetailsResponse> detailsResponseMutableLiveData = new MutableLiveData<>();
 
-      DetailsResponse existingResponse = lruCache.get(restaurantId);
-      if (existingResponse != null) {
-         detailsResponseMutableLiveData.setValue(existingResponse);
-      } else {
-         restaurantApi.getRestaurantDetails(restaurantId, key).enqueue(new Callback<DetailsResponse>() {
-            @Override
-            public void onResponse(@NonNull Call<DetailsResponse> call, @NonNull Response<DetailsResponse> response) {
-               DetailsResponse body = response.body();
-               // Saves response in cache
-               if (response.isSuccessful() && body != null && body.getStatus().equals("OK")) {
-                  lruCache.put(restaurantId, body);
-               }
-               detailsResponseMutableLiveData.setValue(body);
-            }
+        DetailsResponse existingResponse = lruCache.get(restaurantId);
+        if (existingResponse != null) {
+            detailsResponseMutableLiveData.setValue(existingResponse);
+        } else {
+            restaurantApi.getRestaurantDetails(restaurantId, key).enqueue(new Callback<DetailsResponse>() {
+                @Override
+                public void onResponse(@NonNull Call<DetailsResponse> call, @NonNull Response<DetailsResponse> response) {
+                    DetailsResponse body = response.body();
+                    // Saves response in cache
+                    if (response.isSuccessful() && body != null && body.getStatus().equals("OK")) {
+                        lruCache.put(restaurantId, body);
+                    }
+                    detailsResponseMutableLiveData.setValue(body);
+                }
 
-            @Override
-            public void onFailure(@NonNull Call<DetailsResponse> call, @NonNull Throwable t) {
-               Log.d(TAG, "onFailure: ");
-               detailsResponseMutableLiveData.setValue(null);
-            }
-         });
-      }
-      return detailsResponseMutableLiveData;
-   }
+                @Override
+                public void onFailure(@NonNull Call<DetailsResponse> call, @NonNull Throwable t) {
+                    Log.d(TAG, "onFailure: ");
+                    detailsResponseMutableLiveData.setValue(null);
+                }
+            });
+        }
+        return detailsResponseMutableLiveData;
+    }
 }

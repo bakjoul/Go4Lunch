@@ -15,20 +15,20 @@ import org.mockito.Mockito;
 
 public class MainViewModelTest {
 
-   @Rule
-   public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+    @Rule
+    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-   private final Context context = Mockito.mock(Context.class);
-   private final FirebaseAuth firebaseAuth = Mockito.mock(FirebaseAuth.class);
-   private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
-   private final LocationPermissionRepository locationPermissionRepository = Mockito.mock(LocationPermissionRepository.class);
-   private final WorkmateRepositoryImplementation workmateRepository = Mockito.mock(WorkmateRepositoryImplementation.class);
+    private final Context context = Mockito.mock(Context.class);
+    private final FirebaseAuth firebaseAuth = Mockito.mock(FirebaseAuth.class);
+    private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
+    private final LocationPermissionRepository locationPermissionRepository = Mockito.mock(LocationPermissionRepository.class);
+    private final WorkmateRepositoryImplementation workmateRepository = Mockito.mock(WorkmateRepositoryImplementation.class);
 
-   private MainViewModel viewModel;
+    private MainViewModel viewModel;
 
-   @Before
-   public void setUp() {
-      viewModel = new MainViewModel(context, firebaseAuth, gpsLocationRepository, locationPermissionRepository, workmateRepository);
-   }
+    @Before
+    public void setUp() {
+        viewModel = new MainViewModel(context, firebaseAuth, gpsLocationRepository, locationPermissionRepository, workmateRepository);
+    }
 
 }

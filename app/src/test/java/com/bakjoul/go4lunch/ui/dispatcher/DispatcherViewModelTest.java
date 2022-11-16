@@ -14,29 +14,29 @@ import org.mockito.Mockito;
 
 public class DispatcherViewModelTest {
 
-   @Rule
-   public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+    @Rule
+    public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-   private final FirebaseAuth firebaseAuth = Mockito.mock(FirebaseAuth.class);
+    private final FirebaseAuth firebaseAuth = Mockito.mock(FirebaseAuth.class);
 
-   private DispatcherViewModel viewModel;
+    private DispatcherViewModel viewModel;
 
-   @Before
-   public void setUp() {
-      viewModel = new DispatcherViewModel(firebaseAuth);
-   }
+    @Before
+    public void setUp() {
+        viewModel = new DispatcherViewModel(firebaseAuth);
+    }
 
-   @Test
-   public void currentUser_null_should_expose_go_to_connect_screen_view_action() {
-      // Given
-      doReturn(null).when(firebaseAuth).getCurrentUser();
+    @Test
+    public void currentUser_null_should_expose_go_to_connect_screen_view_action() {
+        // Given
+        doReturn(null).when(firebaseAuth).getCurrentUser();
 
-      // When
-      DispatcherViewAction result = viewModel.getViewActionSingleLiveEvent().getValue();
+        // When
+        DispatcherViewAction result = viewModel.getViewActionSingleLiveEvent().getValue();
 
-      // Then
-      assertEquals(DispatcherViewAction.GO_TO_CONNECT_SCREEN, result);
-   }
+        // Then
+        assertEquals(DispatcherViewAction.GO_TO_CONNECT_SCREEN, result);
+    }
 
 /*   @Test
    public void currentUser_non_null_should_expose_go_to_main_screen_view_action() {

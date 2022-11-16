@@ -5,10 +5,10 @@ import androidx.lifecycle.LiveData;
 
 public class LiveDataTestUtil {
 
-   public static <T> T getValueForTesting(@NonNull final LiveData<T> liveData) {
-      liveData.observeForever(t -> {
-      });
+    public static <T> T getValueForTesting(@NonNull final LiveData<T> liveData) {
+        liveData.observeForever(t -> {
+        });
 
-      return liveData.getValue();
-   }
+        return liveData.getValue();
+    }
 }

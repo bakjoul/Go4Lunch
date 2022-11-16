@@ -14,22 +14,22 @@ import javax.inject.Inject;
 
 public class LocationDistanceUtil {
 
-   @Inject
-   public LocationDistanceUtil() {
-   }
+    @Inject
+    public LocationDistanceUtil() {
+    }
 
-   public String getDistanceToStringFormat(@NonNull Location currentLocation, @NonNull LocationResponse restaurantLocationResponse) {
-      return String.format(
-          Locale.getDefault(),
-          "%.0fm",
-          SphericalUtil.computeDistanceBetween(
-              new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
-              new LatLng(restaurantLocationResponse.getLat(), restaurantLocationResponse.getLng())
-          )
-      );
-   }
+    public String getDistanceToStringFormat(@NonNull Location currentLocation, @NonNull LocationResponse restaurantLocationResponse) {
+        return String.format(
+            Locale.getDefault(),
+            "%.0fm",
+            SphericalUtil.computeDistanceBetween(
+                new LatLng(currentLocation.getLatitude(), currentLocation.getLongitude()),
+                new LatLng(restaurantLocationResponse.getLat(), restaurantLocationResponse.getLng())
+            )
+        );
+    }
 
-   public double getDistance(@NonNull LatLng newPosition, @NonNull LatLng oldPosition) {
-      return SphericalUtil.computeDistanceBetween(newPosition, oldPosition);
-   }
+    public double getDistance(@NonNull LatLng newPosition, @NonNull LatLng oldPosition) {
+        return SphericalUtil.computeDistanceBetween(newPosition, oldPosition);
+    }
 }

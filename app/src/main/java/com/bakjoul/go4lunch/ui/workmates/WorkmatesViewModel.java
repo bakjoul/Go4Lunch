@@ -7,8 +7,8 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
-import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
+import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 
 import java.util.ArrayList;
 import java.util.List;

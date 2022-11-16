@@ -24,63 +24,63 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class RestaurantsFragment extends Fragment implements RestaurantsAdapter.OnRestaurantClickListener {
 
-   private FragmentRestaurantsBinding binding;
+    private FragmentRestaurantsBinding binding;
 
-   @NonNull
-   public static RestaurantsFragment newInstance() {
-      return new RestaurantsFragment();
-   }
+    @NonNull
+    public static RestaurantsFragment newInstance() {
+        return new RestaurantsFragment();
+    }
 
-   @Nullable
-   @Override
-   public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-      binding = FragmentRestaurantsBinding.inflate(inflater, container, false);
-      return binding.getRoot();
-   }
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        binding = FragmentRestaurantsBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
 
-   @Override
-   public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-      super.onViewCreated(view, savedInstanceState);
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
 
-      RestaurantsViewModel viewModel = new ViewModelProvider(this).get(RestaurantsViewModel.class);
+        RestaurantsViewModel viewModel = new ViewModelProvider(this).get(RestaurantsViewModel.class);
 
-      RestaurantsAdapter adapter = new RestaurantsAdapter(this);
-      binding.restaurantsRecyclerView.setAdapter(adapter);
-      DividerItemDecoration itemDecoration = new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
-      itemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(requireContext(), R.drawable.custom_divider)));
-      binding.restaurantsRecyclerView.addItemDecoration(itemDecoration);
+        RestaurantsAdapter adapter = new RestaurantsAdapter(this);
+        binding.restaurantsRecyclerView.setAdapter(adapter);
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
+        itemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(requireContext(), R.drawable.custom_divider)));
+        binding.restaurantsRecyclerView.addItemDecoration(itemDecoration);
 
-      viewModel.getRestaurantsViewStateLiveData().observe(getViewLifecycleOwner(), viewState -> {
-             if (viewState.isProgressBarVisible()) {
-                binding.listProgressBar.setVisibility(View.VISIBLE);
-             } else {
-                binding.listProgressBar.setVisibility(View.GONE);
-             }
+        viewModel.getRestaurantsViewStateLiveData().observe(getViewLifecycleOwner(), viewState -> {
+                if (viewState.isProgressBarVisible()) {
+                    binding.listProgressBar.setVisibility(View.VISIBLE);
+                } else {
+                    binding.listProgressBar.setVisibility(View.GONE);
+                }
 
-             adapter.submitList(viewState.getRestaurantsItemViewStates());
+                adapter.submitList(viewState.getRestaurantsItemViewStates());
 
-             if (viewState.isEmptyStateVisible()) {
-                binding.restaurantsEmpty.setVisibility(View.VISIBLE);
-             } else {
-                binding.restaurantsEmpty.setVisibility(View.GONE);
-             }
-          }
-      );
+                if (viewState.isEmptyStateVisible()) {
+                    binding.restaurantsEmpty.setVisibility(View.VISIBLE);
+                } else {
+                    binding.restaurantsEmpty.setVisibility(View.GONE);
+                }
+            }
+        );
 
-      viewModel.getIsRetryBarVisibleSingleLiveEvent().observe(getViewLifecycleOwner(), isRetryBarVisible -> {
-         if (isRetryBarVisible) {
-            Snackbar
-                .make(binding.getRoot(), R.string.snackbar_message, Snackbar.LENGTH_INDEFINITE)
-                .setAction(R.string.snackbar_retry, v -> viewModel.onRetryButtonClicked())
-                .show();
-         }
-      });
-   }
+        viewModel.getIsRetryBarVisibleSingleLiveEvent().observe(getViewLifecycleOwner(), isRetryBarVisible -> {
+            if (isRetryBarVisible) {
+                Snackbar
+                    .make(binding.getRoot(), R.string.snackbar_message, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.snackbar_retry, v -> viewModel.onRetryButtonClicked())
+                    .show();
+            }
+        });
+    }
 
-   @Override
-   public void onRestaurantClicked(int position) {
-      DetailsActivity.navigate(
-          binding.restaurantsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString(), getActivity()
-      );
-   }
+    @Override
+    public void onRestaurantClicked(int position) {
+        DetailsActivity.navigate(
+            binding.restaurantsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString(), getActivity()
+        );
+    }
 }

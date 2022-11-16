@@ -61,14 +61,13 @@ public class RestaurantRepository {
 
         // For testing
         if (randomBoolean) {
-            Log.d("test", "Request made");
+            Log.d("test", "Request initiated");
             //
 
             NearbySearchQuery query = generateQuery(location.getLatitude(), location.getLongitude());
             NearbySearchResponse existingResponse = lruCache.get(query);
 
             if (existingResponse != null) {
-                Log.d("test", "getNearbyRestaurants: from cache");
                 wrapperMutableLiveData.setValue(
                     new RestaurantResponseWrapper(
                         existingResponse,

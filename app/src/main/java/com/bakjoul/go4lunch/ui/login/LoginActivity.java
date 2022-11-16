@@ -39,134 +39,134 @@ import jp.wasabeef.glide.transformations.BlurTransformation;
 
 public class LoginActivity extends AppCompatActivity {
 
-   private static final String TAG = "LoginActivity";
+    private static final String TAG = "LoginActivity";
 
-   private ActivityLoginBinding binding;
+    private ActivityLoginBinding binding;
 
-   private FirebaseAuth firebaseAuth;
-   private CallbackManager callbackManager;
-   private ActivityResultLauncher<Intent> activityResultLauncher;
+    private FirebaseAuth firebaseAuth;
+    private CallbackManager callbackManager;
+    private ActivityResultLauncher<Intent> activityResultLauncher;
 
-   private long lastClickTime = 0;
+    private long lastClickTime = 0;
 
-   @Override
-   protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      binding = ActivityLoginBinding.inflate(getLayoutInflater());
-      setContentView(binding.getRoot());
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityLoginBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-      firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuth = FirebaseAuth.getInstance();
 
-      setBackground();
-      initFacebookLoginButton();
-      initGoogleLoginButton();
-   }
+        setBackground();
+        initFacebookLoginButton();
+        initGoogleLoginButton();
+    }
 
-   private void setBackground() {
-      ImageView background = binding.loginBackground;
-      Glide.with(getApplicationContext())
-          .load(R.drawable.bkg_colleagues_lunch)
-          .transform(new BlurTransformation(25, 1))
-          .into(background);
-   }
+    private void setBackground() {
+        ImageView background = binding.loginBackground;
+        Glide.with(getApplicationContext())
+            .load(R.drawable.bkg_colleagues_lunch)
+            .transform(new BlurTransformation(25, 1))
+            .into(background);
+    }
 
-   private void initFacebookLoginButton() {
-      callbackManager = CallbackManager.Factory.create();
-      LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-         @Override
-         public void onSuccess(LoginResult loginResult) {
-            Log.d(TAG, "facebook:onSuccess:" + loginResult);
+    private void initFacebookLoginButton() {
+        callbackManager = CallbackManager.Factory.create();
+        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                Log.d(TAG, "facebook:onSuccess:" + loginResult);
 
-            handleFacebookAccessToken(loginResult.getAccessToken());
-         }
+                handleFacebookAccessToken(loginResult.getAccessToken());
+            }
 
-         @Override
-         public void onCancel() {
-            Log.d(TAG, "facebook:onCancel");
-         }
+            @Override
+            public void onCancel() {
+                Log.d(TAG, "facebook:onCancel");
+            }
 
-         @Override
-         public void onError(@NonNull FacebookException e) {
-            Log.d(TAG, "facebook:onError", e);
-         }
-      });
+            @Override
+            public void onError(@NonNull FacebookException e) {
+                Log.d(TAG, "facebook:onError", e);
+            }
+        });
 
-      binding.loginButtonFacebook.setOnClickListener(view -> {
-         if (SystemClock.elapsedRealtime() - lastClickTime < 1000) {
-            return;
-         }
-         lastClickTime = SystemClock.elapsedRealtime();
+        binding.loginButtonFacebook.setOnClickListener(view -> {
+            if (SystemClock.elapsedRealtime() - lastClickTime < 1000) {
+                return;
+            }
+            lastClickTime = SystemClock.elapsedRealtime();
 
-         LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, callbackManager, Arrays.asList("email", "public_profile"));
-      });
-   }
+            LoginManager.getInstance().logInWithReadPermissions(LoginActivity.this, callbackManager, Arrays.asList("email", "public_profile"));
+        });
+    }
 
-   private void handleFacebookAccessToken(@NonNull AccessToken token) {
-      Log.d(TAG, "handleFacebookAccessToken:" + token);
+    private void handleFacebookAccessToken(@NonNull AccessToken token) {
+        Log.d(TAG, "handleFacebookAccessToken:" + token);
 
-      AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
-      firebaseAuth.signInWithCredential(credential)
-          .addOnCompleteListener(this, task -> {
-             if (task.isSuccessful()) {
-                Log.d(TAG, "signInWithCredential:success");
+        AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
+        firebaseAuth.signInWithCredential(credential)
+            .addOnCompleteListener(this, task -> {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "signInWithCredential:success");
 
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
-             } else {
-                Log.w(TAG, "signInWithCredential:failure", task.getException());
-             }
-          });
-   }
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Log.w(TAG, "signInWithCredential:failure", task.getException());
+                }
+            });
+    }
 
-   private void initGoogleLoginButton() {
-      activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onGoogleSignInResult);
-      binding.loginButtonGoogle.setOnClickListener(view -> {
-         if (SystemClock.elapsedRealtime() - lastClickTime < 1000) {
-            return;
-         }
-         lastClickTime = SystemClock.elapsedRealtime();
-         googleSignIn();
-      });
-   }
+    private void initGoogleLoginButton() {
+        activityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), this::onGoogleSignInResult);
+        binding.loginButtonGoogle.setOnClickListener(view -> {
+            if (SystemClock.elapsedRealtime() - lastClickTime < 1000) {
+                return;
+            }
+            lastClickTime = SystemClock.elapsedRealtime();
+            googleSignIn();
+        });
+    }
 
-   private void googleSignIn() {
-      GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-          .requestIdToken(getString(R.string.google_server_client_id))
-          .requestEmail()
-          .build();
-      GoogleSignInClient signInClient = GoogleSignIn.getClient(LoginActivity.this, gso);
-      activityResultLauncher.launch(signInClient.getSignInIntent());
-   }
+    private void googleSignIn() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(getString(R.string.google_server_client_id))
+            .requestEmail()
+            .build();
+        GoogleSignInClient signInClient = GoogleSignIn.getClient(LoginActivity.this, gso);
+        activityResultLauncher.launch(signInClient.getSignInIntent());
+    }
 
-   private void onGoogleSignInResult(@NonNull ActivityResult result) {
-      if (result.getResultCode() == RESULT_OK) {
-         Intent data = result.getData();
-         Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-         try {
-            GoogleSignInAccount account = task.getResult(ApiException.class);
-            handleGoogleAccessToken(account);
-         } catch (ApiException e) {
-            Log.w(TAG, "Google sign in failed", e);
-         }
-      }
-   }
+    private void onGoogleSignInResult(@NonNull ActivityResult result) {
+        if (result.getResultCode() == RESULT_OK) {
+            Intent data = result.getData();
+            Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+            try {
+                GoogleSignInAccount account = task.getResult(ApiException.class);
+                handleGoogleAccessToken(account);
+            } catch (ApiException e) {
+                Log.w(TAG, "Google sign in failed", e);
+            }
+        }
+    }
 
-   private void handleGoogleAccessToken(@NonNull GoogleSignInAccount account) {
-      AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
-      firebaseAuth.signInWithCredential(credential)
-          .addOnCompleteListener(this, task -> {
-             if (task.isSuccessful()) {
-                Log.d(TAG, "signInWithCredential:success ");
+    private void handleGoogleAccessToken(@NonNull GoogleSignInAccount account) {
+        AuthCredential credential = GoogleAuthProvider.getCredential(account.getIdToken(), null);
+        firebaseAuth.signInWithCredential(credential)
+            .addOnCompleteListener(this, task -> {
+                if (task.isSuccessful()) {
+                    Log.d(TAG, "signInWithCredential:success ");
 
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                startActivity(intent);
-                finish();
-             } else {
-                Log.w(TAG, "signInWithCredential:failure", task.getException());
-             }
-          });
-   }
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                    startActivity(intent);
+                    finish();
+                } else {
+                    Log.w(TAG, "signInWithCredential:failure", task.getException());
+                }
+            });
+    }
 }

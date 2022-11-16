@@ -5,7 +5,6 @@ import static com.bakjoul.go4lunch.data.restaurants.RestaurantRepository.TYPE;
 
 import android.location.Location;
 import android.location.LocationManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -144,7 +143,7 @@ public class MapViewModel extends ViewModel {
 
             map(restaurantResponseWrapper, restaurantsMarkers, chosenRestaurants);
 
-            // Updates last know location
+            // Updates last known location
             lastLocation = currentLocation;
         }
 

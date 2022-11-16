@@ -11,17 +11,17 @@ import javax.inject.Singleton;
 @Singleton
 public class MapLocationRepository {
 
-   private final MutableLiveData<Location> mapLocationMutableLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Location> mapLocationMutableLiveData = new MutableLiveData<>();
 
-   @Inject
-   public MapLocationRepository() {
-   }
+    @Inject
+    public MapLocationRepository() {
+    }
 
-   public void setCurrentMapLocation(Location currentMapLocation) {
-      mapLocationMutableLiveData.setValue(currentMapLocation);
-   }
+    public void setCurrentMapLocation(Location currentMapLocation) {
+        mapLocationMutableLiveData.setValue(currentMapLocation);
+    }
 
-   public LiveData<Location> getCurrentMapLocationLiveData() {
-      return mapLocationMutableLiveData;
-   }
+    public LiveData<Location> getCurrentMapLocationLiveData() {
+        return mapLocationMutableLiveData;
+    }
 }
