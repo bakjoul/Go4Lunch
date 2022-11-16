@@ -1,5 +1,7 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
+import android.graphics.PorterDuff;
+import android.graphics.drawable.LayerDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -65,6 +67,10 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
             }
             binding.restaurantsItemAttendance.setText(viewState.getAttendance());
             binding.restaurantsItemRating.setRating(viewState.getRating());
+            // Sets RatingBar progress color
+            LayerDrawable stars = (LayerDrawable) binding.restaurantsItemRating.getProgressDrawable();
+            stars.getDrawable(1).setColorFilter(itemView.getResources().getColor(R.color.yellow), PorterDuff.Mode.SRC_ATOP);
+            stars.getDrawable(2).setColorFilter(itemView.getResources().getColor(R.color.yellow), PorterDuff.Mode.SRC_ATOP);
             if (viewState.isRatingBarVisible()) {
                 binding.restaurantsItemRating.setVisibility(View.VISIBLE);
             } else {
