@@ -23,9 +23,9 @@
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/main_toolbar"
-                app:titleTextColor="@color/white"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize" />
+                android:layout_height="?attr/actionBarSize"
+                app:titleTextColor="@color/white" />
         </com.google.android.material.appbar.AppBarLayout>
 
         <FrameLayout
@@ -42,6 +42,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom"
+            app:itemIconTint="@color/main_bottom_navigation_color"
+            app:itemTextColor="@color/main_bottom_navigation_color"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
