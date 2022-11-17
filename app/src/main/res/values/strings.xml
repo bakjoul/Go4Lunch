@@ -43,5 +43,6 @@
     <string name="workmates_empty">Aucun collègue disponible</string>
     <string name="restaurants_empty">Aucun restaurant trouvé</string>
     <string name="details_text_joining">\u0020is joining!</string>
+    <string name="main_toast_lunch">Vous n\'avez pas encore fait votre choix</string>
 
 </resources>

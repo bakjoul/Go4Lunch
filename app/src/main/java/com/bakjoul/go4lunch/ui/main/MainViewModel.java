@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.R;
@@ -46,13 +47,13 @@ public class MainViewModel extends ViewModel {
     @NonNull
     private final LocationPermissionRepository locationPermissionRepository;
 
-    private final MutableLiveData<MainViewState> mainActivityViewStateLiveData = new MutableLiveData<>();
-
     private final MutableLiveData<BottomNavigationViewButton> bottomNavigationViewButtonMutableLiveData = new MutableLiveData<>(
         BottomNavigationViewButton.MAP
     );
 
     private final SingleLiveEvent<FragmentToDisplay> fragmentToDisplaySingleLiveEvent = new SingleLiveEvent<>();
+
+    private LiveData<MainViewState> mainActivityViewStateLiveData;
 
     @Inject
     public MainViewModel(
@@ -70,12 +71,27 @@ public class MainViewModel extends ViewModel {
         if (firebaseAuth.getCurrentUser() != null) {
             userRepositoryImplementation.createFirestoreUser();
 
-            mainActivityViewStateLiveData.setValue(
-                new MainViewState(
-                    firebaseAuth.getCurrentUser().getPhotoUrl(),
-                    firebaseAuth.getCurrentUser().getDisplayName(),
-                    firebaseAuth.getCurrentUser().getEmail()
-                )
+            mainActivityViewStateLiveData = Transformations.switchMap(
+                userRepositoryImplementation.getChosenRestaurantLiveData(),
+                response -> {
+                    MainViewState mainViewState = new MainViewState(
+                        firebaseAuth.getCurrentUser().getPhotoUrl(),
+                        firebaseAuth.getCurrentUser().getDisplayName(),
+                        firebaseAuth.getCurrentUser().getEmail(),
+                        null
+                    );
+
+                    // Updates view state if user has chosen a restaurant
+                    if (response != null) {
+                        mainViewState = new MainViewState(
+                            firebaseAuth.getCurrentUser().getPhotoUrl(),
+                            firebaseAuth.getCurrentUser().getDisplayName(),
+                            firebaseAuth.getCurrentUser().getEmail(),
+                            response.getChosenRestaurantId()
+                        );
+                    }
+                    return new MutableLiveData<>(mainViewState);
+                }
             );
         }
 

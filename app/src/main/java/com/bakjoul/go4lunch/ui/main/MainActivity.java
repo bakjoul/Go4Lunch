@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -25,6 +26,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.ActivityMainBinding;
 import com.bakjoul.go4lunch.ui.NoPermissionFragment;
+import com.bakjoul.go4lunch.ui.details.DetailsActivity;
 import com.bakjoul.go4lunch.ui.dispatcher.DispatcherActivity;
 import com.bakjoul.go4lunch.ui.main.MainViewModel.BottomNavigationViewButton;
 import com.bakjoul.go4lunch.ui.main.MainViewModel.FragmentToDisplay;
@@ -44,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
 
     private boolean isBottomNavigationViewListenerDisabled = false;
 
-    @SuppressLint("NonConstantResourceId")
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,25 +56,51 @@ public class MainActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
+        setToolbar();
+        setBottomNavigationView();
+        DrawerLayout drawerLayout = binding.mainDrawerLayout;
+        drawerLayout.setStatusBarBackground(R.color.primaryDarkColor);
+
         View header = binding.mainNavigationView.getHeaderView(0);
         AppCompatImageView photo = header.findViewById(R.id.main_drawer_user_photo);
         TextView username = header.findViewById(R.id.main_drawer_user_name);
         TextView email = header.findViewById(R.id.main_drawer_user_email);
 
-        setToolbar();
-        setDrawer();
-        setBottomNavigationView();
-
-        viewModel.getMainActivityViewStateLiveData().observe(this, mainViewState -> {
+        viewModel.getMainActivityViewStateLiveData().observe(this, viewState -> {
             Glide.with(photo.getContext())
-                .load(mainViewState.getPhotoUrl())
+                .load(viewState.getPhotoUrl())
                 .apply(RequestOptions.circleCropTransform())
                 .into(photo);
-            username.setText(mainViewState.getUsername());
-            email.setText(mainViewState.getEmail());
+            username.setText(viewState.getUsername());
+            email.setText(viewState.getEmail());
+
+            setMainNavigationView(viewState);
         });
 
         viewModel.getFragmentToDisplaySingleLiveEvent().observe(this, this::displayFragment);
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    private void setMainNavigationView(MainViewState viewState) {
+        binding.mainNavigationView.setNavigationItemSelectedListener(item -> {
+            switch (item.getItemId()) {
+                case R.id.mainNavigationDrawer_menu_lunch:
+                    if (viewState.getChosenRestaurantId() != null) {
+                        DetailsActivity.navigate(viewState.getChosenRestaurantId(), this);
+                    } else {
+                        Toast.makeText(getApplicationContext(), R.string.main_toast_lunch, Toast.LENGTH_LONG).show();
+                    }
+                    break;
+                case R.id.mainNavigationDrawer_menu_settings:
+                    break;
+                case R.id.mainNavigationDrawer_menu_logout:
+                    viewModel.logOut();
+                    startActivity(new Intent(this, DispatcherActivity.class));
+                    finish();
+                    break;
+            }
+            return true;
+        });
     }
 
     @Override
@@ -95,27 +122,6 @@ public class MainActivity extends AppCompatActivity {
         binding.mainToolbar.setNavigationOnClickListener(view ->
             binding.mainDrawerLayout.openDrawer(GravityCompat.START)
         );
-    }
-
-    @SuppressLint("NonConstantResourceId")
-    private void setDrawer() {
-        DrawerLayout drawerLayout = binding.mainDrawerLayout;
-        drawerLayout.setStatusBarBackground(R.color.primaryDarkColor);
-
-        binding.mainNavigationView.setNavigationItemSelectedListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.mainNavigationDrawer_menu_lunch:
-                    break;
-                case R.id.mainNavigationDrawer_menu_settings:
-                    break;
-                case R.id.mainNavigationDrawer_menu_logout:
-                    viewModel.logOut();
-                    startActivity(new Intent(MainActivity.this, DispatcherActivity.class));
-                    finish();
-                    break;
-            }
-            return true;
-        });
     }
 
     private void setBottomNavigationView() {
