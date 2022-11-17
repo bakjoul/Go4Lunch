@@ -60,6 +60,7 @@ public class WorkmatesViewModel extends ViewModel {
         @NonNull List<UserGoingToRestaurantEntity> workmateGoingToRestaurantList
     ) {
         List<WorkmateItemViewState> workmateItemViewStateList = new ArrayList<>();
+        List<WorkmateItemViewState> workmateWithoutChosenRestaurantList = new ArrayList<>();
         for (WorkmateEntity workmateEntity : availableWorkmates) {
             String chosenRestaurantId = null;
             String chosenRestaurantName = null;
@@ -77,8 +78,15 @@ public class WorkmatesViewModel extends ViewModel {
                 chosenRestaurantId,
                 chosenRestaurantName
             );
-            workmateItemViewStateList.add(workmateItemViewState);
+
+            // For sorting, workmates going to restaurants will be displayed first
+            if (workmateItemViewState.getChosenRestaurantId() == null) {
+                workmateWithoutChosenRestaurantList.add(workmateItemViewState);
+            } else {
+                workmateItemViewStateList.add(workmateItemViewState);
+            }
         }
+        workmateItemViewStateList.addAll(workmateWithoutChosenRestaurantList);
         return workmateItemViewStateList;
     }
 }
