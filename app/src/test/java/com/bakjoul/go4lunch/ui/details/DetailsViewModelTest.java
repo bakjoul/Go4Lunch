@@ -176,7 +176,9 @@ public class DetailsViewModelTest {
         doReturn(OPEN_AT).when(application).getString(R.string.details_open_at);
 
         doReturn(detailsResponseLiveData).when(restaurantDetailsRepository).getDetailsResponse(anyString(), anyString());
-        doReturn(workmatesLiveData).when(workmateRepositoryImplementation).getAvailableWorkmatesLiveData();
+        doReturn(workmatesLiveData).when(workmateRepositoryImplementation).getWorkmatesGoingToRestaurantIdLiveData(
+            RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()
+        );
         doReturn(chosenRestaurantLiveData).when(userRepositoryImplementation).getChosenRestaurantLiveData();
         doReturn(favoritesRestaurants).when(userRepositoryImplementation).getFavoritesRestaurantsLiveData();
         doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", true);

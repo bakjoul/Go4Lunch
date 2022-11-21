@@ -18,9 +18,9 @@ import com.bakjoul.go4lunch.data.model.DetailsResponse;
 import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.model.PeriodResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
+import com.bakjoul.go4lunch.domain.user.UserRepository;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 
 import java.time.Clock;
@@ -49,7 +49,7 @@ public class DetailsViewModel extends ViewModel {
     private final String restaurantId;
 
     @NonNull
-    private final UserRepositoryImplementation userRepositoryImplementation;
+    private final UserRepository userRepository;
 
     @NonNull
     private final RestaurantImageMapper restaurantImageMapper;
@@ -64,13 +64,13 @@ public class DetailsViewModel extends ViewModel {
         @NonNull Application application,
         @NonNull RestaurantDetailsRepository restaurantDetailsRepository,
         @NonNull SavedStateHandle savedStateHandle,
-        @NonNull UserRepositoryImplementation userRepositoryImplementation,
+        @NonNull UserRepository userRepository,
         @NonNull WorkmateRepositoryImplementation workmateRepositoryImplementation,
         @NonNull RestaurantImageMapper restaurantImageMapper,
         @NonNull Clock clock
     ) {
         this.application = application;
-        this.userRepositoryImplementation = userRepositoryImplementation;
+        this.userRepository = userRepository;
         this.restaurantImageMapper = restaurantImageMapper;
         this.clock = clock;
 
@@ -84,8 +84,8 @@ public class DetailsViewModel extends ViewModel {
         if (restaurantId != null) {
             detailsResponseLiveData = restaurantDetailsRepository.getDetailsResponse(restaurantId, BuildConfig.MAPS_API_KEY);
             workmatesLiveData = workmateRepositoryImplementation.getWorkmatesGoingToRestaurantIdLiveData(restaurantId);
-            chosenRestaurantLiveData = userRepositoryImplementation.getChosenRestaurantLiveData();
-            favoriteRestaurantsLiveData = userRepositoryImplementation.getFavoritesRestaurantsLiveData();
+            chosenRestaurantLiveData = userRepository.getChosenRestaurantLiveData();
+            favoriteRestaurantsLiveData = userRepository.getFavoritesRestaurantsLiveData();
 
             detailsViewStateMediatorLiveData.addSource(detailsResponseLiveData, detailsResponse ->
                 combine(detailsResponse, workmatesLiveData.getValue(), chosenRestaurantLiveData.getValue(), favoriteRestaurantsLiveData.getValue())
@@ -322,18 +322,18 @@ public class DetailsViewModel extends ViewModel {
     }
 
     public void onRestaurantChoosed(String restaurantId, String restaurantName) {
-        userRepositoryImplementation.chooseRestaurant(restaurantId, restaurantName);
+        userRepository.chooseRestaurant(restaurantId, restaurantName);
     }
 
     public void onRestaurantUnchoosed() {
-        userRepositoryImplementation.unchooseRestaurant();
+        userRepository.unchooseRestaurant();
     }
 
     public void onFavoriteButtonClicked(String restaurantId, String restaurantName) {
-        userRepositoryImplementation.addRestaurantToFavorites(restaurantId, restaurantName);
+        userRepository.addRestaurantToFavorites(restaurantId, restaurantName);
     }
 
     public void onUnfavoriteButtonClicked(String restaurantId) {
-        userRepositoryImplementation.removeRestaurantFromFavorites(restaurantId);
+        userRepository.removeRestaurantFromFavorites(restaurantId);
     }
 }

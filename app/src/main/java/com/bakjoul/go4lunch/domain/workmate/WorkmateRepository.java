@@ -10,7 +10,7 @@ import java.util.Map;
 
 public interface WorkmateRepository {
 
-    LiveData<List<UserGoingToRestaurantEntity>> getWorkmatesGoingToRestaurantLiveData();
+    LiveData<List<UserGoingToRestaurantEntity>> getWorkmatesGoingToRestaurantsLiveData();
 
     LiveData<Collection<String>> getWorkmatesChosenRestaurantsLiveData();
 

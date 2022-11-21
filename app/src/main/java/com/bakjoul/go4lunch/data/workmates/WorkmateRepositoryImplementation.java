@@ -43,7 +43,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     }
 
     @Override
-    public LiveData<List<UserGoingToRestaurantEntity>> getWorkmatesGoingToRestaurantLiveData() {
+    public LiveData<List<UserGoingToRestaurantEntity>> getWorkmatesGoingToRestaurantsLiveData() {
         return new FirestoreCollectionLiveData<UserGoingToRestaurantResponse, UserGoingToRestaurantEntity>(
             firestoreDb.collection("chosenRestaurants"),
             UserGoingToRestaurantResponse.class
@@ -80,7 +80,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     @Override
     public LiveData<Collection<String>> getWorkmatesChosenRestaurantsLiveData() {
         return Transformations.switchMap(
-            getWorkmatesGoingToRestaurantLiveData(),
+            getWorkmatesGoingToRestaurantsLiveData(),
             response -> {
                 MutableLiveData<Collection<String>> chosenRestaurantsLiveData = new MutableLiveData<>();
                 Set<String> ids = new HashSet<>();
@@ -135,7 +135,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     @Override
     public LiveData<Map<String, Integer>> getRestaurantsAttendance() {
         return Transformations.switchMap(
-            getWorkmatesGoingToRestaurantLiveData(),
+            getWorkmatesGoingToRestaurantsLiveData(),
             response -> {
                 MutableLiveData<Map<String, Integer>> restaurantsAttendanceLiveData = new MutableLiveData<>();
                 Map<String, Integer> restaurantsAttendance = new HashMap<>();

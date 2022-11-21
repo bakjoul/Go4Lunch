@@ -18,7 +18,7 @@ import androidx.lifecycle.ViewModel;
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.data.location.LocationPermissionRepository;
-import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
+import com.bakjoul.go4lunch.domain.user.UserRepository;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
@@ -61,7 +61,7 @@ public class MainViewModel extends ViewModel {
         @NonNull FirebaseAuth firebaseAuth,
         @NonNull GpsLocationRepository gpsLocationRepository,
         @NonNull LocationPermissionRepository locationPermissionRepository,
-        @NonNull UserRepositoryImplementation userRepositoryImplementation
+        @NonNull UserRepository userRepository
     ) {
         this.context = context;
         this.firebaseAuth = firebaseAuth;
@@ -69,10 +69,10 @@ public class MainViewModel extends ViewModel {
         this.locationPermissionRepository = locationPermissionRepository;
 
         if (firebaseAuth.getCurrentUser() != null) {
-            userRepositoryImplementation.createFirestoreUser();
+            userRepository.createFirestoreUser();
 
             mainActivityViewStateLiveData = Transformations.switchMap(
-                userRepositoryImplementation.getChosenRestaurantLiveData(),
+                userRepository.getChosenRestaurantLiveData(),
                 response -> {
                     MainViewState mainViewState = new MainViewState(
                         firebaseAuth.getCurrentUser().getPhotoUrl(),

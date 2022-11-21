@@ -5,6 +5,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.data.utils.FirestoreCollectionIdsLiveData;
 import com.bakjoul.go4lunch.data.utils.FirestoreDocumentLiveData;
@@ -168,7 +169,7 @@ public class UserRepositoryImplementation implements UserRepository {
                 }
             };
         }
-        return null;
+        return new MutableLiveData<>();
     }
 
     @Override
@@ -181,6 +182,6 @@ public class UserRepositoryImplementation implements UserRepository {
                     .collection("favoriteRestaurants")
             );
         }
-        return null;
+        return new MutableLiveData<>();
     }
 }
