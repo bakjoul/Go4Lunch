@@ -2,7 +2,7 @@ package com.bakjoul.go4lunch.ui.details;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
-import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
@@ -38,6 +38,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -51,6 +52,7 @@ public class DetailsViewModelTest {
     private static final String UNTIL = " jusqu'à ";
     private static final String TIME_SEPARATOR = "h";
     private static final String OPEN_AT = " ⋅ Ouvre à ";
+    private static final Object JOINING = "\\u0020is joining!";
 
     private static final LocalDateTime FAKE_DATE_TIME = LocalDateTime.of(2022, 10, 16, 12, 0);
     private static final LocalDateTime FAKE_DATE_TIME_2 = LocalDateTime.of(2022, 10, 17, 12, 0);
@@ -158,6 +160,10 @@ public class DetailsViewModelTest {
         ZonedDateTime.of(FAKE_DATE_TIME.getYear(), FAKE_DATE_TIME.getMonthValue(), FAKE_DATE_TIME.getDayOfMonth(), FAKE_DATE_TIME.getHour(), FAKE_DATE_TIME.getMinute(), 0, 0, ZoneOffset.UTC).toInstant(),
         ZoneOffset.UTC
     );
+    private final Clock clock2 = Clock.fixed(
+        ZonedDateTime.of(FAKE_DATE_TIME_2.getYear(), FAKE_DATE_TIME_2.getMonthValue(), FAKE_DATE_TIME_2.getDayOfMonth(), FAKE_DATE_TIME_2.getHour(), FAKE_DATE_TIME_2.getMinute(), 0, 0, ZoneOffset.UTC).toInstant(),
+        ZoneOffset.UTC
+    );
 
     private final MutableLiveData<DetailsResponse> detailsResponseLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<UserGoingToRestaurantEntity>> workmatesLiveData = new MutableLiveData<>();
@@ -174,32 +180,23 @@ public class DetailsViewModelTest {
         doReturn(UNTIL).when(application).getString(R.string.details_opened_until);
         doReturn(TIME_SEPARATOR).when(application).getString(R.string.details_time_separator);
         doReturn(OPEN_AT).when(application).getString(R.string.details_open_at);
+        doReturn(JOINING).when(application).getString(R.string.details_text_joining);
 
         doReturn(detailsResponseLiveData).when(restaurantDetailsRepository).getDetailsResponse(anyString(), anyString());
-        doReturn(workmatesLiveData).when(workmateRepositoryImplementation).getWorkmatesGoingToRestaurantIdLiveData(
-            RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()
-        );
+        doReturn(workmatesLiveData).when(workmateRepositoryImplementation).getWorkmatesGoingToRestaurantIdLiveData(anyString());
         doReturn(chosenRestaurantLiveData).when(userRepositoryImplementation).getChosenRestaurantLiveData();
         doReturn(favoritesRestaurants).when(userRepositoryImplementation).getFavoritesRestaurantsLiveData();
         doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", true);
+
+        workmatesLiveData.setValue(new ArrayList<>());
+        favoritesRestaurants.setValue(new ArrayList<>());
     }
 
     @Test
     public void nominal_case() {
         // Given
         doReturn(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()).when(savedStateHandle).get("restaurantId");
-        workmatesLiveData.setValue(new ArrayList<>());
-        chosenRestaurantLiveData.setValue(new UserGoingToRestaurantEntity(
-            "",
-            "",
-            "",
-            "",
-            "",
-            ""
-        ));
-        favoritesRestaurants.setValue(new ArrayList<>());
         initViewModel();
-
         detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_1, "OK"));
 
         // When
@@ -236,24 +233,9 @@ public class DetailsViewModelTest {
     }
 
     @Test
-    public void photoResponse_null_should_return_null_photoUrl() {
-        // Given
-        doReturn(RESTAURANT_DETAILS_RESPONSE_2.getPlaceId()).when(savedStateHandle).get("restaurantId");
-        initViewModel();
-        detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_2, "OK"));
-
-        // When
-        DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateMediatorLiveData());
-
-        // Then
-        assertNull(result.getPhotoUrl());
-    }
-
-    @Test
     public void photoRef_null_should_return_null_photoUrl() {
         // Given
         doReturn(RESTAURANT_DETAILS_RESPONSE_3.getPlaceId()).when(savedStateHandle).get("restaurantId");
-        doReturn(null).when(restaurantImageMapper).getImageUrl(anyString(), anyBoolean());
         initViewModel();
         detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_3, "OK"));
 
@@ -362,6 +344,70 @@ public class DetailsViewModelTest {
         assertEquals("Ouvert", result.getOpeningStatus());
     }
 
+    @Test
+    public void restaurant_being_chosen_should_return_viewstate_indicating_restaurant_is_chosen() {
+        // Given
+        doReturn(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()).when(savedStateHandle).get("restaurantId");
+        initViewModel();
+        detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_1, "OK"));
+        chosenRestaurantLiveData.setValue(
+            new UserGoingToRestaurantEntity(
+                "fakeId",
+                "fakeUsername",
+                "fakeEmail",
+                "fakePhotoUrl",
+                RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(),
+                "fakeChosenRestaurantName"
+            )
+        );
+
+        // When
+        DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateMediatorLiveData());
+
+        // Then
+        assertTrue(result.isChosen());
+    }
+
+    @Test
+    public void restaurant_being_favorite_should_return_viewstate_indicating_restaurant_is_favorited() {
+        // Given
+        doReturn(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()).when(savedStateHandle).get("restaurantId");
+        initViewModel();
+        detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_1, "OK"));
+        favoritesRestaurants.setValue(new ArrayList<>(Collections.singletonList(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId())));
+
+        // When
+        DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateMediatorLiveData());
+
+        // Then
+        assertTrue(result.isFavorite());
+    }
+
+    @Test
+    public void workmates_going_to_restaurant_should_return_viewstate_with_workmates_list() {
+        // Given
+        doReturn(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()).when(savedStateHandle).get("restaurantId");
+        initViewModelWithAlternativeClock();
+        detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_1, "OK"));
+        workmatesLiveData.setValue(getFakeWorkmatesList());
+
+        // When
+        DetailsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getDetailsViewStateMediatorLiveData());
+
+        // Then
+        assertEquals(result.getWorkmatesList(), getFakeWorkmatesItemViewStates());
+    }
+
+    @Test
+    public void onRestaurantChoose_should_() {
+        // Given
+        doReturn(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()).when(savedStateHandle).get("restaurantId");
+        initViewModel();
+        detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_1, "OK"));
+
+        viewModel.onRestaurantChoosed(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName");
+    }
+
     // region IN
     private void initViewModel() {
         viewModel = new DetailsViewModel(
@@ -373,6 +419,27 @@ public class DetailsViewModelTest {
             restaurantImageMapper,
             clock
         );
+    }
+
+    private void initViewModelWithAlternativeClock() {
+        viewModel = new DetailsViewModel(
+            application,
+            restaurantDetailsRepository,
+            savedStateHandle,
+            userRepositoryImplementation,
+            workmateRepositoryImplementation,
+            restaurantImageMapper,
+            clock2
+        );
+    }
+
+    @NonNull
+    private List<UserGoingToRestaurantEntity> getFakeWorkmatesList() {
+        return new ArrayList<>(Arrays.asList(
+            new UserGoingToRestaurantEntity("fakeUserId_1", "fakeUsername_1", "fakeEmail_1", "fakeUserPhotoUrl_1", RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeChosenRestaurantName"),
+            new UserGoingToRestaurantEntity("fakeUserId_2", "fakeUsername_2", "fakeEmail_2", "fakeUserPhotoUrl_2", RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeChosenRestaurantName"),
+            new UserGoingToRestaurantEntity("fakeUserId_3", "fakeUsername_3", "fakeEmail_3", "fakeUserPhotoUrl_3", RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeChosenRestaurantName")
+        ));
     }
     // endregion IN
 
@@ -414,6 +481,15 @@ public class DetailsViewModelTest {
             false,
             null,
             true
+        );
+    }
+
+    @NonNull
+    private List<DetailsItemViewState> getFakeWorkmatesItemViewStates() {
+        return Arrays.asList(
+            new DetailsItemViewState("fakeUserId_1", "fakeUsername_1", "fakeUserPhotoUrl_1", "fakeUsername_1" + application.getString(R.string.details_text_joining)),
+            new DetailsItemViewState("fakeUserId_2", "fakeUsername_2", "fakeUserPhotoUrl_2", "fakeUsername_2" + application.getString(R.string.details_text_joining)),
+            new DetailsItemViewState("fakeUserId_3", "fakeUsername_3", "fakeUserPhotoUrl_3", "fakeUsername_3" + application.getString(R.string.details_text_joining))
         );
     }
     // endregion OUT

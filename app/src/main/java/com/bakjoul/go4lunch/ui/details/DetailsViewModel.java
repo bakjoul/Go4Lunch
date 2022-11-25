@@ -99,6 +99,8 @@ public class DetailsViewModel extends ViewModel {
             detailsViewStateMediatorLiveData.addSource(favoriteRestaurantsLiveData, favoriteRestaurants ->
                 combine(detailsResponseLiveData.getValue(), workmatesLiveData.getValue(), chosenRestaurantLiveData.getValue(), favoriteRestaurants)
             );
+        } else {
+            detailsViewStateMediatorLiveData.setValue(getErrorDetailsViewState());
         }
     }
 
@@ -128,18 +130,15 @@ public class DetailsViewModel extends ViewModel {
             }
         }
 
-        if (restaurantId != null) {
-            detailsViewStateMediatorLiveData.setValue(
-                mapResponse(
-                    response,
-                    workmates,
-                    isRestaurantChosen,
-                    isRestaurantFavorite
-                )
-            );
-        } else {
-            detailsViewStateMediatorLiveData.setValue(getErrorDetailsViewState());
-        }
+        detailsViewStateMediatorLiveData.setValue(
+            mapResponse(
+                response,
+                workmates,
+                isRestaurantChosen,
+                isRestaurantFavorite
+            )
+        );
+
     }
 
     public LiveData<DetailsViewState> getDetailsViewStateMediatorLiveData() {
@@ -202,7 +201,7 @@ public class DetailsViewModel extends ViewModel {
             false,
             false,
             false,
-            new ArrayList<>(),
+            null,
             true);
     }
 
