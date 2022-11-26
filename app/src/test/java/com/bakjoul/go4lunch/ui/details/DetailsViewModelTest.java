@@ -5,6 +5,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
 import android.app.Application;
 
@@ -399,13 +400,59 @@ public class DetailsViewModelTest {
     }
 
     @Test
-    public void onRestaurantChoose_should_() {
+    public void onRestaurantChoose_should_call_onRestaurantChoose_repo_method() {
         // Given
         doReturn(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()).when(savedStateHandle).get("restaurantId");
         initViewModel();
         detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_1, "OK"));
 
+        // When
         viewModel.onRestaurantChoosed(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName");
+
+        // Then
+        verify(userRepositoryImplementation).chooseRestaurant(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName");
+    }
+
+    @Test
+    public void onRestaurantUnchoose_should_call_onRestaurantUnchoose_repo_method() {
+        // Given
+        doReturn(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()).when(savedStateHandle).get("restaurantId");
+        initViewModel();
+        detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_1, "OK"));
+
+        // When
+        viewModel.onRestaurantUnchoosed();
+
+        // Then
+        verify(userRepositoryImplementation).unchooseRestaurant();
+    }
+
+    @Test
+    public void onFavoriteButtonClicked_should_call_onFavoriteButtonClicked_repo_method() {
+        // Given
+        doReturn(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()).when(savedStateHandle).get("restaurantId");
+        initViewModel();
+        detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_1, "OK"));
+
+        // When
+        viewModel.onFavoriteButtonClicked(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName");
+
+        // Then
+        verify(userRepositoryImplementation).addRestaurantToFavorites(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName");
+    }
+
+    @Test
+    public void onUnfavoriteButtonClicked_should_call_onUnfavoriteButtonClicked_repo_method() {
+        // Given
+        doReturn(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId()).when(savedStateHandle).get("restaurantId");
+        initViewModel();
+        detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_1, "OK"));
+
+        // When
+        viewModel.onUnfavoriteButtonClicked(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId());
+
+        // Then
+        verify(userRepositoryImplementation).removeRestaurantFromFavorites(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId());
     }
 
     // region IN

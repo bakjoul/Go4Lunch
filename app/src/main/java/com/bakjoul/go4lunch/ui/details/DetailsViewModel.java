@@ -123,11 +123,8 @@ public class DetailsViewModel extends ViewModel {
         }
 
         // Checks if current restaurant is in user's favorites
-        for (String id : favoriteRestaurants) {
-            if (id.equals(restaurantId)) {
-                isRestaurantFavorite = true;
-                break;
-            }
+        if (favoriteRestaurants.contains(restaurantId)) {
+            isRestaurantFavorite = true;
         }
 
         detailsViewStateMediatorLiveData.setValue(
