@@ -176,10 +176,8 @@ public class RestaurantsViewModel extends ViewModel {
 
     @NonNull
     private String getAttendance(String placeId, @NonNull Map<String, Integer> attendance) {
-        for (String id : attendance.keySet()) {
-            if (id.equals(placeId)) {
-                return "(" + attendance.get(id) + ")";
-            }
+        if (attendance.containsKey(placeId)) {
+            return "(" + attendance.get(placeId) + ")";
         }
         return "";
     }

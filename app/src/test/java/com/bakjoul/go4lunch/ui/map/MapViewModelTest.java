@@ -133,6 +133,7 @@ public class MapViewModelTest {
         doReturn(locationLiveData).when(mapLocationRepository).getCurrentMapLocationLiveData();
 
         doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbyRestaurants(eq(location), eq("distance"), eq("restaurant"), anyString());
+
         chosenRestaurantsLiveData.setValue(new ArrayList<>());
         doReturn(chosenRestaurantsLiveData).when(workmateRepositoryImplementation).getWorkmatesChosenRestaurantsLiveData();
 
