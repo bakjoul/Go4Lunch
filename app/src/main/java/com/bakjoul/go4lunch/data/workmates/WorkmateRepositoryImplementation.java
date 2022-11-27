@@ -82,7 +82,6 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
         return Transformations.switchMap(
             getWorkmatesGoingToRestaurantsLiveData(),
             response -> {
-                MutableLiveData<Collection<String>> chosenRestaurantsLiveData = new MutableLiveData<>();
                 Set<String> ids = new HashSet<>();
                 if (response != null) {
                     for (UserGoingToRestaurantEntity entity : response) {
@@ -91,8 +90,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
                         }
                     }
                 }
-                chosenRestaurantsLiveData.setValue(ids);
-                return chosenRestaurantsLiveData;
+                return new MutableLiveData<>(ids);
             }
         );
     }
