@@ -4,9 +4,9 @@ import android.content.Context;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
-import com.bakjoul.go4lunch.data.location.GpsLocationRepository;
-import com.bakjoul.go4lunch.data.location.LocationPermissionRepository;
 import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
+import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
+import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 import com.google.firebase.auth.FirebaseAuth;
 
 import org.junit.Before;

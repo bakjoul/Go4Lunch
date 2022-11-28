@@ -15,7 +15,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.details.RestaurantDetailsRepository;
 import com.bakjoul.go4lunch.data.details.RestaurantDetailsResponse;
 import com.bakjoul.go4lunch.data.model.CloseResponse;
 import com.bakjoul.go4lunch.data.model.DetailsResponse;
@@ -25,6 +24,7 @@ import com.bakjoul.go4lunch.data.model.PeriodResponse;
 import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
+import com.bakjoul.go4lunch.domain.details.RestaurantDetailsRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;

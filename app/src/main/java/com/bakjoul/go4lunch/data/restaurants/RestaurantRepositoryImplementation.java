@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.data.api.RestaurantApi;
 import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
+import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -24,9 +25,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 @Singleton
-public class RestaurantRepository {
+public class RestaurantRepositoryImplementation implements RestaurantRepository {
 
-    private static final String TAG = "RestaurantRepository";
+    private static final String TAG = "RestaurantRepoImplement";
+
     private static final int GPS_SCALE = 2;
 
     public static final String RANK_BY = "distance";
@@ -38,7 +40,7 @@ public class RestaurantRepository {
     private final LruCache<NearbySearchQuery, NearbySearchResponse> lruCache = new LruCache<>(500);
 
     @Inject
-    public RestaurantRepository(@NonNull RestaurantApi restaurantApi) {
+    public RestaurantRepositoryImplementation(@NonNull RestaurantApi restaurantApi) {
         this.restaurantApi = restaurantApi;
     }
 
@@ -46,12 +48,8 @@ public class RestaurantRepository {
     Random random = new Random();
     boolean randomBoolean = false;
 
-    public LiveData<RestaurantResponseWrapper> getNearbyRestaurants(
-        Location location,
-        String rankBy,
-        String type,
-        String key
-    ) {
+    @Override
+    public LiveData<RestaurantResponseWrapper> getNearbyRestaurants(Location location, String rankBy, String type, String key) {
         // For testing
         randomBoolean = random.nextInt(1) == 0;
         //
@@ -123,16 +121,16 @@ public class RestaurantRepository {
         return wrapperMutableLiveData;
     }
 
-    @NonNull
-    private NearbySearchQuery generateQuery(double latitude, double longitude) {
+    @Override
+    public NearbySearchQuery generateQuery(double latitude, double longitude) {
         return new NearbySearchQuery(
             BigDecimal.valueOf(latitude).setScale(GPS_SCALE, RoundingMode.HALF_UP),
             BigDecimal.valueOf(longitude).setScale(GPS_SCALE, RoundingMode.HALF_UP)
         );
     }
 
-    @NonNull
-    private String locationToString(@NonNull Location location) {
+    @Override
+    public String locationToString(@NonNull Location location) {
         return location.getLatitude() + "," + location.getLongitude();
     }
 }

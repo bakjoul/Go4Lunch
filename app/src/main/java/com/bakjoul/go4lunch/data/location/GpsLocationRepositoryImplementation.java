@@ -12,6 +12,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
+import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -21,9 +22,9 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class GpsLocationRepository {
+public class GpsLocationRepositoryImplementation implements GpsLocationRepository {
 
-    private static final String TAG = "GpsLocationRepository";
+    private static final String TAG = "GpsLocationRepoImplemen";
 
     private static final long INTERVAL = 10000;
     private static final long FASTEST_INTERVAL = INTERVAL / 2;
@@ -44,7 +45,8 @@ public class GpsLocationRepository {
         .build();
 
     @Inject
-    public GpsLocationRepository(@NonNull FusedLocationProviderClient fusedLocationProvider) {
+    public GpsLocationRepositoryImplementation(
+        @NonNull FusedLocationProviderClient fusedLocationProvider) {
         this.fusedLocationProvider = fusedLocationProvider;
         locationCallback = new LocationCallback() {
             @Override
@@ -56,6 +58,7 @@ public class GpsLocationRepository {
     }
 
     @SuppressLint("MissingPermission")
+    @Override
     public LiveData<Location> getCurrentLocationLiveData() {
         return Transformations.switchMap(isLocationPermissionAllowedLiveData, isLocationPermissionAllowed -> {
             Log.d(TAG, "switchMap() called with: isLocationPermissionAllowed = [" + isLocationPermissionAllowed + "]");
@@ -70,11 +73,13 @@ public class GpsLocationRepository {
         });
     }
 
+    @Override
     public void startLocationUpdates() {
         Log.d(TAG, "startLocationUpdates() called");
         isLocationPermissionAllowedLiveData.setValue(true);
     }
 
+    @Override
     public void stopLocationUpdates() {
         Log.d(TAG, "stopLocationUpdates() called");
         isLocationPermissionAllowedLiveData.setValue(false);

@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.bakjoul.go4lunch.data.api.RestaurantApi;
-import com.bakjoul.go4lunch.data.location.LocationPermissionRepository;
+import com.bakjoul.go4lunch.data.location.LocationPermissionRepositoryImplementation;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
@@ -34,31 +34,31 @@ public class DataModule {
 
     @Provides
     @Singleton
-    public FirebaseAuth provideFirebaseAuth() {
+    public FirebaseAuth providesFirebaseAuth() {
         return FirebaseAuth.getInstance();
     }
 
     @Provides
     @Singleton
-    public FirebaseFirestore provideFirebaseFirestore() {
+    public FirebaseFirestore providesFirebaseFirestore() {
         return FirebaseFirestore.getInstance();
     }
 
     @Provides
     @Singleton
-    public LocationPermissionRepository providePermissionRepository(@ApplicationContext Context context) {
-        return new LocationPermissionRepository(context);
+    public LocationPermissionRepositoryImplementation providesPermissionRepository(@ApplicationContext Context context) {
+        return new LocationPermissionRepositoryImplementation(context);
     }
 
     @Provides
     @Singleton
-    public FusedLocationProviderClient provideFusedLocationProviderClient(@ApplicationContext Context context) {
+    public FusedLocationProviderClient providesFusedLocationProviderClient(@ApplicationContext Context context) {
         return LocationServices.getFusedLocationProviderClient(context);
     }
 
     @Provides
     @Singleton
-    public Retrofit provideRetrofit() {
+    public Retrofit providesRetrofit() {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
 
@@ -77,13 +77,13 @@ public class DataModule {
 
     @Singleton
     @Provides
-    public RestaurantApi provideRestaurantApi(@NonNull Retrofit retrofit) {
+    public RestaurantApi providesRestaurantApi(@NonNull Retrofit retrofit) {
         return retrofit.create(RestaurantApi.class);
     }
 
     @Singleton
     @Provides
-    public Clock provideClock() {
+    public Clock providesClock() {
         return Clock.systemDefaultZone();
     }
 }

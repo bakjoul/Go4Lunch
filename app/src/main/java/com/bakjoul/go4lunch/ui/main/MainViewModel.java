@@ -16,8 +16,8 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.location.GpsLocationRepository;
-import com.bakjoul.go4lunch.data.location.LocationPermissionRepository;
+import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
+import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.facebook.AccessToken;

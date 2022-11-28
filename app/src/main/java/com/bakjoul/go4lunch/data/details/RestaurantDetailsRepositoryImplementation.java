@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.data.api.RestaurantApi;
 import com.bakjoul.go4lunch.data.model.DetailsResponse;
+import com.bakjoul.go4lunch.domain.details.RestaurantDetailsRepository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -18,9 +19,9 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 @Singleton
-public class RestaurantDetailsRepository {
+public class RestaurantDetailsRepositoryImplementation implements RestaurantDetailsRepository {
 
-    private static final String TAG = "RestaurantDetailsRepo";
+    private static final String TAG = "RestaurantDetailsReposi";
 
     @NonNull
     private final RestaurantApi restaurantApi;
@@ -28,10 +29,11 @@ public class RestaurantDetailsRepository {
     private final LruCache<String, DetailsResponse> lruCache = new LruCache<>(500);
 
     @Inject
-    public RestaurantDetailsRepository(@NonNull RestaurantApi restaurantApi) {
+    public RestaurantDetailsRepositoryImplementation(@NonNull RestaurantApi restaurantApi) {
         this.restaurantApi = restaurantApi;
     }
 
+    @Override
     public LiveData<DetailsResponse> getDetailsResponse(@NonNull String restaurantId, @NonNull String key) {
         MutableLiveData<DetailsResponse> detailsResponseMutableLiveData = new MutableLiveData<>();
 

@@ -1,33 +1,26 @@
 package com.bakjoul.go4lunch.data;
 
-import android.content.Context;
-
-import androidx.annotation.NonNull;
-
-import com.bakjoul.go4lunch.data.api.RestaurantApi;
-import com.bakjoul.go4lunch.data.location.LocationPermissionRepository;
+import com.bakjoul.go4lunch.data.details.RestaurantDetailsRepositoryImplementation;
+import com.bakjoul.go4lunch.data.location.GpsLocationRepositoryImplementation;
+import com.bakjoul.go4lunch.data.location.LocationModeRepositoryImplementation;
+import com.bakjoul.go4lunch.data.location.LocationPermissionRepositoryImplementation;
+import com.bakjoul.go4lunch.data.location.MapLocationRepositoryImplementation;
+import com.bakjoul.go4lunch.data.restaurants.RestaurantRepositoryImplementation;
 import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
+import com.bakjoul.go4lunch.domain.details.RestaurantDetailsRepository;
+import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
+import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
+import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
+import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
+import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FirebaseFirestore;
-
-import java.time.Clock;
-import java.util.concurrent.TimeUnit;
 
 import javax.inject.Singleton;
 
 import dagger.Binds;
 import dagger.Module;
-import dagger.Provides;
 import dagger.hilt.InstallIn;
-import dagger.hilt.android.qualifiers.ApplicationContext;
 import dagger.hilt.components.SingletonComponent;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 @Module
 @InstallIn(SingletonComponent.class)
@@ -36,4 +29,28 @@ public abstract class DataBindingModule {
     @Singleton
     @Binds
     public abstract UserRepository bindsUserRepository(UserRepositoryImplementation implementation);
+
+    @Singleton
+    @Binds
+    public abstract GpsLocationRepository bindsGpsLocationRepository(GpsLocationRepositoryImplementation implementation);
+
+    @Singleton
+    @Binds
+    public abstract LocationModeRepository bindsLocationModeRepository(LocationModeRepositoryImplementation implementation);
+
+    @Singleton
+    @Binds
+    public abstract LocationPermissionRepository bindsLocationPermissionRepository(LocationPermissionRepositoryImplementation implementation);
+
+    @Singleton
+    @Binds
+    public abstract MapLocationRepository bindsMapLocationRepository(MapLocationRepositoryImplementation implementation);
+
+    @Singleton
+    @Binds
+    public abstract RestaurantDetailsRepository bindsRestaurantDetailsRepository(RestaurantDetailsRepositoryImplementation implementation);
+
+    @Singleton
+    @Binds
+    public abstract RestaurantRepository bindsRestaurantRepository(RestaurantRepositoryImplementation implementation);
 }

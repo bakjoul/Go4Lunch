@@ -9,18 +9,20 @@ import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
-public class LocationPermissionRepository {
+public class LocationPermissionRepositoryImplementation implements LocationPermissionRepository {
 
-    private static final String TAG = "PermissionRepository";
+    private static final String TAG = "LocationPermissRepoImpl";
 
     private final MutableLiveData<Boolean> isLocationPermissionGranted = new MutableLiveData<>();
 
     @Inject
-    public LocationPermissionRepository(Context context) {
+    public LocationPermissionRepositoryImplementation(Context context) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             isLocationPermissionGranted.setValue(true);
         } else {
@@ -28,10 +30,12 @@ public class LocationPermissionRepository {
         }
     }
 
+    @Override
     public LiveData<Boolean> getLocationPermissionLiveData() {
         return isLocationPermissionGranted;
     }
 
+    @Override
     public void setLocationPermission(boolean granted) {
         Log.d(TAG, "setLocationPermission() called with granted = " + granted);
         isLocationPermissionGranted.setValue(granted);
