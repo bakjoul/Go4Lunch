@@ -27,12 +27,12 @@ public class WorkmatesViewModel extends ViewModel {
         @NonNull WorkmateRepositoryImplementation workmateRepositoryImplementation
     ) {
         LiveData<List<WorkmateEntity>> availableWorkmatesLiveData = workmateRepositoryImplementation.getAvailableWorkmatesLiveData();
-        LiveData<List<UserGoingToRestaurantEntity>> workmatesGoingToRestaurantLiveData = workmateRepositoryImplementation.getWorkmatesGoingToRestaurantsLiveData();
+        LiveData<List<UserGoingToRestaurantEntity>> workmatesGoingToRestaurantsLiveData = workmateRepositoryImplementation.getWorkmatesGoingToRestaurantsLiveData();
 
         workmatesViewStateMediatorLiveData.addSource(availableWorkmatesLiveData, availableWorkmates ->
-            combine(availableWorkmates, workmatesGoingToRestaurantLiveData.getValue())
+            combine(availableWorkmates, workmatesGoingToRestaurantsLiveData.getValue())
         );
-        workmatesViewStateMediatorLiveData.addSource(workmatesGoingToRestaurantLiveData, workmatesWithChoice ->
+        workmatesViewStateMediatorLiveData.addSource(workmatesGoingToRestaurantsLiveData, workmatesWithChoice ->
             combine(availableWorkmatesLiveData.getValue(), workmatesWithChoice)
         );
     }
