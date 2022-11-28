@@ -14,6 +14,8 @@ import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
 @Singleton
 public class LocationPermissionRepositoryImplementation implements LocationPermissionRepository {
 
@@ -22,7 +24,7 @@ public class LocationPermissionRepositoryImplementation implements LocationPermi
     private final MutableLiveData<Boolean> isLocationPermissionGranted = new MutableLiveData<>();
 
     @Inject
-    public LocationPermissionRepositoryImplementation(Context context) {
+    public LocationPermissionRepositoryImplementation(@ApplicationContext Context context) {
         if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             isLocationPermissionGranted.setValue(true);
         } else {

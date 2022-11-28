@@ -81,7 +81,8 @@ public class MapFragment extends Fragment {
 
                 // Updates camera according to location
                 viewModel.getCameraSingleLiveEvent().observe(getViewLifecycleOwner(), location ->
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, MOVE_CAMERA_ZOOM)));
+                    googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(location, MOVE_CAMERA_ZOOM))
+                );
 
                 viewModel.getIsRetryBarVisibleSingleLiveEvent().observe(getViewLifecycleOwner(), isRetryBarVisible -> {
                     if (isRetryBarVisible) {

@@ -46,12 +46,6 @@ public class DataModule {
 
     @Provides
     @Singleton
-    public LocationPermissionRepositoryImplementation providesPermissionRepository(@ApplicationContext Context context) {
-        return new LocationPermissionRepositoryImplementation(context);
-    }
-
-    @Provides
-    @Singleton
     public FusedLocationProviderClient providesFusedLocationProviderClient(@ApplicationContext Context context) {
         return LocationServices.getFusedLocationProviderClient(context);
     }

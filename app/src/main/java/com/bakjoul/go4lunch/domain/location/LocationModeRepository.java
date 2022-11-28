@@ -6,5 +6,7 @@ public interface LocationModeRepository {
 
     LiveData<Boolean> isUserModeEnabledLiveData();
 
+    boolean isUserModeEnabled();
+
     void setModeUserEnabled(boolean enabled);
 }

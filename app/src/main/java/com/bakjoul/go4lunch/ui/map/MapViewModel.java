@@ -20,7 +20,7 @@ import com.bakjoul.go4lunch.data.restaurants.RestaurantMarker;
 import com.bakjoul.go4lunch.data.restaurants.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
-import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
+import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
@@ -50,10 +50,6 @@ public class MapViewModel extends ViewModel {
     @NonNull
     private final LocationDistanceUtil locationDistanceUtil;
 
-    private LatLng currentLocation = null;
-
-    private LatLng lastLocation = null;
-
     private final MutableLiveData<Boolean> isMapReadyMutableLiveData = new MutableLiveData<>(false);
 
     private final MutableLiveData<Boolean> nearbySearchRequestPingMutableLiveData = new MutableLiveData<>(true);
@@ -64,9 +60,13 @@ public class MapViewModel extends ViewModel {
 
     private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
 
+    private LatLng currentLocation = null;
+
+    private LatLng lastLocation = null;
+
     @Inject
     public MapViewModel(
-        @NonNull GpsLocationRepository gpsLocationRepository,
+        @NonNull GetUserPositionUseCase getUserPositionUseCase,
         @NonNull MapLocationRepository mapLocationRepository,
         @NonNull LocationModeRepository locationModeRepository,
         @NonNull RestaurantRepository restaurantRepository,
@@ -77,18 +77,7 @@ public class MapViewModel extends ViewModel {
         this.locationModeRepository = locationModeRepository;
         this.locationDistanceUtil = locationDistanceUtil;
 
-        LiveData<Boolean> isUserModeEnabledLiveData = locationModeRepository.isUserModeEnabledLiveData();
-
-        LiveData<Location> locationLiveData = Transformations.switchMap(
-            isUserModeEnabledLiveData,
-            isUserModeEnabled -> {
-                if (isUserModeEnabled) {
-                    return mapLocationRepository.getCurrentMapLocationLiveData();
-                } else {
-                    return gpsLocationRepository.getCurrentLocationLiveData();
-                }
-            }
-        );
+        LiveData<Location> locationLiveData = getUserPositionUseCase.invoke();
 
         cameraSingleLiveEvent.addSource(locationLiveData, location -> {
             if (location != null) {
@@ -221,20 +210,21 @@ public class MapViewModel extends ViewModel {
     }
 
     public void onCameraMoved(@NonNull LatLng cameraPosition) {
-        if (Boolean.TRUE.equals(locationModeRepository.isUserModeEnabledLiveData().getValue())) {
+        if (locationModeRepository.isUserModeEnabled()) {
             // If no known last location or if distance between new camera position and last location greater than given value
             if (lastLocation == null || locationDistanceUtil.getDistance(cameraPosition, lastLocation) > MAP_MINIMUM_DISPLACEMENT) {
-                // Updates current map location
-                Location mapLocation = new Location(LocationManager.GPS_PROVIDER);
-                mapLocation.setLatitude(cameraPosition.latitude);
-                mapLocation.setLongitude(cameraPosition.longitude);
-                mapLocationRepository.setCurrentMapLocation(mapLocation);
+                if (currentLocation == null || locationDistanceUtil.getDistance(cameraPosition, currentLocation) > MAP_MINIMUM_DISPLACEMENT) {
+                    // Updates current map location
+                    Location mapLocation = new Location(LocationManager.GPS_PROVIDER);
+                    mapLocation.setLatitude(cameraPosition.latitude);
+                    mapLocation.setLongitude(cameraPosition.longitude);
+                    mapLocationRepository.setCurrentMapLocation(mapLocation);
 
-                // Updates last location to current camera position
-                lastLocation = cameraPosition;
+                    // Updates last location to current camera position
+                    lastLocation = cameraPosition;
+                }
             }
         }
-
     }
 
     public void onMyLocationButtonClicked() {
