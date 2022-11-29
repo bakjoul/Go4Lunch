@@ -23,9 +23,7 @@ import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.restaurants.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
-import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
-import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
-import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
+import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
@@ -64,9 +62,7 @@ public class RestaurantsViewModel extends ViewModel {
     @Inject
     public RestaurantsViewModel(
         @NonNull Application application,
-        @NonNull GpsLocationRepository gpsLocationRepository,
-        @NonNull MapLocationRepository mapLocationRepository,
-        @NonNull LocationModeRepository locationModeRepository,
+        @NonNull GetUserPositionUseCase getUserPositionUseCase,
         @NonNull RestaurantRepository restaurantRepository,
         @NonNull WorkmateRepositoryImplementation workmateRepositoryImplementation,
         @NonNull LocationDistanceUtil locationDistanceUtils,
@@ -76,18 +72,7 @@ public class RestaurantsViewModel extends ViewModel {
         this.locationDistanceUtils = locationDistanceUtils;
         this.restaurantImageMapper = restaurantImageMapper;
 
-        LiveData<Boolean> isUserModeEnabledLiveData = locationModeRepository.isUserModeEnabledLiveData();
-
-        LiveData<Location> locationLiveData = Transformations.switchMap(
-            isUserModeEnabledLiveData,
-            isUserModeEnabled -> {
-                if (isUserModeEnabled) {
-                    return mapLocationRepository.getCurrentMapLocationLiveData();
-                } else {
-                    return gpsLocationRepository.getCurrentLocationLiveData();
-                }
-            }
-        );
+        LiveData<Location> locationLiveData = getUserPositionUseCase.invoke();
 
         LiveData<RestaurantResponseWrapper> responseWrapperLiveData = Transformations.switchMap(
             locationLiveData,

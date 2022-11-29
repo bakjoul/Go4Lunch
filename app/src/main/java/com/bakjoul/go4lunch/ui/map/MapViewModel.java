@@ -213,16 +213,14 @@ public class MapViewModel extends ViewModel {
         if (locationModeRepository.isUserModeEnabled()) {
             // If no known last location or if distance between new camera position and last location greater than given value
             if (lastLocation == null || locationDistanceUtil.getDistance(cameraPosition, lastLocation) > MAP_MINIMUM_DISPLACEMENT) {
-                if (currentLocation == null || locationDistanceUtil.getDistance(cameraPosition, currentLocation) > MAP_MINIMUM_DISPLACEMENT) {
-                    // Updates current map location
-                    Location mapLocation = new Location(LocationManager.GPS_PROVIDER);
-                    mapLocation.setLatitude(cameraPosition.latitude);
-                    mapLocation.setLongitude(cameraPosition.longitude);
-                    mapLocationRepository.setCurrentMapLocation(mapLocation);
+                // Updates current map location
+                Location mapLocation = new Location(LocationManager.GPS_PROVIDER);
+                mapLocation.setLatitude(cameraPosition.latitude);
+                mapLocation.setLongitude(cameraPosition.longitude);
+                mapLocationRepository.setCurrentMapLocation(mapLocation);
 
-                    // Updates last location to current camera position
-                    lastLocation = cameraPosition;
-                }
+                // Updates last location to current camera position
+                lastLocation = cameraPosition;
             }
         }
     }

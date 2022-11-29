@@ -24,9 +24,8 @@ import com.bakjoul.go4lunch.data.model.PhotoResponse;
 import com.bakjoul.go4lunch.data.restaurants.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
-import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
+import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
-import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
@@ -101,8 +100,7 @@ public class RestaurantsViewModelTest {
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     private final Application application = Mockito.mock(Application.class);
-    private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
-    private final MapLocationRepository mapLocationRepository = Mockito.mock(MapLocationRepository.class);
+    private final GetUserPositionUseCase getUserPositionUseCase = Mockito.mock(GetUserPositionUseCase.class);
     private final LocationModeRepository locationModeRepository = Mockito.mock(LocationModeRepository.class);
     private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
     private final WorkmateRepositoryImplementation workmateRepositoryImplementation = Mockito.mock(WorkmateRepositoryImplementation.class);
@@ -130,8 +128,7 @@ public class RestaurantsViewModelTest {
         isUserModeEnabledLiveData.setValue(false);
         doReturn(isUserModeEnabledLiveData).when(locationModeRepository).isUserModeEnabledLiveData();
 
-        doReturn(locationLiveData).when(gpsLocationRepository).getCurrentLocationLiveData();
-        doReturn(locationLiveData).when(mapLocationRepository).getCurrentMapLocationLiveData();
+        doReturn(locationLiveData).when(getUserPositionUseCase).invoke();
 
         doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbyRestaurants(eq(location), eq("distance"), eq("restaurant"), anyString());
 
@@ -143,9 +140,7 @@ public class RestaurantsViewModelTest {
 
         viewModel = new RestaurantsViewModel(
             application,
-            gpsLocationRepository,
-            mapLocationRepository,
-            locationModeRepository,
+            getUserPositionUseCase,
             restaurantRepository,
             workmateRepositoryImplementation,
             locationDistanceUtils,
