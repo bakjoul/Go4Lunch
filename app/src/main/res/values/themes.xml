@@ -27,4 +27,32 @@
         <item name="android:enabled">false</item>
         <item name="android:alpha">0.25</item>
     </style>
+
+    <style name="Toolbar" parent="Widget.Material3.Toolbar">
+        <item name="android:contentInsetStart">0dp</item>
+        <item name="android:contentInsetLeft">0dp</item>
+        <item name="android:contentInsetEnd">0dp</item>
+        <item name="android:contentInsetRight">0dp</item>
+        <item name="contentInsetEnd">0dp</item>
+        <item name="contentInsetLeft">0dp</item>
+        <item name="contentInsetRight">0dp</item>
+        <item name="contentInsetStart">0dp</item>
+        <item name="contentInsetStartWithNavigation">0dp</item>
+        <item name="navigationIcon">@drawable/ic_baseline_menu_24</item>
+        <item name="navigationIconTint">@color/white</item>
+        <item name="titleTextColor">@color/white</item>
+    </style>
+
+    <style name="SearchView" parent="Widget.AppCompat.SearchView">
+        <!-- Collapsed icon color -->
+        <item name="android:tint">@color/white</item>
+        <!-- Expanded icon color -->
+        <item name="colorControlNormal">@color/grey</item>
+        <!-- Text color -->
+        <item name="android:editTextColor">@color/black</item>
+        <!-- Cursor color -->
+        <item name="colorAccent">@color/black</item>
+        <!-- Hint color -->
+        <item name="android:textColorHint">@color/grey</item>
+    </style>
 </resources>

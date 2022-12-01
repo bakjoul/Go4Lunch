@@ -23,9 +23,18 @@
 
             <com.google.android.material.appbar.MaterialToolbar
                 android:id="@+id/main_toolbar"
+                style="@style/Toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:titleTextColor="@color/white" />
+                android:layout_height="?attr/actionBarSize">
+
+                <androidx.appcompat.widget.SearchView
+                    android:id="@+id/main_SearchView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="end"
+                    app:queryBackground="@color/white"
+                    app:theme="@style/SearchView" />
+            </com.google.android.material.appbar.MaterialToolbar>
         </com.google.android.material.appbar.AppBarLayout>
 
         <FrameLayout

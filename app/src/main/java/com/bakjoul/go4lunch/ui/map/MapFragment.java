@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
@@ -69,6 +70,14 @@ public class MapFragment extends Fragment {
                 googleMap.setOnMyLocationButtonClickListener(() -> {
                     viewModel.onMyLocationButtonClicked();
                     return false;
+                });
+                // Closes search view on map click if it has focus
+                SearchView searchView = requireActivity().findViewById(R.id.main_SearchView);
+                googleMap.setOnMapClickListener(latLng -> {
+                    if (searchView.hasFocus()) {
+                        searchView.setIconified(true);
+                        searchView.onActionViewCollapsed();
+                    }
                 });
                 // Handles camera moves
                 googleMap.setOnCameraIdleListener(() -> viewModel.onCameraMoved(googleMap.getCameraPosition().target));

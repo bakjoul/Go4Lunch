@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
@@ -79,8 +80,17 @@ public class RestaurantsFragment extends Fragment implements RestaurantsAdapter.
 
     @Override
     public void onRestaurantClicked(int position) {
-        DetailsActivity.navigate(
-            binding.restaurantsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString(), getActivity()
-        );
+        SearchView searchView = requireActivity().findViewById(R.id.main_SearchView);
+        // Closes search view if it has focus
+        if (searchView.hasFocus()) {
+            searchView.setIconified(true);
+            searchView.onActionViewCollapsed();
+            return;
+        }
+
+        if (binding.restaurantsRecyclerView.getLayoutManager() != null)
+            DetailsActivity.navigate(
+                binding.restaurantsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString(), getActivity()
+            );
     }
 }

@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.AppCompatImageView;
+import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
@@ -57,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
         setToolbar();
+        setSearchView();
         setBottomNavigationView();
         DrawerLayout drawerLayout = binding.mainDrawerLayout;
         drawerLayout.setStatusBarBackground(R.color.primaryDarkColor);
@@ -117,11 +119,33 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             toolbar.setBackgroundColor(getColor(R.color.primaryColor));
         }
-        binding.mainToolbar.setNavigationIcon(R.drawable.ic_baseline_menu_24);
-        binding.mainToolbar.setNavigationIconTint(getResources().getColor(R.color.white));
-        binding.mainToolbar.setNavigationOnClickListener(view ->
+        toolbar.setNavigationOnClickListener(view ->
             binding.mainDrawerLayout.openDrawer(GravityCompat.START)
         );
+    }
+
+    private void setSearchView() {
+        SearchView searchView = binding.mainSearchView;
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchView.findViewById(androidx.appcompat.R.id.search_close_btn).setEnabled(false);
+        searchView.setOnSearchClickListener(v -> {
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            }
+        });
+        searchView.setOnCloseListener(() -> {
+            if (getSupportActionBar() != null) {
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            }
+            return false;
+        });
+        // Closes search view if it loses focus
+        searchView.setOnQueryTextFocusChangeListener((v, hasFocus) -> {
+            if (!hasFocus) {
+                searchView.setIconified(true);
+                searchView.onActionViewCollapsed();
+            }
+        });
     }
 
     private void setBottomNavigationView() {
@@ -141,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
         for (Fragment fragment : getSupportFragmentManager().getFragments()) {
             if (fragment instanceof MapFragment) {
                 if (selected == FragmentToDisplay.MAP) {
-                    setToolbarTitle(selected);
+                    setToolbarTitleAndQueryHint(selected);
                     transaction.show(fragment);
                     shown = true;
                 } else {
@@ -149,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else if (fragment instanceof RestaurantsFragment) {
                 if (selected == FragmentToDisplay.RESTAURANTS) {
-                    setToolbarTitle(selected);
+                    setToolbarTitleAndQueryHint(selected);
                     transaction.show(fragment);
                     shown = true;
                 } else {
@@ -157,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else if (fragment instanceof WorkmatesFragment) {
                 if (selected == FragmentToDisplay.WORKMATES) {
-                    setToolbarTitle(selected);
+                    setToolbarTitleAndQueryHint(selected);
                     transaction.show(fragment);
                     shown = true;
                 } else {
@@ -180,10 +204,12 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case RESTAURANTS:
                     binding.mainToolbar.setTitle(R.string.toolbar_title_hungry);
+                    binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_restaurants));
                     transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), RestaurantsFragment.newInstance());
                     break;
                 case WORKMATES:
                     binding.mainToolbar.setTitle(R.string.toolbar_title_workmates);
+                    binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_workmates));
                     transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), WorkmatesFragment.newInstance());
                     break;
                 case NO_PERMISSION:
@@ -199,17 +225,23 @@ public class MainActivity extends AppCompatActivity {
         isBottomNavigationViewListenerDisabled = false;
     }
 
-    private void setToolbarTitle(@NonNull FragmentToDisplay selected) {
+    private void setToolbarTitleAndQueryHint(@NonNull FragmentToDisplay selected) {
         switch (selected) {
             case MAP:
             case RESTAURANTS:
                 if (binding.mainToolbar.getTitle() != getString(R.string.toolbar_title_hungry)) {
                     binding.mainToolbar.setTitle(R.string.toolbar_title_hungry);
                 }
+                if (binding.mainSearchView.getQueryHint() != getString(R.string.main_searchview_query_hint_restaurants)) {
+                    binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_restaurants));
+                }
                 break;
             case WORKMATES:
                 if (binding.mainToolbar.getTitle() != getString(R.string.toolbar_title_workmates)) {
                     binding.mainToolbar.setTitle(R.string.toolbar_title_workmates);
+                }
+                if (binding.mainSearchView.getQueryHint() != getString(R.string.main_searchview_query_hint_workmates)) {
+                    binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_workmates));
                 }
                 break;
         }
