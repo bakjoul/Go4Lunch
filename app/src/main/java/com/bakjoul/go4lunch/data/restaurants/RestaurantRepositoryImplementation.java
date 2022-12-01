@@ -8,8 +8,10 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.bakjoul.go4lunch.data.api.RestaurantApi;
-import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
+import com.bakjoul.go4lunch.data.api.GoogleApis;
+import com.bakjoul.go4lunch.data.restaurants.model.NearbySearchQuery;
+import com.bakjoul.go4lunch.data.restaurants.model.NearbySearchResponse;
+import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
 
 import java.io.IOException;
@@ -35,13 +37,13 @@ public class RestaurantRepositoryImplementation implements RestaurantRepository 
     public static final String TYPE = "restaurant";
 
     @NonNull
-    private final RestaurantApi restaurantApi;
+    private final GoogleApis googleApis;
 
     private final LruCache<NearbySearchQuery, NearbySearchResponse> lruCache = new LruCache<>(500);
 
     @Inject
-    public RestaurantRepositoryImplementation(@NonNull RestaurantApi restaurantApi) {
-        this.restaurantApi = restaurantApi;
+    public RestaurantRepositoryImplementation(@NonNull GoogleApis googleApis) {
+        this.googleApis = googleApis;
     }
 
     // For testing
@@ -73,7 +75,7 @@ public class RestaurantRepositoryImplementation implements RestaurantRepository 
                     )
                 );
             } else {
-                restaurantApi.getRestaurants(locationToString(location), rankBy, type, key).enqueue(new Callback<NearbySearchResponse>() {
+                googleApis.getNearbyRestaurants(locationToString(location), rankBy, type, key).enqueue(new Callback<NearbySearchResponse>() {
                     @Override
                     public void onResponse(@NonNull Call<NearbySearchResponse> call, @NonNull Response<NearbySearchResponse> response) {
                         NearbySearchResponse body = response.body();

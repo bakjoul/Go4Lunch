@@ -7,8 +7,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.bakjoul.go4lunch.data.api.RestaurantApi;
-import com.bakjoul.go4lunch.data.model.DetailsResponse;
+import com.bakjoul.go4lunch.data.api.GoogleApis;
+import com.bakjoul.go4lunch.data.details.model.DetailsResponse;
 import com.bakjoul.go4lunch.domain.details.RestaurantDetailsRepository;
 
 import javax.inject.Inject;
@@ -24,13 +24,13 @@ public class RestaurantDetailsRepositoryImplementation implements RestaurantDeta
     private static final String TAG = "RestaurantDetailsReposi";
 
     @NonNull
-    private final RestaurantApi restaurantApi;
+    private final GoogleApis googleApis;
 
     private final LruCache<String, DetailsResponse> lruCache = new LruCache<>(500);
 
     @Inject
-    public RestaurantDetailsRepositoryImplementation(@NonNull RestaurantApi restaurantApi) {
-        this.restaurantApi = restaurantApi;
+    public RestaurantDetailsRepositoryImplementation(@NonNull GoogleApis googleApis) {
+        this.googleApis = googleApis;
     }
 
     @Override
@@ -41,7 +41,7 @@ public class RestaurantDetailsRepositoryImplementation implements RestaurantDeta
         if (existingResponse != null) {
             detailsResponseMutableLiveData.setValue(existingResponse);
         } else {
-            restaurantApi.getRestaurantDetails(restaurantId, key).enqueue(new Callback<DetailsResponse>() {
+            googleApis.getRestaurantDetails(restaurantId, key).enqueue(new Callback<DetailsResponse>() {
                 @Override
                 public void onResponse(@NonNull Call<DetailsResponse> call, @NonNull Response<DetailsResponse> response) {
                     DetailsResponse body = response.body();

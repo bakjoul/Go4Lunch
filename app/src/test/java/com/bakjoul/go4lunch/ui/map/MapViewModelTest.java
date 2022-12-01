@@ -14,19 +14,20 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.model.GeometryResponse;
-import com.bakjoul.go4lunch.data.model.LocationResponse;
-import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
-import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
-import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.restaurants.RestaurantMarker;
-import com.bakjoul.go4lunch.data.restaurants.RestaurantResponse;
-import com.bakjoul.go4lunch.data.restaurants.RestaurantResponseWrapper;
-import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
+import com.bakjoul.go4lunch.data.common_model.OpeningHoursResponse;
+import com.bakjoul.go4lunch.data.common_model.PhotoResponse;
+import com.bakjoul.go4lunch.data.restaurants.model.GeometryResponse;
+import com.bakjoul.go4lunch.data.restaurants.model.LocationResponse;
+import com.bakjoul.go4lunch.data.restaurants.model.NearbySearchResponse;
+import com.bakjoul.go4lunch.data.restaurants.model.RestaurantMarker;
+import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponse;
+import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
+import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
+import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 import com.google.android.gms.maps.model.LatLng;
@@ -108,7 +109,8 @@ public class MapViewModelTest {
     private final MapLocationRepository mapLocationRepository = Mockito.mock(MapLocationRepository.class);
     private final LocationModeRepository locationModeRepository = Mockito.mock(LocationModeRepository.class);
     private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
-    private final WorkmateRepositoryImplementation workmateRepositoryImplementation = Mockito.mock(WorkmateRepositoryImplementation.class);
+    private final WorkmateRepository workmateRepository = Mockito.mock(WorkmateRepository.class);
+    private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
     private final LocationDistanceUtil locationDistanceUtil = Mockito.mock(LocationDistanceUtil.class);
 
     private final Location location = Mockito.mock(Location.class);
@@ -134,9 +136,17 @@ public class MapViewModelTest {
         doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbyRestaurants(eq(location), eq("distance"), eq("restaurant"), anyString());
 
         chosenRestaurantsLiveData.setValue(new ArrayList<>());
-        doReturn(chosenRestaurantsLiveData).when(workmateRepositoryImplementation).getWorkmatesChosenRestaurantsLiveData();
+        doReturn(chosenRestaurantsLiveData).when(workmateRepository).getWorkmatesChosenRestaurantsLiveData();
 
-        viewModel = new MapViewModel(getUserPositionUseCase, mapLocationRepository, locationModeRepository, restaurantRepository, workmateRepositoryImplementation, locationDistanceUtil);
+        viewModel = new MapViewModel(
+            getUserPositionUseCase,
+            mapLocationRepository,
+            locationModeRepository,
+            restaurantRepository,
+            workmateRepository,
+            autocompleteRepository,
+            locationDistanceUtil
+        );
     }
 
     @Test
@@ -355,6 +365,7 @@ public class MapViewModelTest {
 
         return new MapViewState(
             restaurantMarkers,
+            new ArrayList<>(),
             false
         );
     }
@@ -367,6 +378,7 @@ public class MapViewModelTest {
     @NonNull
     private MapViewState getViewStateWithEmptyMarkers() {
         return new MapViewState(
+            new ArrayList<>(),
             new ArrayList<>(),
             false
         );

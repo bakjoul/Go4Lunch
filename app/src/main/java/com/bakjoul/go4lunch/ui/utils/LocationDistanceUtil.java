@@ -4,7 +4,7 @@ import android.location.Location;
 
 import androidx.annotation.NonNull;
 
-import com.bakjoul.go4lunch.data.model.LocationResponse;
+import com.bakjoul.go4lunch.data.restaurants.model.LocationResponse;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.maps.android.SphericalUtil;
 

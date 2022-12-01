@@ -16,6 +16,7 @@ import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.R;
+import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
@@ -47,6 +48,9 @@ public class MainViewModel extends ViewModel {
     @NonNull
     private final LocationPermissionRepository locationPermissionRepository;
 
+    @NonNull
+    private final AutocompleteRepository autocompleteRepository;
+
     private final MutableLiveData<BottomNavigationViewButton> bottomNavigationViewButtonMutableLiveData = new MutableLiveData<>(
         BottomNavigationViewButton.MAP
     );
@@ -61,12 +65,14 @@ public class MainViewModel extends ViewModel {
         @NonNull FirebaseAuth firebaseAuth,
         @NonNull GpsLocationRepository gpsLocationRepository,
         @NonNull LocationPermissionRepository locationPermissionRepository,
+        @NonNull AutocompleteRepository autocompleteRepository,
         @NonNull UserRepository userRepository
     ) {
         this.context = context;
         this.firebaseAuth = firebaseAuth;
         this.gpsLocationRepository = gpsLocationRepository;
         this.locationPermissionRepository = locationPermissionRepository;
+        this.autocompleteRepository = autocompleteRepository;
 
         if (firebaseAuth.getCurrentUser() != null) {
             userRepository.createFirestoreUser();
@@ -158,6 +164,10 @@ public class MainViewModel extends ViewModel {
 
     public void onBottomNavigationClicked(BottomNavigationViewButton button) {
         bottomNavigationViewButtonMutableLiveData.setValue(button);
+    }
+
+    public void onSearchViewQueryTextChanged(String userInput) {
+        autocompleteRepository.setUserQuery(userInput);
     }
 
     public enum BottomNavigationViewButton {

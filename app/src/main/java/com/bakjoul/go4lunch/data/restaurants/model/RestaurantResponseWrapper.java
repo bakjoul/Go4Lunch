@@ -1,9 +1,7 @@
-package com.bakjoul.go4lunch.data.restaurants;
+package com.bakjoul.go4lunch.data.restaurants.model;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
-import com.bakjoul.go4lunch.data.model.NearbySearchResponse;
 
 import java.util.Objects;
 

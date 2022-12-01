@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.data.model;
+package com.bakjoul.go4lunch.data.common_model;
 
 import androidx.annotation.NonNull;
 

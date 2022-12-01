@@ -17,11 +17,11 @@ import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.model.LocationResponse;
-import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
-import com.bakjoul.go4lunch.data.model.PhotoResponse;
-import com.bakjoul.go4lunch.data.restaurants.RestaurantResponse;
-import com.bakjoul.go4lunch.data.restaurants.RestaurantResponseWrapper;
+import com.bakjoul.go4lunch.data.common_model.OpeningHoursResponse;
+import com.bakjoul.go4lunch.data.common_model.PhotoResponse;
+import com.bakjoul.go4lunch.data.restaurants.model.LocationResponse;
+import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponse;
+import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;

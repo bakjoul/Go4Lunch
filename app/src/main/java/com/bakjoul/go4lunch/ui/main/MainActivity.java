@@ -146,6 +146,18 @@ public class MainActivity extends AppCompatActivity {
                 searchView.onActionViewCollapsed();
             }
         });
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                viewModel.onSearchViewQueryTextChanged(newText);
+                return false;
+            }
+        });
     }
 
     private void setBottomNavigationView() {

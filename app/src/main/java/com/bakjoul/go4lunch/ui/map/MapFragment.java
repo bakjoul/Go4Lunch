@@ -12,7 +12,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.restaurants.RestaurantMarker;
+import com.bakjoul.go4lunch.data.restaurants.model.RestaurantMarker;
 import com.bakjoul.go4lunch.databinding.FragmentMapBinding;
 import com.bakjoul.go4lunch.ui.details.DetailsActivity;
 import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;

@@ -1,9 +1,9 @@
-package com.bakjoul.go4lunch.data.details;
+package com.bakjoul.go4lunch.data.details.model;
 
 import androidx.annotation.NonNull;
 
-import com.bakjoul.go4lunch.data.model.OpeningHoursResponse;
-import com.bakjoul.go4lunch.data.model.PhotoResponse;
+import com.bakjoul.go4lunch.data.common_model.OpeningHoursResponse;
+import com.bakjoul.go4lunch.data.common_model.PhotoResponse;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 

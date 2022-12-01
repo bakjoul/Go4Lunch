@@ -5,8 +5,8 @@ import android.location.Location;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 
-import com.bakjoul.go4lunch.data.restaurants.NearbySearchQuery;
-import com.bakjoul.go4lunch.data.restaurants.RestaurantResponseWrapper;
+import com.bakjoul.go4lunch.data.restaurants.model.NearbySearchQuery;
+import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
 
 public interface RestaurantRepository {
 

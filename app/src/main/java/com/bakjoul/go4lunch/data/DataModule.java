@@ -4,8 +4,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 
-import com.bakjoul.go4lunch.data.api.RestaurantApi;
-import com.bakjoul.go4lunch.data.location.LocationPermissionRepositoryImplementation;
+import com.bakjoul.go4lunch.data.api.GoogleApis;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.firebase.auth.FirebaseAuth;
@@ -71,8 +70,8 @@ public class DataModule {
 
     @Singleton
     @Provides
-    public RestaurantApi providesRestaurantApi(@NonNull Retrofit retrofit) {
-        return retrofit.create(RestaurantApi.class);
+    public GoogleApis providesGoogleApis(@NonNull Retrofit retrofit) {
+        return retrofit.create(GoogleApis.class);
     }
 
     @Singleton
