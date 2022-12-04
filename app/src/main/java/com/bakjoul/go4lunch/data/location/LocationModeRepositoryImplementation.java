@@ -29,7 +29,7 @@ public class LocationModeRepositoryImplementation implements LocationModeReposit
     }
 
     @Override
-    public void setModeUserEnabled(boolean enabled) {
+    public void setUserModeEnabled(boolean enabled) {
         isUserModeEnabledMutableLiveData.setValue(enabled);
     }
 }

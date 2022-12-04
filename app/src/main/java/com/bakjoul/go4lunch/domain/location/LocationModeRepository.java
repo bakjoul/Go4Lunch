@@ -8,5 +8,5 @@ public interface LocationModeRepository {
 
     boolean isUserModeEnabled();
 
-    void setModeUserEnabled(boolean enabled);
+    void setUserModeEnabled(boolean enabled);
 }

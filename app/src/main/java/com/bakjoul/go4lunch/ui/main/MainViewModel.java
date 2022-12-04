@@ -11,19 +11,26 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.R;
+import com.bakjoul.go4lunch.data.autocomplete.model.PredictionResponse;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
+import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
+import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.facebook.AccessToken;
 import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 
@@ -57,7 +64,7 @@ public class MainViewModel extends ViewModel {
 
     private final SingleLiveEvent<FragmentToDisplay> fragmentToDisplaySingleLiveEvent = new SingleLiveEvent<>();
 
-    private LiveData<MainViewState> mainActivityViewStateLiveData;
+    private final MediatorLiveData<MainViewState> mainViewStateMediatorLiveData = new MediatorLiveData<>();
 
     @Inject
     public MainViewModel(
@@ -65,6 +72,7 @@ public class MainViewModel extends ViewModel {
         @NonNull FirebaseAuth firebaseAuth,
         @NonNull GpsLocationRepository gpsLocationRepository,
         @NonNull LocationPermissionRepository locationPermissionRepository,
+        @NonNull GetUserPositionUseCase getUserPositionUseCase,
         @NonNull AutocompleteRepository autocompleteRepository,
         @NonNull UserRepository userRepository
     ) {
@@ -77,40 +85,96 @@ public class MainViewModel extends ViewModel {
         if (firebaseAuth.getCurrentUser() != null) {
             userRepository.createFirestoreUser();
 
-            mainActivityViewStateLiveData = Transformations.switchMap(
-                userRepository.getChosenRestaurantLiveData(),
-                response -> {
-                    MainViewState mainViewState = new MainViewState(
-                        firebaseAuth.getCurrentUser().getPhotoUrl(),
-                        firebaseAuth.getCurrentUser().getDisplayName(),
-                        firebaseAuth.getCurrentUser().getEmail(),
-                        null
-                    );
+            LiveData<UserGoingToRestaurantEntity> userChosenRestaurantLiveData = userRepository.getChosenRestaurantLiveData();
 
-                    // Updates view state if user has chosen a restaurant
-                    if (response != null) {
-                        mainViewState = new MainViewState(
-                            firebaseAuth.getCurrentUser().getPhotoUrl(),
-                            firebaseAuth.getCurrentUser().getDisplayName(),
-                            firebaseAuth.getCurrentUser().getEmail(),
-                            response.getChosenRestaurantId()
-                        );
+            LiveData<List<PredictionResponse>> predictionsLiveData = Transformations.switchMap(
+                getUserPositionUseCase.invoke(),
+                location -> {
+                    if (location == null) {
+                        return new MutableLiveData<>(null);
                     }
-                    return new MutableLiveData<>(mainViewState);
+                    return Transformations.switchMap(
+                        autocompleteRepository.getUserQuery(),
+                        input -> {
+                            if (input != null && input.length() >= 3) {
+                                return Transformations.switchMap(
+                                    autocompleteRepository.getAutocomplete(input, location),
+                                    response -> {
+                                        if (response != null) {
+                                            return new MutableLiveData<>(response.getPredictions());
+                                        }
+                                        return new MutableLiveData<>(new ArrayList<>());
+                                    }
+                                );
+                            }
+                            return new MutableLiveData<>(new ArrayList<>());
+                        }
+                    );
                 }
+            );
+
+            mainViewStateMediatorLiveData.addSource(userChosenRestaurantLiveData, userChosenRestaurant ->
+                combine(userChosenRestaurant, predictionsLiveData.getValue())
+            );
+            mainViewStateMediatorLiveData.addSource(predictionsLiveData, predictions ->
+                combine(userChosenRestaurantLiveData.getValue(), predictions)
+            );
+        } else {
+            mainViewStateMediatorLiveData.setValue(
+                new MainViewState(
+                    null,
+                    "User not logged",
+                    "",
+                    null,
+                    new ArrayList<>()
+                )
             );
         }
 
+        // Sets up fragmentToDisplaySingleLiveEvent
         LiveData<Boolean> isLocationPermissionEnabledLiveData = locationPermissionRepository.getLocationPermissionLiveData();
 
         fragmentToDisplaySingleLiveEvent.addSource(bottomNavigationViewButtonMutableLiveData, bottomNavigationViewButton ->
-            combine(bottomNavigationViewButton, isLocationPermissionEnabledLiveData.getValue()));
-
+            combineForFragmentToDisplay(bottomNavigationViewButton, isLocationPermissionEnabledLiveData.getValue())
+        );
         fragmentToDisplaySingleLiveEvent.addSource(isLocationPermissionEnabledLiveData, isLocationPermissionEnabled ->
-            combine(bottomNavigationViewButtonMutableLiveData.getValue(), isLocationPermissionEnabled));
+            combineForFragmentToDisplay(bottomNavigationViewButtonMutableLiveData.getValue(), isLocationPermissionEnabled)
+        );
     }
 
-    private void combine(@Nullable BottomNavigationViewButton bottomNavigationViewButton, @Nullable Boolean isLocationPermissionEnabled) {
+    private void combine(
+        @Nullable UserGoingToRestaurantEntity userChosenRestaurant,
+        @Nullable List<PredictionResponse> suggestions
+    ) {
+        if (userChosenRestaurant == null || suggestions == null) {
+            return;
+        }
+
+        List<SuggestionItemViewState> suggestionItemViewStatesList = new ArrayList<>();
+        for (PredictionResponse predictionResponse : suggestions) {
+            SuggestionItemViewState itemViewState = new SuggestionItemViewState(
+                predictionResponse.getPlaceId(),
+                predictionResponse.getStructuredFormatting().getMainText(),
+                predictionResponse.getStructuredFormatting().getSecondaryText()
+            );
+            suggestionItemViewStatesList.add(itemViewState);
+        }
+
+        mainViewStateMediatorLiveData.setValue(
+            new MainViewState(
+                firebaseAuth.getCurrentUser().getPhotoUrl(),
+                firebaseAuth.getCurrentUser().getDisplayName(),
+                firebaseAuth.getCurrentUser().getEmail(),
+                userChosenRestaurant.getChosenRestaurantId(),
+                suggestionItemViewStatesList
+            )
+        );
+    }
+
+    private void combineForFragmentToDisplay(
+        @Nullable BottomNavigationViewButton bottomNavigationViewButton,
+        @Nullable Boolean isLocationPermissionEnabled
+    ) {
         if (bottomNavigationViewButton == null || isLocationPermissionEnabled == null) {
             return;
         }
@@ -132,8 +196,8 @@ public class MainViewModel extends ViewModel {
         }
     }
 
-    public LiveData<MainViewState> getMainActivityViewStateLiveData() {
-        return mainActivityViewStateLiveData;
+    public LiveData<MainViewState> getMainViewStateMediatorLiveData() {
+        return mainViewStateMediatorLiveData;
     }
 
     public SingleLiveEvent<FragmentToDisplay> getFragmentToDisplaySingleLiveEvent() {
@@ -166,8 +230,12 @@ public class MainViewModel extends ViewModel {
         bottomNavigationViewButtonMutableLiveData.setValue(button);
     }
 
-    public void onSearchViewQueryTextChanged(String userInput) {
-        autocompleteRepository.setUserQuery(userInput);
+    public void onSearchViewQueryTextChanged(String input) {
+        autocompleteRepository.setUserQuery(input);
+    }
+
+    public void setUserSearchingForWorkmate(boolean isUserSearchingForWorkmate) {
+        autocompleteRepository.setUserSearchingForWorkmateMode(isUserSearchingForWorkmate);
     }
 
     public enum BottomNavigationViewButton {

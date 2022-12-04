@@ -40,7 +40,7 @@ import com.bumptech.glide.request.RequestOptions;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SuggestionsAdapter.OnSuggestionClickListener {
 
     private ActivityMainBinding binding;
     private MainViewModel viewModel;
@@ -59,6 +59,8 @@ public class MainActivity extends AppCompatActivity {
 
         setToolbar();
         setSearchView();
+        SuggestionsAdapter adapter = new SuggestionsAdapter(this);
+        binding.mainSuggestionsRecyclerView.setAdapter(adapter);
         setBottomNavigationView();
         DrawerLayout drawerLayout = binding.mainDrawerLayout;
         drawerLayout.setStatusBarBackground(R.color.primaryDarkColor);
@@ -68,7 +70,7 @@ public class MainActivity extends AppCompatActivity {
         TextView username = header.findViewById(R.id.main_drawer_user_name);
         TextView email = header.findViewById(R.id.main_drawer_user_email);
 
-        viewModel.getMainActivityViewStateLiveData().observe(this, viewState -> {
+        viewModel.getMainViewStateMediatorLiveData().observe(this, viewState -> {
             Glide.with(photo.getContext())
                 .load(viewState.getPhotoUrl())
                 .apply(RequestOptions.circleCropTransform())
@@ -77,6 +79,12 @@ public class MainActivity extends AppCompatActivity {
             email.setText(viewState.getEmail());
 
             setMainNavigationView(viewState);
+            if (viewState.getSuggestionItemViewStates().isEmpty()) {
+                binding.mainSuggestionsRecyclerView.setVisibility(View.GONE);
+            } else {
+                binding.mainSuggestionsRecyclerView.setVisibility(View.VISIBLE);
+            }
+            adapter.submitList(viewState.getSuggestionItemViewStates());
         });
 
         viewModel.getFragmentToDisplaySingleLiveEvent().observe(this, this::displayFragment);
@@ -177,7 +185,7 @@ public class MainActivity extends AppCompatActivity {
         for (Fragment fragment : getSupportFragmentManager().getFragments()) {
             if (fragment instanceof MapFragment) {
                 if (selected == FragmentToDisplay.MAP) {
-                    setToolbarTitleAndQueryHint(selected);
+                    setToolbarTitleAndSearchview(selected);
                     transaction.show(fragment);
                     shown = true;
                 } else {
@@ -185,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else if (fragment instanceof RestaurantsFragment) {
                 if (selected == FragmentToDisplay.RESTAURANTS) {
-                    setToolbarTitleAndQueryHint(selected);
+                    setToolbarTitleAndSearchview(selected);
                     transaction.show(fragment);
                     shown = true;
                 } else {
@@ -193,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             } else if (fragment instanceof WorkmatesFragment) {
                 if (selected == FragmentToDisplay.WORKMATES) {
-                    setToolbarTitleAndQueryHint(selected);
+                    setToolbarTitleAndSearchview(selected);
                     transaction.show(fragment);
                     shown = true;
                 } else {
@@ -213,16 +221,19 @@ public class MainActivity extends AppCompatActivity {
             switch (selected) {
                 case MAP:
                     transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), MapFragment.newInstance());
+                    viewModel.setUserSearchingForWorkmate(false);
                     break;
                 case RESTAURANTS:
                     binding.mainToolbar.setTitle(R.string.toolbar_title_hungry);
                     binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_restaurants));
                     transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), RestaurantsFragment.newInstance());
+                    viewModel.setUserSearchingForWorkmate(false);
                     break;
                 case WORKMATES:
                     binding.mainToolbar.setTitle(R.string.toolbar_title_workmates);
                     binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_workmates));
                     transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), WorkmatesFragment.newInstance());
+                    viewModel.setUserSearchingForWorkmate(true);
                     break;
                 case NO_PERMISSION:
                     transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), NoPermissionFragment.newInstance());
@@ -237,7 +248,7 @@ public class MainActivity extends AppCompatActivity {
         isBottomNavigationViewListenerDisabled = false;
     }
 
-    private void setToolbarTitleAndQueryHint(@NonNull FragmentToDisplay selected) {
+    private void setToolbarTitleAndSearchview(@NonNull FragmentToDisplay selected) {
         switch (selected) {
             case MAP:
             case RESTAURANTS:
@@ -247,6 +258,7 @@ public class MainActivity extends AppCompatActivity {
                 if (binding.mainSearchView.getQueryHint() != getString(R.string.main_searchview_query_hint_restaurants)) {
                     binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_restaurants));
                 }
+                viewModel.setUserSearchingForWorkmate(false);
                 break;
             case WORKMATES:
                 if (binding.mainToolbar.getTitle() != getString(R.string.toolbar_title_workmates)) {
@@ -255,6 +267,7 @@ public class MainActivity extends AppCompatActivity {
                 if (binding.mainSearchView.getQueryHint() != getString(R.string.main_searchview_query_hint_workmates)) {
                     binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_workmates));
                 }
+                viewModel.setUserSearchingForWorkmate(true);
                 break;
         }
     }
@@ -279,5 +292,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void requestLocationPermission() {
         ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+    }
+
+    @Override
+    public void onSuggestionClicked(int position) {
+
     }
 }

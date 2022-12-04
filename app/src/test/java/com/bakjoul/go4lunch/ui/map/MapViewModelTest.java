@@ -22,7 +22,6 @@ import com.bakjoul.go4lunch.data.restaurants.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
-import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
@@ -110,7 +109,6 @@ public class MapViewModelTest {
     private final LocationModeRepository locationModeRepository = Mockito.mock(LocationModeRepository.class);
     private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
     private final WorkmateRepository workmateRepository = Mockito.mock(WorkmateRepository.class);
-    private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
     private final LocationDistanceUtil locationDistanceUtil = Mockito.mock(LocationDistanceUtil.class);
 
     private final Location location = Mockito.mock(Location.class);
@@ -144,7 +142,6 @@ public class MapViewModelTest {
             locationModeRepository,
             restaurantRepository,
             workmateRepository,
-            autocompleteRepository,
             locationDistanceUtil
         );
     }
@@ -365,7 +362,6 @@ public class MapViewModelTest {
 
         return new MapViewState(
             restaurantMarkers,
-            new ArrayList<>(),
             false
         );
     }
@@ -378,7 +374,6 @@ public class MapViewModelTest {
     @NonNull
     private MapViewState getViewStateWithEmptyMarkers() {
         return new MapViewState(
-            new ArrayList<>(),
             new ArrayList<>(),
             false
         );

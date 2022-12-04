@@ -73,7 +73,7 @@ public class UserRepositoryImplementation implements UserRepository {
 
         if (firebaseAuth.getUid() != null) {
             firestoreDb
-                .collection("chosenRestaurants")
+                .collection("usersGoingToRestaurants")
                 .document(firebaseAuth.getUid())
                 .set(chosenRestaurantData)
                 .addOnCompleteListener(documentReference -> Log.d(TAG, "Chosen restaurant updated (" + restaurantId + ") for user " + firebaseAuth.getUid()))
@@ -97,7 +97,7 @@ public class UserRepositoryImplementation implements UserRepository {
     public void unchooseRestaurant() {
         if (firebaseAuth.getUid() != null) {
             firestoreDb
-                .collection("chosenRestaurants")
+                .collection("usersGoingToRestaurants")
                 .document(firebaseAuth.getUid())
                 .delete()
                 .addOnCompleteListener(documentReference -> Log.d(TAG, "Chosen restaurant deleted for user " + firebaseAuth.getUid()))
@@ -139,7 +139,7 @@ public class UserRepositoryImplementation implements UserRepository {
     public LiveData<UserGoingToRestaurantEntity> getChosenRestaurantLiveData() {
         if (firebaseAuth.getUid() != null) {
             return new FirestoreDocumentLiveData<UserGoingToRestaurantResponse, UserGoingToRestaurantEntity>(
-                firestoreDb.collection("chosenRestaurants").document(firebaseAuth.getUid()),
+                firestoreDb.collection("usersGoingToRestaurants").document(firebaseAuth.getUid()),
                 UserGoingToRestaurantResponse.class
             ) {
                 @Override

@@ -29,6 +29,7 @@ public interface GoogleApis {
         @Query("location") String location,
         @Query("radius") String radius,
         @Query("type") String type,
+        @Query("language") String language,
         @Query("key") String key
     );
 }

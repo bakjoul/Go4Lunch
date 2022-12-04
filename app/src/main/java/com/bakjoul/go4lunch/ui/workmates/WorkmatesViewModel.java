@@ -6,9 +6,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
+import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,10 +24,10 @@ public class WorkmatesViewModel extends ViewModel {
 
     @Inject
     public WorkmatesViewModel(
-        @NonNull WorkmateRepositoryImplementation workmateRepositoryImplementation
+        @NonNull WorkmateRepository workmateRepository
     ) {
-        LiveData<List<WorkmateEntity>> availableWorkmatesLiveData = workmateRepositoryImplementation.getAvailableWorkmatesLiveData();
-        LiveData<List<UserGoingToRestaurantEntity>> workmatesGoingToRestaurantsLiveData = workmateRepositoryImplementation.getWorkmatesGoingToRestaurantsLiveData();
+        LiveData<List<WorkmateEntity>> availableWorkmatesLiveData = workmateRepository.getAvailableWorkmatesLiveData();
+        LiveData<List<UserGoingToRestaurantEntity>> workmatesGoingToRestaurantsLiveData = workmateRepository.getWorkmatesGoingToRestaurantsLiveData();
 
         workmatesViewStateMediatorLiveData.addSource(availableWorkmatesLiveData, availableWorkmates ->
             combine(availableWorkmates, workmatesGoingToRestaurantsLiveData.getValue())

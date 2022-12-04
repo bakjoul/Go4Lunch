@@ -45,7 +45,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     @Override
     public LiveData<List<UserGoingToRestaurantEntity>> getWorkmatesGoingToRestaurantsLiveData() {
         return new FirestoreCollectionLiveData<UserGoingToRestaurantResponse, UserGoingToRestaurantEntity>(
-            firestoreDb.collection("chosenRestaurants"),
+            firestoreDb.collection("usersGoingToRestaurants"),
             UserGoingToRestaurantResponse.class
         ) {
             @Override
@@ -98,7 +98,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     @Override
     public LiveData<List<UserGoingToRestaurantEntity>> getWorkmatesGoingToRestaurantIdLiveData(String restaurantId) {
         return new FirestoreQueryLiveData<UserGoingToRestaurantResponse, UserGoingToRestaurantEntity>(
-            firestoreDb.collection("chosenRestaurants").whereEqualTo("chosenRestaurantId", restaurantId),
+            firestoreDb.collection("usersGoingToRestaurants").whereEqualTo("chosenRestaurantId", restaurantId),
             UserGoingToRestaurantResponse.class
         ) {
             @Override

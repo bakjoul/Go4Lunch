@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
+import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
@@ -23,6 +24,7 @@ public class MainViewModelTest {
     private final FirebaseAuth firebaseAuth = Mockito.mock(FirebaseAuth.class);
     private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
     private final LocationPermissionRepository locationPermissionRepository = Mockito.mock(LocationPermissionRepository.class);
+    private final GetUserPositionUseCase getUserPositionUseCase = Mockito.mock(GetUserPositionUseCase.class);
     private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
     private final UserRepository userRepository = Mockito.mock(UserRepository.class);
 
@@ -30,7 +32,15 @@ public class MainViewModelTest {
 
     @Before
     public void setUp() {
-        viewModel = new MainViewModel(context, firebaseAuth, gpsLocationRepository, locationPermissionRepository, autocompleteRepository, userRepository);
+        viewModel = new MainViewModel(
+            context,
+            firebaseAuth,
+            gpsLocationRepository,
+            locationPermissionRepository,
+            getUserPositionUseCase,
+            autocompleteRepository,
+            userRepository
+        );
     }
 
 }

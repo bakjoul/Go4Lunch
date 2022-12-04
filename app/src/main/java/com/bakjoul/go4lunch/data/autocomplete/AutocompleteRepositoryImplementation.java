@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.data.api.GoogleApis;
 import com.bakjoul.go4lunch.data.autocomplete.model.AutocompleteResponse;
 import com.bakjoul.go4lunch.data.utils.LocationUtils;
@@ -29,11 +30,16 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
     private static final String TAG = "AutocompleteRepoImpleme";
 
     private static final int GPS_SCALE = 2;
+    private static final String RADIUS = "2000";
+    private static final String TYPE = "restaurant";
+    private static final String LANGUAGE = "fr";
 
     @NonNull
     private final GoogleApis googleApis;
 
-    private final MutableLiveData<String> userQueryLiveData = new MutableLiveData<>();
+    private final MutableLiveData<String> userQueryLiveData = new MutableLiveData<>("");
+
+    private final MutableLiveData<Boolean> isUserSearchingForWorkmateLiveData = new MutableLiveData<>(false);
 
     private final LruCache<AutocompleteQuery, AutocompleteResponse> lruCache = new LruCache<>(500);
 
@@ -43,32 +49,19 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
     }
 
     @Override
-    public void setUserQuery(String queryText) {
-        userQueryLiveData.setValue(queryText);
+    public void setUserQuery(String input) {
+        userQueryLiveData.setValue(input);
     }
 
     @Override
-    public AutocompleteQuery generateQuery(String userInput, double latitude, double longitude) {
-        return new AutocompleteQuery(
-            userInput,
-            BigDecimal.valueOf(latitude).setScale(GPS_SCALE, RoundingMode.HALF_UP),
-            BigDecimal.valueOf(longitude).setScale(GPS_SCALE, RoundingMode.HALF_UP)
-        );
-    }
-
-    @Override
-    public LiveData<String> getUserQuery() {
-        return userQueryLiveData;
-    }
-
-    @Override
-    public LiveData<AutocompleteResponse> getAutocompleteResponse(
+    public LiveData<AutocompleteResponse> getAutocomplete(
         @NonNull String userInput,
-        @NonNull Location location,
-        @NonNull String radius,
-        @NonNull String type,
-        @NonNull String key
+        @NonNull Location location
     ) {
+        if (isUserSearchingForWorkmateMode()) {
+            // TODO
+            return new MutableLiveData<>(null);
+        }
         MutableLiveData<AutocompleteResponse> responseMutableLiveData = new MutableLiveData<>();
 
         AutocompleteQuery query = generateQuery(userInput, location.getLatitude(), location.getLongitude());
@@ -78,7 +71,7 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
             responseMutableLiveData.setValue(existingResponse);
 
         } else {
-            googleApis.getRestaurantAutocomplete(userInput, LocationUtils.locationToString(location), radius, type, key).enqueue(new Callback<AutocompleteResponse>() {
+            googleApis.getRestaurantAutocomplete(userInput, LocationUtils.locationToString(location), RADIUS, TYPE, LANGUAGE, BuildConfig.MAPS_API_KEY).enqueue(new Callback<AutocompleteResponse>() {
                 @Override
                 public void onResponse(@NonNull Call<AutocompleteResponse> call, @NonNull Response<AutocompleteResponse> response) {
                     AutocompleteResponse body = response.body();
@@ -97,5 +90,30 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
         }
 
         return responseMutableLiveData;
+    }
+
+    @Override
+    public void setUserSearchingForWorkmateMode(boolean userSearchingForWorkmate) {
+        isUserSearchingForWorkmateLiveData.setValue(userSearchingForWorkmate);
+    }
+
+    @Override
+    public boolean isUserSearchingForWorkmateMode() {
+        //noinspection ConstantConditions This MutableLiveData always has a value
+        return isUserSearchingForWorkmateLiveData.getValue();
+    }
+
+    @Override
+    public AutocompleteQuery generateQuery(String userInput, double latitude, double longitude) {
+        return new AutocompleteQuery(
+            userInput,
+            BigDecimal.valueOf(latitude).setScale(GPS_SCALE, RoundingMode.HALF_UP),
+            BigDecimal.valueOf(longitude).setScale(GPS_SCALE, RoundingMode.HALF_UP)
+        );
+    }
+
+    @Override
+    public LiveData<String> getUserQuery() {
+        return userQueryLiveData;
     }
 }

@@ -4,11 +4,9 @@ import static com.bakjoul.go4lunch.data.restaurants.RestaurantRepositoryImplemen
 
 import android.location.Location;
 import android.location.LocationManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.arch.core.util.Function;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -17,12 +15,9 @@ import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.autocomplete.model.AutocompleteResponse;
-import com.bakjoul.go4lunch.data.autocomplete.model.PredictionResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
-import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
@@ -44,7 +39,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class MapViewModel extends ViewModel {
 
     private static final double MAP_MINIMUM_DISPLACEMENT = 1000;
-    private static final String RADIUS = "3000";
     private static final String TYPE = "restaurant";
 
     @NonNull
@@ -77,7 +71,6 @@ public class MapViewModel extends ViewModel {
         @NonNull LocationModeRepository locationModeRepository,
         @NonNull RestaurantRepository restaurantRepository,
         @NonNull WorkmateRepository workmateRepository,
-        @NonNull AutocompleteRepository autocompleteRepository,
         @NonNull LocationDistanceUtil locationDistanceUtil
     ) {
         this.mapLocationRepository = mapLocationRepository;
@@ -109,69 +102,28 @@ public class MapViewModel extends ViewModel {
 
         LiveData<Collection<String>> chosenRestaurantsLiveData = workmateRepository.getWorkmatesChosenRestaurantsLiveData();
 
-        LiveData<List<PredictionResponse>> predictionsLiveData = Transformations.switchMap(
-            locationLiveData,
-            new Function<Location, LiveData<List<PredictionResponse>>>() {
-                @Override
-                public LiveData<List<PredictionResponse>> apply(Location location) {
-                    if (location == null) {
-                        return new MutableLiveData<>(null);
-                    }
-                    return Transformations.switchMap(
-                        autocompleteRepository.getUserQuery(),
-                        new Function<String, LiveData<List<PredictionResponse>>>() {
-                            @Override
-                            public LiveData<List<PredictionResponse>> apply(String userInput) {
-                                Log.d("test", "apply: " + userInput);
-                                if (userInput != null && userInput.length() >= 3) {
-                                    return Transformations.switchMap(
-                                        autocompleteRepository.getAutocompleteResponse(userInput, location, RADIUS, TYPE, BuildConfig.MAPS_API_KEY),
-                                        new Function<AutocompleteResponse, LiveData<List<PredictionResponse>>>() {
-                                            @Override
-                                            public LiveData<List<PredictionResponse>> apply(AutocompleteResponse response) {
-                                                if (response != null) {
-                                                    return new MutableLiveData<>(response.getPredictions());
-                                                }
-                                                return new MutableLiveData<>(new ArrayList<>());
-                                            }
-                                        }
-                                    );
-                                }
-                                return new MutableLiveData<>(new ArrayList<>());
-                            }
-                        }
-                    );
-                }
-            }
-        );
-
         mapViewStateMediatorLiveData.addSource(isMapReadyMutableLiveData, isMapReady ->
-            combine(isMapReady, responseWrapperLiveData.getValue(), chosenRestaurantsLiveData.getValue(), predictionsLiveData.getValue())
+            combine(isMapReady, responseWrapperLiveData.getValue(), chosenRestaurantsLiveData.getValue())
         );
         mapViewStateMediatorLiveData.addSource(responseWrapperLiveData, responseWrapper ->
-            combine(isMapReadyMutableLiveData.getValue(), responseWrapper, chosenRestaurantsLiveData.getValue(), predictionsLiveData.getValue())
+            combine(isMapReadyMutableLiveData.getValue(), responseWrapper, chosenRestaurantsLiveData.getValue())
         );
         mapViewStateMediatorLiveData.addSource(chosenRestaurantsLiveData, chosenRestaurants ->
-            combine(isMapReadyMutableLiveData.getValue(), responseWrapperLiveData.getValue(), chosenRestaurants, predictionsLiveData.getValue())
-        );
-        mapViewStateMediatorLiveData.addSource(predictionsLiveData, suggestions ->
-            combine(isMapReadyMutableLiveData.getValue(), responseWrapperLiveData.getValue(), chosenRestaurantsLiveData.getValue(), suggestions)
+            combine(isMapReadyMutableLiveData.getValue(), responseWrapperLiveData.getValue(), chosenRestaurants)
         );
     }
 
     private void combine(
         @Nullable Boolean isMapReady,
         @Nullable RestaurantResponseWrapper restaurantResponseWrapper,
-        @Nullable Collection<String> chosenRestaurants,
-        @Nullable List<PredictionResponse> predictions) {
-        if (isMapReady == null || restaurantResponseWrapper == null || chosenRestaurants == null || predictions == null) {
+        @Nullable Collection<String> chosenRestaurants) {
+        if (isMapReady == null || restaurantResponseWrapper == null || chosenRestaurants == null) {
             return;
         }
 
         List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
         boolean isProgressBarVisible = restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.LOADING;
         isRetryBarVisibleSingleLiveEvent.setValue(false);
-        List<PredictionItemViewState> predictionItemViewStates = mapPredictions(predictions);
 
         if (restaurantResponseWrapper.getNearbySearchResponse() != null
             && restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.SUCCESS) {
@@ -194,25 +146,10 @@ public class MapViewModel extends ViewModel {
             mapViewStateMediatorLiveData.setValue(
                 new MapViewState(
                     restaurantsMarkers,
-                    predictionItemViewStates,
                     isProgressBarVisible
                 )
             );
         }
-    }
-
-    @NonNull
-    private List<PredictionItemViewState> mapPredictions(@NonNull List<PredictionResponse> predictions) {
-        List<PredictionItemViewState> predictionItemViewStateList = new ArrayList<>();
-        for (PredictionResponse predictionResponse : predictions) {
-            predictionItemViewStateList.add(
-                new PredictionItemViewState(
-                    predictionResponse.getPlaceId(),
-                    predictionResponse.getDescription()
-                )
-            );
-        }
-        return predictionItemViewStateList;
     }
 
     private void map(
@@ -270,7 +207,7 @@ public class MapViewModel extends ViewModel {
     }
 
     public void onCameraMovedByUser() {
-        locationModeRepository.setModeUserEnabled(true);
+        locationModeRepository.setUserModeEnabled(true);
     }
 
     public void onCameraMoved(@NonNull LatLng cameraPosition) {
@@ -290,6 +227,6 @@ public class MapViewModel extends ViewModel {
     }
 
     public void onMyLocationButtonClicked() {
-        locationModeRepository.setModeUserEnabled(false);
+        locationModeRepository.setUserModeEnabled(false);
     }
 }
