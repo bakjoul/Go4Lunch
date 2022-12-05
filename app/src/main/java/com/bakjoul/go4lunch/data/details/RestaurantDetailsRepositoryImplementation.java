@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.data.api.GoogleApis;
 import com.bakjoul.go4lunch.data.details.model.DetailsResponse;
 import com.bakjoul.go4lunch.domain.details.RestaurantDetailsRepository;
@@ -34,14 +35,14 @@ public class RestaurantDetailsRepositoryImplementation implements RestaurantDeta
     }
 
     @Override
-    public LiveData<DetailsResponse> getDetailsResponse(@NonNull String restaurantId, @NonNull String key) {
+    public LiveData<DetailsResponse> getDetailsResponse(@NonNull String restaurantId) {
         MutableLiveData<DetailsResponse> detailsResponseMutableLiveData = new MutableLiveData<>();
 
         DetailsResponse existingResponse = lruCache.get(restaurantId);
         if (existingResponse != null) {
             detailsResponseMutableLiveData.setValue(existingResponse);
         } else {
-            googleApis.getRestaurantDetails(restaurantId, key).enqueue(new Callback<DetailsResponse>() {
+            googleApis.getRestaurantDetails(restaurantId, BuildConfig.MAPS_API_KEY).enqueue(new Callback<DetailsResponse>() {
                 @Override
                 public void onResponse(@NonNull Call<DetailsResponse> call, @NonNull Response<DetailsResponse> response) {
                     DetailsResponse body = response.body();

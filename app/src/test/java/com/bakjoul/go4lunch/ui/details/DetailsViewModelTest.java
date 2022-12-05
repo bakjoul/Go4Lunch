@@ -15,13 +15,13 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.bakjoul.go4lunch.R;
-import com.bakjoul.go4lunch.data.details.model.RestaurantDetailsResponse;
+import com.bakjoul.go4lunch.data.common_model.OpeningHoursResponse;
+import com.bakjoul.go4lunch.data.common_model.PhotoResponse;
 import com.bakjoul.go4lunch.data.details.model.CloseResponse;
 import com.bakjoul.go4lunch.data.details.model.DetailsResponse;
 import com.bakjoul.go4lunch.data.details.model.OpenResponse;
-import com.bakjoul.go4lunch.data.common_model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.details.model.PeriodResponse;
-import com.bakjoul.go4lunch.data.common_model.PhotoResponse;
+import com.bakjoul.go4lunch.data.details.model.RestaurantDetailsResponse;
 import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 import com.bakjoul.go4lunch.domain.details.RestaurantDetailsRepository;
@@ -183,7 +183,7 @@ public class DetailsViewModelTest {
         doReturn(OPEN_AT).when(application).getString(R.string.details_open_at);
         doReturn(JOINING).when(application).getString(R.string.details_text_joining);
 
-        doReturn(detailsResponseLiveData).when(restaurantDetailsRepository).getDetailsResponse(anyString(), anyString());
+        doReturn(detailsResponseLiveData).when(restaurantDetailsRepository).getDetailsResponse(anyString());
         doReturn(workmatesLiveData).when(workmateRepositoryImplementation).getWorkmatesGoingToRestaurantIdLiveData(anyString());
         doReturn(chosenRestaurantLiveData).when(userRepositoryImplementation).getChosenRestaurantLiveData();
         doReturn(favoritesRestaurants).when(userRepositoryImplementation).getFavoritesRestaurantsLiveData();

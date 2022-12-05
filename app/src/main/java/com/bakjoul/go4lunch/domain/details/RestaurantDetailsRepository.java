@@ -7,5 +7,5 @@ import com.bakjoul.go4lunch.data.details.model.DetailsResponse;
 
 public interface RestaurantDetailsRepository {
 
-    LiveData<DetailsResponse> getDetailsResponse(@NonNull String restaurantId, @NonNull String key);
+    LiveData<DetailsResponse> getDetailsResponse(@NonNull String restaurantId);
 }

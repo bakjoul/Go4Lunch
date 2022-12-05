@@ -10,7 +10,6 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.ViewModel;
 
-import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.common_model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.common_model.PhotoResponse;
@@ -82,7 +81,7 @@ public class DetailsViewModel extends ViewModel {
         final LiveData<Collection<String>> favoriteRestaurantsLiveData;
 
         if (restaurantId != null) {
-            detailsResponseLiveData = restaurantDetailsRepository.getDetailsResponse(restaurantId, BuildConfig.MAPS_API_KEY);
+            detailsResponseLiveData = restaurantDetailsRepository.getDetailsResponse(restaurantId);
             workmatesLiveData = workmateRepositoryImplementation.getWorkmatesGoingToRestaurantIdLiveData(restaurantId);
             chosenRestaurantLiveData = userRepository.getChosenRestaurantLiveData();
             favoriteRestaurantsLiveData = userRepository.getFavoritesRestaurantsLiveData();
