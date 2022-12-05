@@ -4,10 +4,12 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -134,8 +136,12 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
 
     private void setSearchView() {
         SearchView searchView = binding.mainSearchView;
+        ImageView searchClose = searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
+
         searchView.setMaxWidth(Integer.MAX_VALUE);
-        searchView.findViewById(androidx.appcompat.R.id.search_close_btn).setEnabled(false);
+        searchClose.setColorFilter(R.color.grey, PorterDuff.Mode.SRC_ATOP);
+        searchClose.setEnabled(false);
+
         searchView.setOnSearchClickListener(v -> {
             if (getSupportActionBar() != null) {
                 getSupportActionBar().setDisplayHomeAsUpEnabled(false);
@@ -296,6 +302,7 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
 
     @Override
     public void onSuggestionClicked(int position) {
-
+        if (binding.mainSuggestionsRecyclerView.getLayoutManager() != null)
+            Log.d("test", "onSuggestionClicked: " + binding.mainSuggestionsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString());
     }
 }
