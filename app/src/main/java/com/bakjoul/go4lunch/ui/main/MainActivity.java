@@ -302,7 +302,9 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
 
     @Override
     public void onSuggestionClicked(int position) {
-        if (binding.mainSuggestionsRecyclerView.getLayoutManager() != null)
+        if (binding.mainSuggestionsRecyclerView.getLayoutManager() != null){
             Log.d("test", "onSuggestionClicked: " + binding.mainSuggestionsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString());
+            viewModel.onSuggestionClicked(binding.mainSuggestionsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString());
+        }
     }
 }

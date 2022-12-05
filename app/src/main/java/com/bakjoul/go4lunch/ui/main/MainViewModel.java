@@ -94,11 +94,11 @@ public class MainViewModel extends ViewModel {
                         return new MutableLiveData<>(null);
                     }
                     return Transformations.switchMap(
-                        autocompleteRepository.getUserQuery(),
+                        autocompleteRepository.getUserQueryLiveData(),
                         input -> {
                             if (input != null && input.length() >= 3) {
                                 return Transformations.switchMap(
-                                    autocompleteRepository.getAutocomplete(input, location),
+                                    autocompleteRepository.getAutocompleteLiveData(input, location),
                                     response -> {
                                         if (response != null) {
                                             return new MutableLiveData<>(response.getPredictions());
@@ -236,6 +236,10 @@ public class MainViewModel extends ViewModel {
 
     public void setUserSearchingForWorkmate(boolean isUserSearchingForWorkmate) {
         autocompleteRepository.setUserSearchingForWorkmateMode(isUserSearchingForWorkmate);
+    }
+
+    public void onSuggestionClicked(String restaurantId) {
+        autocompleteRepository.setSearchedRestaurant(restaurantId);
     }
 
     public enum BottomNavigationViewButton {

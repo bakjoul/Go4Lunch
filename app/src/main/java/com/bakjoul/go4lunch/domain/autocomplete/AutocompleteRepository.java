@@ -14,11 +14,15 @@ public interface AutocompleteRepository {
 
     void setUserSearchingForWorkmateMode(boolean enabled);
 
+    void setSearchedRestaurant(String restaurantId);
+
     boolean isUserSearchingForWorkmateMode();
 
     AutocompleteQuery generateQuery(String userInput, double latitude, double longitude);
 
-    LiveData<String> getUserQuery();
+    LiveData<String> getUserQueryLiveData();
 
-    LiveData<AutocompleteResponse> getAutocomplete(@NonNull String userInput, @NonNull Location location);
+    LiveData<AutocompleteResponse> getAutocompleteLiveData(@NonNull String userInput, @NonNull Location location);
+
+    LiveData<String> getSearchedRestaurantLiveData();
 }

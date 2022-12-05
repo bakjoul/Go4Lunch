@@ -41,6 +41,8 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
 
     private final MutableLiveData<Boolean> isUserSearchingForWorkmateLiveData = new MutableLiveData<>(false);
 
+    private final MutableLiveData<String> searchedRestaurantLiveData = new MutableLiveData<>("");
+
     private final LruCache<AutocompleteQuery, AutocompleteResponse> lruCache = new LruCache<>(500);
 
     @Inject
@@ -54,7 +56,7 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
     }
 
     @Override
-    public LiveData<AutocompleteResponse> getAutocomplete(
+    public LiveData<AutocompleteResponse> getAutocompleteLiveData(
         @NonNull String userInput,
         @NonNull Location location
     ) {
@@ -93,8 +95,18 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
     }
 
     @Override
+    public LiveData<String> getSearchedRestaurantLiveData() {
+        return searchedRestaurantLiveData;
+    }
+
+    @Override
     public void setUserSearchingForWorkmateMode(boolean userSearchingForWorkmate) {
         isUserSearchingForWorkmateLiveData.setValue(userSearchingForWorkmate);
+    }
+
+    @Override
+    public void setSearchedRestaurant(String restaurantId) {
+        searchedRestaurantLiveData.setValue(restaurantId);
     }
 
     @Override
@@ -113,7 +125,7 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
     }
 
     @Override
-    public LiveData<String> getUserQuery() {
+    public LiveData<String> getUserQueryLiveData() {
         return userQueryLiveData;
     }
 }
