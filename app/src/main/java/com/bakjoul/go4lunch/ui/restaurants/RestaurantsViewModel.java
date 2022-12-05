@@ -1,8 +1,5 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
-import static com.bakjoul.go4lunch.data.restaurants.RestaurantRepositoryImplementation.RANK_BY;
-import static com.bakjoul.go4lunch.data.restaurants.RestaurantRepositoryImplementation.TYPE;
-
 import android.app.Application;
 import android.location.Location;
 import android.location.LocationManager;
@@ -15,7 +12,6 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.common_model.OpeningHoursResponse;
 import com.bakjoul.go4lunch.data.common_model.PhotoResponse;
@@ -83,7 +79,7 @@ public class RestaurantsViewModel extends ViewModel {
                 currentLocation = location;
                 return Transformations.switchMap(
                     nearbySearchRequestPingMutableLiveData,
-                    aVoid -> restaurantRepository.getNearbyRestaurants(location, RANK_BY, TYPE, BuildConfig.MAPS_API_KEY)
+                    aVoid -> restaurantRepository.getNearbyRestaurants(location)
                 );
             }
         );

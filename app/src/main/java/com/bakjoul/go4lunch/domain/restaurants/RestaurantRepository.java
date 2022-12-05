@@ -10,7 +10,7 @@ import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
 
 public interface RestaurantRepository {
 
-    LiveData<RestaurantResponseWrapper> getNearbyRestaurants(Location location, String rankBy, String type, String key);
+    LiveData<RestaurantResponseWrapper> getNearbyRestaurants(@NonNull Location location);
 
     NearbySearchQuery generateQuery(double latitude, double longitude);
 

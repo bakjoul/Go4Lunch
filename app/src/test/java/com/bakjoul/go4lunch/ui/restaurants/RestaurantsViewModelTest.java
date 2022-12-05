@@ -4,7 +4,6 @@ package com.bakjoul.go4lunch.ui.restaurants;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 
@@ -16,11 +15,11 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.R;
+import com.bakjoul.go4lunch.data.common_model.OpeningHoursResponse;
+import com.bakjoul.go4lunch.data.common_model.PhotoResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.GeometryResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.LocationResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.NearbySearchResponse;
-import com.bakjoul.go4lunch.data.common_model.OpeningHoursResponse;
-import com.bakjoul.go4lunch.data.common_model.PhotoResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
@@ -130,7 +129,7 @@ public class RestaurantsViewModelTest {
 
         doReturn(locationLiveData).when(getUserPositionUseCase).invoke();
 
-        doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbyRestaurants(eq(location), eq("distance"), eq("restaurant"), anyString());
+        doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbyRestaurants(eq(location));
 
         restaurantsAttendanceLiveData.setValue(new HashMap<>());
         doReturn(restaurantsAttendanceLiveData).when(workmateRepositoryImplementation).getRestaurantsAttendance();

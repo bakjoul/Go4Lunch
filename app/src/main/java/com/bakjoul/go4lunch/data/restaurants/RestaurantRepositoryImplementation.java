@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.data.api.GoogleApis;
 import com.bakjoul.go4lunch.data.restaurants.model.NearbySearchQuery;
 import com.bakjoul.go4lunch.data.restaurants.model.NearbySearchResponse;
@@ -51,7 +52,7 @@ public class RestaurantRepositoryImplementation implements RestaurantRepository 
     boolean randomBoolean = false;
 
     @Override
-    public LiveData<RestaurantResponseWrapper> getNearbyRestaurants(Location location, String rankBy, String type, String key) {
+    public LiveData<RestaurantResponseWrapper> getNearbyRestaurants(@NonNull Location location) {
         // For testing
         randomBoolean = random.nextInt(1) == 0;
         //
@@ -75,7 +76,7 @@ public class RestaurantRepositoryImplementation implements RestaurantRepository 
                     )
                 );
             } else {
-                googleApis.getNearbyRestaurants(locationToString(location), rankBy, type, key).enqueue(new Callback<NearbySearchResponse>() {
+                googleApis.getNearbyRestaurants(locationToString(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY).enqueue(new Callback<NearbySearchResponse>() {
                     @Override
                     public void onResponse(@NonNull Call<NearbySearchResponse> call, @NonNull Response<NearbySearchResponse> response) {
                         NearbySearchResponse body = response.body();
