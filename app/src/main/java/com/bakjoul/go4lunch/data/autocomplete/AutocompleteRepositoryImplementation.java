@@ -11,11 +11,14 @@ import androidx.lifecycle.MutableLiveData;
 import com.bakjoul.go4lunch.BuildConfig;
 import com.bakjoul.go4lunch.data.api.GoogleApis;
 import com.bakjoul.go4lunch.data.autocomplete.model.AutocompleteResponse;
+import com.bakjoul.go4lunch.data.autocomplete.model.PredictionResponse;
 import com.bakjoul.go4lunch.data.utils.LocationUtils;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -56,7 +59,7 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
     }
 
     @Override
-    public LiveData<AutocompleteResponse> getAutocompleteLiveData(
+    public LiveData<List<PredictionResponse>> getPredictionsLiveData(
         @NonNull String userInput,
         @NonNull Location location
     ) {
@@ -64,29 +67,32 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
             // TODO
             return new MutableLiveData<>(null);
         }
-        MutableLiveData<AutocompleteResponse> responseMutableLiveData = new MutableLiveData<>();
+        MutableLiveData<List<PredictionResponse>> responseMutableLiveData = new MutableLiveData<>();
 
         AutocompleteQuery query = generateQuery(userInput, location.getLatitude(), location.getLongitude());
         AutocompleteResponse existingResponse = lruCache.get(query);
 
         if (existingResponse != null) {
-            responseMutableLiveData.setValue(existingResponse);
-
+            responseMutableLiveData.setValue(existingResponse.getPredictions());
         } else {
             googleApis.getRestaurantAutocomplete(userInput, LocationUtils.locationToString(location), RADIUS, TYPE, LANGUAGE, BuildConfig.MAPS_API_KEY).enqueue(new Callback<AutocompleteResponse>() {
                 @Override
                 public void onResponse(@NonNull Call<AutocompleteResponse> call, @NonNull Response<AutocompleteResponse> response) {
                     AutocompleteResponse body = response.body();
-                    if (response.isSuccessful() && body != null && body.getStatus().equals("OK")) {
-                        lruCache.put(query, body);
+                    if (body != null) {
+                        if (response.isSuccessful() && body.getStatus().equals("OK")) {
+                            lruCache.put(query, body);
+                        }
+                        responseMutableLiveData.setValue(body.getPredictions());
+                    } else {
+                        responseMutableLiveData.setValue(new ArrayList<>());
                     }
-                    responseMutableLiveData.setValue(response.body());
                 }
 
                 @Override
                 public void onFailure(@NonNull Call<AutocompleteResponse> call, @NonNull Throwable t) {
                     Log.d(TAG, "onFailure: " + t.getMessage());
-                    responseMutableLiveData.setValue(null);
+                    responseMutableLiveData.setValue(new ArrayList<>());
                 }
             });
         }
@@ -115,8 +121,7 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
         return isUserSearchingForWorkmateLiveData.getValue();
     }
 
-    @Override
-    public AutocompleteQuery generateQuery(String userInput, double latitude, double longitude) {
+    private AutocompleteQuery generateQuery(String userInput, double latitude, double longitude) {
         return new AutocompleteQuery(
             userInput,
             BigDecimal.valueOf(latitude).setScale(GPS_SCALE, RoundingMode.HALF_UP),

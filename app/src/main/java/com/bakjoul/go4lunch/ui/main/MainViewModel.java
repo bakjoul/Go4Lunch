@@ -19,6 +19,7 @@ import androidx.lifecycle.ViewModel;
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.autocomplete.model.PredictionResponse;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
+import com.bakjoul.go4lunch.domain.autocomplete.GetAutocompletePredictionsUseCase;
 import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
@@ -62,6 +63,8 @@ public class MainViewModel extends ViewModel {
         BottomNavigationViewButton.MAP
     );
 
+    private final MutableLiveData<String> currentUserSearchMutableLiveData = new MutableLiveData<>(null);
+
     private final SingleLiveEvent<FragmentToDisplay> fragmentToDisplaySingleLiveEvent = new SingleLiveEvent<>();
 
     private final MediatorLiveData<MainViewState> mainViewStateMediatorLiveData = new MediatorLiveData<>();
@@ -70,9 +73,9 @@ public class MainViewModel extends ViewModel {
     public MainViewModel(
         @ApplicationContext @NonNull Context context,
         @NonNull FirebaseAuth firebaseAuth,
+        @NonNull GetAutocompletePredictionsUseCase getAutocompletePredictionsUseCase,
         @NonNull GpsLocationRepository gpsLocationRepository,
         @NonNull LocationPermissionRepository locationPermissionRepository,
-        @NonNull GetUserPositionUseCase getUserPositionUseCase,
         @NonNull AutocompleteRepository autocompleteRepository,
         @NonNull UserRepository userRepository
     ) {
@@ -87,34 +90,13 @@ public class MainViewModel extends ViewModel {
 
             LiveData<UserGoingToRestaurantEntity> userChosenRestaurantLiveData = userRepository.getChosenRestaurantLiveData();
 
-            LiveData<List<PredictionResponse>> predictionsLiveData = Transformations.switchMap(
-                getUserPositionUseCase.invoke(),
-                location -> {
-                    if (location == null) {
-                        return new MutableLiveData<>(null);
-                    }
-                    return Transformations.switchMap(
-                        autocompleteRepository.getUserQueryLiveData(),
-                        input -> {
-                            if (input != null && input.length() >= 3) {
-                                return Transformations.switchMap(
-                                    autocompleteRepository.getAutocompleteLiveData(input, location),
-                                    response -> {
-                                        if (response != null) {
-                                            return new MutableLiveData<>(response.getPredictions());
-                                        }
-                                        return new MutableLiveData<>(new ArrayList<>());
-                                    }
-                                );
-                            }
-                            return new MutableLiveData<>(new ArrayList<>());
-                        }
-                    );
-                }
+            LiveData<List<PredictionResponse>> predictionsLiveData = Transformations.switchMap(currentUserSearchMutableLiveData, userSearch ->
+                getAutocompletePredictionsUseCase.invoke(userSearch)
             );
 
-            mainViewStateMediatorLiveData.addSource(userChosenRestaurantLiveData, userChosenRestaurant ->
-                combine(userChosenRestaurant, predictionsLiveData.getValue())
+            mainViewStateMediatorLiveData.addSource(userChosenRestaurantLiveData, userChosenRestaurant -> {
+                    combine(userChosenRestaurant, predictionsLiveData.getValue());
+                }
             );
             mainViewStateMediatorLiveData.addSource(predictionsLiveData, predictions ->
                 combine(userChosenRestaurantLiveData.getValue(), predictions)
@@ -146,18 +128,20 @@ public class MainViewModel extends ViewModel {
         @Nullable UserGoingToRestaurantEntity userChosenRestaurant,
         @Nullable List<PredictionResponse> suggestions
     ) {
-        if (userChosenRestaurant == null || suggestions == null) {
+        if (userChosenRestaurant == null) {
             return;
         }
 
         List<SuggestionItemViewState> suggestionItemViewStatesList = new ArrayList<>();
-        for (PredictionResponse predictionResponse : suggestions) {
-            SuggestionItemViewState itemViewState = new SuggestionItemViewState(
-                predictionResponse.getPlaceId(),
-                predictionResponse.getStructuredFormatting().getMainText(),
-                predictionResponse.getStructuredFormatting().getSecondaryText()
-            );
-            suggestionItemViewStatesList.add(itemViewState);
+        if (suggestions != null) {
+            for (PredictionResponse predictionResponse : suggestions) {
+                SuggestionItemViewState itemViewState = new SuggestionItemViewState(
+                    predictionResponse.getPlaceId(),
+                    predictionResponse.getStructuredFormatting().getMainText(),
+                    predictionResponse.getStructuredFormatting().getSecondaryText()
+                );
+                suggestionItemViewStatesList.add(itemViewState);
+            }
         }
 
         mainViewStateMediatorLiveData.setValue(
@@ -238,8 +222,8 @@ public class MainViewModel extends ViewModel {
         autocompleteRepository.setUserSearchingForWorkmateMode(isUserSearchingForWorkmate);
     }
 
-    public void onSuggestionClicked(String restaurantId) {
-        autocompleteRepository.setSearchedRestaurant(restaurantId);
+    public void onSuggestionClicked(String restaurantName) {
+        autocompleteRepository.setSearchedRestaurant(restaurantName);
     }
 
     public enum BottomNavigationViewButton {
