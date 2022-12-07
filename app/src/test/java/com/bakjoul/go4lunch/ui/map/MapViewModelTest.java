@@ -21,7 +21,9 @@ import com.bakjoul.go4lunch.data.restaurants.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
+import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
+import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
@@ -105,9 +107,11 @@ public class MapViewModelTest {
 
     private final GetUserPositionUseCase getUserPositionUseCase = Mockito.mock(GetUserPositionUseCase.class);
     private final MapLocationRepository mapLocationRepository = Mockito.mock(MapLocationRepository.class);
+    private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
     private final LocationModeRepository locationModeRepository = Mockito.mock(LocationModeRepository.class);
     private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
     private final WorkmateRepository workmateRepository = Mockito.mock(WorkmateRepository.class);
+    private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
     private final LocationDistanceUtil locationDistanceUtil = Mockito.mock(LocationDistanceUtil.class);
 
     private final Location location = Mockito.mock(Location.class);
@@ -136,11 +140,12 @@ public class MapViewModelTest {
         doReturn(chosenRestaurantsLiveData).when(workmateRepository).getWorkmatesChosenRestaurantsLiveData();
 
         viewModel = new MapViewModel(
-            getUserPositionUseCase,
             mapLocationRepository,
             locationModeRepository,
+            gpsLocationRepository,
             restaurantRepository,
             workmateRepository,
+            autocompleteRepository,
             locationDistanceUtil
         );
     }

@@ -2,6 +2,7 @@ package com.bakjoul.go4lunch.ui.map;
 
 import android.location.Location;
 import android.location.LocationManager;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,7 +17,7 @@ import com.bakjoul.go4lunch.data.restaurants.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
-import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
+import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
@@ -51,6 +52,8 @@ public class MapViewModel extends ViewModel {
 
     private final MutableLiveData<Boolean> nearbySearchRequestPingMutableLiveData = new MutableLiveData<>(true);
 
+    private final MutableLiveData<Boolean> isCameraMoveValidLiveData = new MutableLiveData<>(false);
+
     private final SingleLiveEvent<LatLng> cameraSingleLiveEvent = new SingleLiveEvent<>();
 
     private final SingleLiveEvent<Boolean> isRetryBarVisibleSingleLiveEvent = new SingleLiveEvent<>();
@@ -65,9 +68,9 @@ public class MapViewModel extends ViewModel {
 
     @Inject
     public MapViewModel(
-        @NonNull GetUserPositionUseCase getUserPositionUseCase,
         @NonNull MapLocationRepository mapLocationRepository,
         @NonNull LocationModeRepository locationModeRepository,
+        @NonNull GpsLocationRepository gpsLocationRepository,
         @NonNull RestaurantRepository restaurantRepository,
         @NonNull WorkmateRepository workmateRepository,
         @NonNull AutocompleteRepository autocompleteRepository,
@@ -77,28 +80,66 @@ public class MapViewModel extends ViewModel {
         this.locationModeRepository = locationModeRepository;
         this.locationDistanceUtil = locationDistanceUtil;
 
-        LiveData<Location> locationLiveData = getUserPositionUseCase.invoke();
+        LiveData<Location> gpsLocationLiveData = gpsLocationRepository.getCurrentLocationLiveData();
+        LiveData<Location> mapLocationLiveData = mapLocationRepository.getCurrentMapLocationLiveData();
+        LiveData<Boolean> isUserModeEnabledLiveData = locationModeRepository.isUserModeEnabledLiveData();
 
-        cameraSingleLiveEvent.addSource(locationLiveData, location -> {
+        cameraSingleLiveEvent.addSource(gpsLocationLiveData, location -> {
             if (location != null) {
                 cameraSingleLiveEvent.setValue(new LatLng(location.getLatitude(), location.getLongitude()));
             }
         });
 
+        // TODO REFACTO & FIX DOUBLE CALL WHEN SWITCHING TO USER MODE AFTER HAVING SWITCHED BACK TO GPS
         LiveData<RestaurantResponseWrapper> responseWrapperLiveData = Transformations.switchMap(
-            locationLiveData,
-            location -> {
-                if (location == null) {
-                    return new MutableLiveData<>(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.LOCATION_NULL));
+            isUserModeEnabledLiveData,
+            isUserModeEnabled -> {
+                if (isUserModeEnabled) {
+                    return Transformations.switchMap(
+                        isCameraMoveValidLiveData,
+                        isCameraValid -> {
+                            if (!isCameraValid) {
+                                return new MutableLiveData<>(null);
+                            } else {
+                                return Transformations.switchMap(
+                                    mapLocationLiveData,
+                                    location -> getRestaurantResponseWrapperLiveData(restaurantRepository, isUserModeEnabled, location)
+                                );
+                            }
+                        }
+                    );
+                } else {
+                    return Transformations.switchMap(
+                        gpsLocationLiveData,
+                        location -> getRestaurantResponseWrapperLiveData(restaurantRepository, isUserModeEnabled, location)
+                    );
                 }
-                cameraSingleLiveEvent.setValue(new LatLng(location.getLatitude(), location.getLongitude()));
-                currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                return Transformations.switchMap(
-                    nearbySearchRequestPingMutableLiveData,
-                    aVoid -> restaurantRepository.getNearbyRestaurants(location)
-                );
             }
         );
+
+        // ORIGINAL
+        /*LiveData<RestaurantResponseWrapper> responseWrapperLiveData = Transformations.switchMap(
+            locationLiveData,
+            new Function<Location, LiveData<RestaurantResponseWrapper>>() {
+                @Override
+                public LiveData<RestaurantResponseWrapper> apply(Location location) {
+                    if (location == null) {
+                        return new MutableLiveData<>(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.LOCATION_NULL));
+                    }
+                    cameraSingleLiveEvent.setValue(new LatLng(location.getLatitude(), location.getLongitude()));
+                    currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                    return Transformations.switchMap(
+                        nearbySearchRequestPingMutableLiveData,
+                        new Function<Boolean, LiveData<RestaurantResponseWrapper>>() {
+                            @Override
+                            public LiveData<RestaurantResponseWrapper> apply(Boolean aVoid) {
+                                return restaurantRepository.getNearbyRestaurants(location);
+                            }
+                        }
+                    );
+                }
+            }
+        );*/
 
         LiveData<Collection<String>> chosenRestaurantsLiveData = workmateRepository.getWorkmatesChosenRestaurantsLiveData();
         LiveData<String> userSearchLiveData = autocompleteRepository.getUserSearchLiveData();
@@ -114,6 +155,32 @@ public class MapViewModel extends ViewModel {
         );
         mapViewStateMediatorLiveData.addSource(userSearchLiveData, userSearch ->
             combine(isMapReadyMutableLiveData.getValue(), responseWrapperLiveData.getValue(), chosenRestaurantsLiveData.getValue(), userSearch)
+        );
+    }
+
+    @NonNull
+    private LiveData<RestaurantResponseWrapper> getRestaurantResponseWrapperLiveData(
+        @NonNull RestaurantRepository restaurantRepository,
+        Boolean isUserModeEnabled,
+        Location location
+    ) {
+        if (location == null) {
+            return new MutableLiveData<>(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.LOCATION_NULL));
+        }
+        if (!isUserModeEnabled) {
+            cameraSingleLiveEvent.setValue(new LatLng(location.getLatitude(), location.getLongitude()));
+        }
+        currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        return Transformations.switchMap(
+            nearbySearchRequestPingMutableLiveData,
+            aVoid -> {
+                if (isUserModeEnabled) {
+                    Log.d("test", "USERMODE API CALL");
+                } else {
+                    Log.d("test", "GPS API CALL");
+                }
+                return restaurantRepository.getNearbyRestaurants(location);
+            }
         );
     }
 
@@ -207,6 +274,19 @@ public class MapViewModel extends ViewModel {
         }
     }
 
+    @NonNull
+    private Location latLngToLocation(@NonNull LatLng latLng) {
+        Location location = new Location(LocationManager.GPS_PROVIDER);
+        location.setLatitude(latLng.latitude);
+        location.setLongitude(latLng.longitude);
+        return location;
+    }
+
+    private boolean isCameraMoveValid() {
+        //noinspection ConstantConditions This MutableLiveData always has a value
+        return isCameraMoveValidLiveData.getValue();
+    }
+
     public SingleLiveEvent<LatLng> getCameraSingleLiveEvent() {
         return cameraSingleLiveEvent;
     }
@@ -236,21 +316,27 @@ public class MapViewModel extends ViewModel {
     }
 
     public void onCameraMovedByUser() {
-        locationModeRepository.setUserModeEnabled(true);
+        if (!locationModeRepository.isUserModeEnabled()) {
+            locationModeRepository.setUserModeEnabled(true);
+        }
     }
 
     public void onCameraMoved(@NonNull LatLng cameraPosition) {
         if (locationModeRepository.isUserModeEnabled()) {
             // If no known last location or if distance between new camera position and last location greater than given value
             if (lastLocation == null || locationDistanceUtil.getDistance(cameraPosition, lastLocation) > MAP_MINIMUM_DISPLACEMENT) {
-                // Updates current map location
-                Location mapLocation = new Location(LocationManager.GPS_PROVIDER);
-                mapLocation.setLatitude(cameraPosition.latitude);
-                mapLocation.setLongitude(cameraPosition.longitude);
-                mapLocationRepository.setCurrentMapLocation(mapLocation);
+                if (!isCameraMoveValid()) {
+                    isCameraMoveValidLiveData.setValue(true);
+                }
 
+                // Updates current map location
+                mapLocationRepository.setCurrentMapLocation(latLngToLocation(cameraPosition));
                 // Updates last location to current camera position
                 lastLocation = cameraPosition;
+            } else {
+                if (isCameraMoveValid()) {
+                    isCameraMoveValidLiveData.setValue(false);
+                }
             }
         }
     }
