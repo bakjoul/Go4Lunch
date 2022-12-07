@@ -5,16 +5,15 @@ import android.location.Location;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 
-import com.bakjoul.go4lunch.data.autocomplete.model.AutocompleteResponse;
 import com.bakjoul.go4lunch.data.autocomplete.model.PredictionResponse;
 
 import java.util.List;
 
 public interface AutocompleteRepository {
 
-    void setSearchedRestaurant(String restaurantName);
+    void setUserSearch(String userSearch);
 
-    LiveData<String> getSearchedRestaurantLiveData();
+    LiveData<String> getUserSearchLiveData();
 
-    LiveData<List<PredictionResponse>> getPredictionsLiveData(@NonNull String userInput, @NonNull Location location);
+    LiveData<List<PredictionResponse>> getPredictionsLiveData(@NonNull String userSearch, @NonNull Location location);
 }

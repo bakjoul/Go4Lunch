@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.data.autocomplete;
+package com.bakjoul.go4lunch.data.autocomplete.model;
 
 import androidx.annotation.NonNull;
 

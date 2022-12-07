@@ -20,7 +20,6 @@ import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.autocomplete.model.PredictionResponse;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.autocomplete.GetAutocompletePredictionsUseCase;
-import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
@@ -31,7 +30,9 @@ import com.facebook.login.LoginManager;
 import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.inject.Inject;
 
@@ -94,9 +95,8 @@ public class MainViewModel extends ViewModel {
                 getAutocompletePredictionsUseCase.invoke(userSearch)
             );
 
-            mainViewStateMediatorLiveData.addSource(userChosenRestaurantLiveData, userChosenRestaurant -> {
-                    combine(userChosenRestaurant, predictionsLiveData.getValue());
-                }
+            mainViewStateMediatorLiveData.addSource(userChosenRestaurantLiveData, userChosenRestaurant ->
+                combine(userChosenRestaurant, predictionsLiveData.getValue())
             );
             mainViewStateMediatorLiveData.addSource(predictionsLiveData, predictions ->
                 combine(userChosenRestaurantLiveData.getValue(), predictions)
@@ -126,21 +126,16 @@ public class MainViewModel extends ViewModel {
 
     private void combine(
         @Nullable UserGoingToRestaurantEntity userChosenRestaurant,
-        @Nullable List<PredictionResponse> suggestions
+        @Nullable List<PredictionResponse> predictionsList
     ) {
         if (userChosenRestaurant == null) {
             return;
         }
 
-        List<SuggestionItemViewState> suggestionItemViewStatesList = new ArrayList<>();
-        if (suggestions != null) {
-            for (PredictionResponse predictionResponse : suggestions) {
-                SuggestionItemViewState itemViewState = new SuggestionItemViewState(
-                    predictionResponse.getPlaceId(),
-                    predictionResponse.getStructuredFormatting().getMainText(),
-                    predictionResponse.getStructuredFormatting().getSecondaryText()
-                );
-                suggestionItemViewStatesList.add(itemViewState);
+        Set<String> suggestionsSet = new HashSet<>();
+        if (predictionsList != null) {
+            for (PredictionResponse predictionResponse : predictionsList) {
+                suggestionsSet.add(predictionResponse.getStructuredFormatting().getMainText());
             }
         }
 
@@ -150,7 +145,7 @@ public class MainViewModel extends ViewModel {
                 firebaseAuth.getCurrentUser().getDisplayName(),
                 firebaseAuth.getCurrentUser().getEmail(),
                 userChosenRestaurant.getChosenRestaurantId(),
-                suggestionItemViewStatesList
+                new ArrayList<>(suggestionsSet)
             )
         );
     }
@@ -215,15 +210,12 @@ public class MainViewModel extends ViewModel {
     }
 
     public void onSearchViewQueryTextChanged(String input) {
-        autocompleteRepository.setUserQuery(input);
+        currentUserSearchMutableLiveData.setValue(input);
     }
 
-    public void setUserSearchingForWorkmate(boolean isUserSearchingForWorkmate) {
-        autocompleteRepository.setUserSearchingForWorkmateMode(isUserSearchingForWorkmate);
-    }
-
-    public void onSuggestionClicked(String restaurantName) {
-        autocompleteRepository.setSearchedRestaurant(restaurantName);
+    public void onSuggestionClicked(String suggestion) {
+        autocompleteRepository.setUserSearch(suggestion);
+        currentUserSearchMutableLiveData.setValue(null);
     }
 
     public enum BottomNavigationViewButton {

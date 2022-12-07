@@ -19,14 +19,14 @@ public class MainViewState {
     @Nullable
     private final String chosenRestaurantId;
     @NonNull
-    private final List<SuggestionItemViewState> suggestionItemViewStates;
+    private final List<String> suggestions;
 
-    public MainViewState(@Nullable Uri photoUrl, @NonNull String username, @NonNull String email, @Nullable String chosenRestaurantId, @NonNull List<SuggestionItemViewState> suggestionItemViewStates) {
+    public MainViewState(@Nullable Uri photoUrl, @NonNull String username, @NonNull String email, @Nullable String chosenRestaurantId, @NonNull List<String> suggestions) {
         this.photoUrl = photoUrl;
         this.username = username;
         this.email = email;
         this.chosenRestaurantId = chosenRestaurantId;
-        this.suggestionItemViewStates = suggestionItemViewStates;
+        this.suggestions = suggestions;
     }
 
     @Nullable
@@ -50,8 +50,8 @@ public class MainViewState {
     }
 
     @NonNull
-    public List<SuggestionItemViewState> getSuggestionItemViewStates() {
-        return suggestionItemViewStates;
+    public List<String> getSuggestions() {
+        return suggestions;
     }
 
     @Override
@@ -59,12 +59,12 @@ public class MainViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MainViewState that = (MainViewState) o;
-        return Objects.equals(photoUrl, that.photoUrl) && username.equals(that.username) && email.equals(that.email) && Objects.equals(chosenRestaurantId, that.chosenRestaurantId) && suggestionItemViewStates.equals(that.suggestionItemViewStates);
+        return Objects.equals(photoUrl, that.photoUrl) && username.equals(that.username) && email.equals(that.email) && Objects.equals(chosenRestaurantId, that.chosenRestaurantId) && suggestions.equals(that.suggestions);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(photoUrl, username, email, chosenRestaurantId, suggestionItemViewStates);
+        return Objects.hash(photoUrl, username, email, chosenRestaurantId, suggestions);
     }
 
     @NonNull
@@ -75,7 +75,7 @@ public class MainViewState {
             ", username='" + username + '\'' +
             ", email='" + email + '\'' +
             ", chosenRestaurantId='" + chosenRestaurantId + '\'' +
-            ", suggestionItemViewStates=" + suggestionItemViewStates +
+            ", suggestions=" + suggestions +
             '}';
     }
 }

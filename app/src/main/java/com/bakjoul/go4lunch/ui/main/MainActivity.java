@@ -81,12 +81,12 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
             email.setText(viewState.getEmail());
 
             setMainNavigationView(viewState);
-            if (viewState.getSuggestionItemViewStates().isEmpty()) {
+            if (viewState.getSuggestions().isEmpty()) {
                 binding.mainSuggestionsRecyclerView.setVisibility(View.GONE);
             } else {
                 binding.mainSuggestionsRecyclerView.setVisibility(View.VISIBLE);
             }
-            adapter.submitList(viewState.getSuggestionItemViewStates());
+            adapter.submitList(viewState.getSuggestions());
         });
 
         viewModel.getFragmentToDisplaySingleLiveEvent().observe(this, this::displayFragment);
@@ -140,7 +140,7 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
 
         searchView.setMaxWidth(Integer.MAX_VALUE);
         searchClose.setColorFilter(R.color.grey, PorterDuff.Mode.SRC_ATOP);
-        searchClose.setEnabled(false);
+        searchClose.setEnabled(true);
 
         searchView.setOnSearchClickListener(v -> {
             if (getSupportActionBar() != null) {
@@ -169,6 +169,9 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
             @Override
             public boolean onQueryTextChange(String newText) {
                 viewModel.onSearchViewQueryTextChanged(newText);
+                if (newText.isEmpty()) {
+                    viewModel.onSuggestionClicked(null);
+                }
                 return false;
             }
         });
@@ -227,19 +230,16 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
             switch (selected) {
                 case MAP:
                     transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), MapFragment.newInstance());
-                    viewModel.setUserSearchingForWorkmate(false);
                     break;
                 case RESTAURANTS:
                     binding.mainToolbar.setTitle(R.string.toolbar_title_hungry);
                     binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_restaurants));
                     transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), RestaurantsFragment.newInstance());
-                    viewModel.setUserSearchingForWorkmate(false);
                     break;
                 case WORKMATES:
                     binding.mainToolbar.setTitle(R.string.toolbar_title_workmates);
                     binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_workmates));
                     transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), WorkmatesFragment.newInstance());
-                    viewModel.setUserSearchingForWorkmate(true);
                     break;
                 case NO_PERMISSION:
                     transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), NoPermissionFragment.newInstance());
@@ -264,7 +264,6 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
                 if (binding.mainSearchView.getQueryHint() != getString(R.string.main_searchview_query_hint_restaurants)) {
                     binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_restaurants));
                 }
-                viewModel.setUserSearchingForWorkmate(false);
                 break;
             case WORKMATES:
                 if (binding.mainToolbar.getTitle() != getString(R.string.toolbar_title_workmates)) {
@@ -273,7 +272,6 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
                 if (binding.mainSearchView.getQueryHint() != getString(R.string.main_searchview_query_hint_workmates)) {
                     binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_workmates));
                 }
-                viewModel.setUserSearchingForWorkmate(true);
                 break;
         }
     }
@@ -302,8 +300,8 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
 
     @Override
     public void onSuggestionClicked(int position) {
-        if (binding.mainSuggestionsRecyclerView.getLayoutManager() != null){
-            Log.d("test", "onSuggestionClicked: " + binding.mainSuggestionsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString());
+        if (binding.mainSuggestionsRecyclerView.getLayoutManager() != null) {
+            binding.mainSearchView.setQuery(binding.mainSuggestionsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString(), true);
             viewModel.onSuggestionClicked(binding.mainSuggestionsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString());
         }
     }

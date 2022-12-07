@@ -11,7 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bakjoul.go4lunch.databinding.ActivityMainSuggestionItemBinding;
 
-public class SuggestionsAdapter extends ListAdapter<SuggestionItemViewState, SuggestionsAdapter.ViewHolder> {
+public class SuggestionsAdapter extends ListAdapter<String, SuggestionsAdapter.ViewHolder> {
 
     private final OnSuggestionClickListener onSuggestionClickListener;
 
@@ -27,7 +27,7 @@ public class SuggestionsAdapter extends ListAdapter<SuggestionItemViewState, Sug
     }
 
     @Override
-    public void onBindViewHolder(@NonNull SuggestionsAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         holder.bind(getItem(position));
     }
 
@@ -44,10 +44,9 @@ public class SuggestionsAdapter extends ListAdapter<SuggestionItemViewState, Sug
             this.onSuggestionClickListener = onSuggestionClickListener;
         }
 
-        public void bind(@NonNull SuggestionItemViewState viewState) {
-            itemView.setTag(viewState.getRestaurantId());
-            binding.mainRecyclerViewItemName.setText(viewState.getRestaurantName());
-            binding.mainRecyclerViewItemAddress.setText(viewState.getRestaurantAddress());
+        public void bind(@NonNull String suggestion) {
+            itemView.setTag(suggestion);
+            binding.mainRecyclerViewItem.setText(suggestion);
         }
 
         @Override
@@ -56,14 +55,15 @@ public class SuggestionsAdapter extends ListAdapter<SuggestionItemViewState, Sug
         }
     }
 
-    private static class SuggestionsAdapterDiffCallback extends DiffUtil.ItemCallback<SuggestionItemViewState> {
+    private static class SuggestionsAdapterDiffCallback extends DiffUtil.ItemCallback<String> {
+
         @Override
-        public boolean areItemsTheSame(@NonNull SuggestionItemViewState oldItem, @NonNull SuggestionItemViewState newItem) {
-            return oldItem.getRestaurantId().equals(newItem.getRestaurantId());
+        public boolean areItemsTheSame(@NonNull String oldItem, @NonNull String newItem) {
+            return oldItem.equals(newItem);
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull SuggestionItemViewState oldItem, @NonNull SuggestionItemViewState newItem) {
+        public boolean areContentsTheSame(@NonNull String oldItem, @NonNull String newItem) {
             return oldItem.equals(newItem);
         }
     }

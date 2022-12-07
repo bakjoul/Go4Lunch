@@ -16,7 +16,6 @@ import com.bakjoul.go4lunch.data.restaurants.model.RestaurantMarker;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
-import com.bakjoul.go4lunch.domain.details.RestaurantDetailsRepository;
 import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
@@ -48,9 +47,6 @@ public class MapViewModel extends ViewModel {
     @NonNull
     private final LocationDistanceUtil locationDistanceUtil;
 
-    @NonNull
-    private final RestaurantDetailsRepository restaurantDetailsRepository;
-
     private final MutableLiveData<Boolean> isMapReadyMutableLiveData = new MutableLiveData<>(false);
 
     private final MutableLiveData<Boolean> nearbySearchRequestPingMutableLiveData = new MutableLiveData<>(true);
@@ -58,6 +54,8 @@ public class MapViewModel extends ViewModel {
     private final SingleLiveEvent<LatLng> cameraSingleLiveEvent = new SingleLiveEvent<>();
 
     private final SingleLiveEvent<Boolean> isRetryBarVisibleSingleLiveEvent = new SingleLiveEvent<>();
+
+    private final SingleLiveEvent<Boolean> isUserSearchUnmatchedSingleLiveEvent = new SingleLiveEvent<>();
 
     private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
 
@@ -73,13 +71,11 @@ public class MapViewModel extends ViewModel {
         @NonNull RestaurantRepository restaurantRepository,
         @NonNull WorkmateRepository workmateRepository,
         @NonNull AutocompleteRepository autocompleteRepository,
-        @NonNull LocationDistanceUtil locationDistanceUtil,
-        @NonNull RestaurantDetailsRepository restaurantDetailsRepository
+        @NonNull LocationDistanceUtil locationDistanceUtil
     ) {
         this.mapLocationRepository = mapLocationRepository;
         this.locationModeRepository = locationModeRepository;
         this.locationDistanceUtil = locationDistanceUtil;
-        this.restaurantDetailsRepository = restaurantDetailsRepository;
 
         LiveData<Location> locationLiveData = getUserPositionUseCase.invoke();
 
@@ -105,19 +101,19 @@ public class MapViewModel extends ViewModel {
         );
 
         LiveData<Collection<String>> chosenRestaurantsLiveData = workmateRepository.getWorkmatesChosenRestaurantsLiveData();
-        LiveData<String> searchedRestaurantLiveData = autocompleteRepository.getSearchedRestaurantLiveData();
+        LiveData<String> userSearchLiveData = autocompleteRepository.getUserSearchLiveData();
 
         mapViewStateMediatorLiveData.addSource(isMapReadyMutableLiveData, isMapReady ->
-            combine(isMapReady, responseWrapperLiveData.getValue(), chosenRestaurantsLiveData.getValue(), searchedRestaurantLiveData.getValue())
+            combine(isMapReady, responseWrapperLiveData.getValue(), chosenRestaurantsLiveData.getValue(), userSearchLiveData.getValue())
         );
         mapViewStateMediatorLiveData.addSource(responseWrapperLiveData, responseWrapper ->
-            combine(isMapReadyMutableLiveData.getValue(), responseWrapper, chosenRestaurantsLiveData.getValue(), searchedRestaurantLiveData.getValue())
+            combine(isMapReadyMutableLiveData.getValue(), responseWrapper, chosenRestaurantsLiveData.getValue(), userSearchLiveData.getValue())
         );
         mapViewStateMediatorLiveData.addSource(chosenRestaurantsLiveData, chosenRestaurants ->
-            combine(isMapReadyMutableLiveData.getValue(), responseWrapperLiveData.getValue(), chosenRestaurants, searchedRestaurantLiveData.getValue())
+            combine(isMapReadyMutableLiveData.getValue(), responseWrapperLiveData.getValue(), chosenRestaurants, userSearchLiveData.getValue())
         );
-        mapViewStateMediatorLiveData.addSource(searchedRestaurantLiveData, searchedRestaurant ->
-            combine(isMapReadyMutableLiveData.getValue(), responseWrapperLiveData.getValue(), chosenRestaurantsLiveData.getValue(), searchedRestaurant)
+        mapViewStateMediatorLiveData.addSource(userSearchLiveData, userSearch ->
+            combine(isMapReadyMutableLiveData.getValue(), responseWrapperLiveData.getValue(), chosenRestaurantsLiveData.getValue(), userSearch)
         );
     }
 
@@ -125,21 +121,22 @@ public class MapViewModel extends ViewModel {
         @Nullable Boolean isMapReady,
         @Nullable RestaurantResponseWrapper restaurantResponseWrapper,
         @Nullable Collection<String> chosenRestaurants,
-        @Nullable String searchedRestaurant) {
-        if (isMapReady == null || restaurantResponseWrapper == null || chosenRestaurants == null || searchedRestaurant == null) {
+        @Nullable String userSearch) {
+        if (isMapReady == null || restaurantResponseWrapper == null || chosenRestaurants == null) {
             return;
         }
 
         List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
         boolean isProgressBarVisible = restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.LOADING;
         isRetryBarVisibleSingleLiveEvent.setValue(false);
+        isUserSearchUnmatchedSingleLiveEvent.setValue(false);
 
         if (restaurantResponseWrapper.getNearbySearchResponse() != null
             && restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.SUCCESS) {
 
             isProgressBarVisible = false;
 
-            map(restaurantResponseWrapper, restaurantsMarkers, chosenRestaurants, searchedRestaurant);
+            map(restaurantResponseWrapper, restaurantsMarkers, chosenRestaurants, userSearch);
 
             // Updates last known location
             lastLocation = currentLocation;
@@ -165,37 +162,29 @@ public class MapViewModel extends ViewModel {
         @NonNull RestaurantResponseWrapper restaurantResponseWrapper,
         @NonNull List<RestaurantMarker> restaurantsMarkers,
         @NonNull Collection<String> chosenRestaurants,
-        @NonNull String searchedRestaurantId) {
+        @Nullable String userSearch) {
         if (restaurantResponseWrapper.getNearbySearchResponse() != null) {
+            boolean isUserSearchMatched = false;
             for (RestaurantResponse response : restaurantResponseWrapper.getNearbySearchResponse().getResults()) {
                 if (response.getBusinessStatus() != null && response.getBusinessStatus().equals("OPERATIONAL")) {
 
-                    // TODO trying to center map on searched restaurant
-/*                    for (RestaurantMarker restaurantMarker : restaurantsMarkers) {
-                        if (restaurantMarker.getId().equals(searchedRestaurantId)) {
-                            Location searchedRestaurantLocation = new Location(LocationManager.GPS_PROVIDER);
-                            searchedRestaurantLocation.setLatitude(restaurantMarker.getPosition().latitude);
-                            searchedRestaurantLocation.setLongitude(restaurantMarker.getPosition().longitude);
-
-                            mapLocationRepository.setCurrentMapLocation(searchedRestaurantLocation);
-                            locationModeRepository.setUserModeEnabled(true);
-                            break;
-                        }
-                    }*/
-
                     // By default, non-chosen restaurant pin is red
                     int drawableRes = R.drawable.ic_restaurant_red_marker;
-                    // If non-chosen and searched by user, pin is red and highlighted
-                    if (!chosenRestaurants.contains(response.getPlaceId()) && searchedRestaurantId.equals(response.getPlaceId())) {
-                        drawableRes = R.drawable.ic_restaurant_searched_red_marker;
-                    }
                     // If chosen restaurant, pin is green
-                    else if (chosenRestaurants.contains(response.getPlaceId()) && !searchedRestaurantId.equals(response.getPlaceId())) {
+                    if (chosenRestaurants.contains(response.getPlaceId())) {
                         drawableRes = R.drawable.ic_restaurant_green_marker;
                     }
-                    // If chosen restaurant and searched by user, pin is green with highlighted
-                    else if (chosenRestaurants.contains(response.getPlaceId()) && searchedRestaurantId.equals(response.getPlaceId())) {
-                        drawableRes = R.drawable.ic_baseline_searched_pin_circle_green_30;
+
+                    if (userSearch != null) {
+                        if (!chosenRestaurants.contains(response.getPlaceId()) && response.getName().contains(userSearch)) {
+                            drawableRes = R.drawable.ic_restaurant_searched_red_marker;
+                        } else if (chosenRestaurants.contains(response.getPlaceId()) && response.getName().contains(userSearch)) {
+                            drawableRes = R.drawable.ic_restaurant_searched_green_marker;
+                        }
+
+                        if (response.getName().contains(userSearch) && !isUserSearchMatched) {
+                            isUserSearchMatched = true;
+                        }
                     }
 
                     restaurantsMarkers.add(
@@ -211,6 +200,10 @@ public class MapViewModel extends ViewModel {
                     );
                 }
             }
+
+            if (userSearch != null && !isUserSearchMatched) {
+                isUserSearchUnmatchedSingleLiveEvent.setValue(true);
+            }
         }
     }
 
@@ -220,6 +213,10 @@ public class MapViewModel extends ViewModel {
 
     public SingleLiveEvent<Boolean> getIsRetryBarVisibleSingleLiveEvent() {
         return isRetryBarVisibleSingleLiveEvent;
+    }
+
+    public SingleLiveEvent<Boolean> getIsUserSearchUnmatchedSingleLiveEvent() {
+        return isUserSearchUnmatchedSingleLiveEvent;
     }
 
     public LiveData<MapViewState> getMapViewStateLiveData() {

@@ -5,10 +5,11 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bakjoul.go4lunch.R;
@@ -71,14 +72,6 @@ public class MapFragment extends Fragment {
                     viewModel.onMyLocationButtonClicked();
                     return false;
                 });
-                // Closes search view on map click if it has focus
-                SearchView searchView = requireActivity().findViewById(R.id.main_SearchView);
-                googleMap.setOnMapClickListener(latLng -> {
-                    if (searchView.hasFocus()) {
-                        searchView.setIconified(true);
-                        searchView.onActionViewCollapsed();
-                    }
-                });
                 // Handles camera moves
                 googleMap.setOnCameraIdleListener(() -> viewModel.onCameraMoved(googleMap.getCameraPosition().target));
                 googleMap.setOnCameraMoveStartedListener(reason -> {
@@ -134,6 +127,12 @@ public class MapFragment extends Fragment {
                 DetailsActivity.navigate((String) marker.getTag(), getActivity());
                 return true;
             });
+        });
+
+        viewModel.getIsUserSearchUnmatchedSingleLiveEvent().observe(getViewLifecycleOwner(), isSearchUnmatched -> {
+            if (isSearchUnmatched) {
+                Toast.makeText(requireContext(), "Aucun restaurant n'a été trouvé", Toast.LENGTH_SHORT).show();
+            }
         });
 
         return binding.getRoot();

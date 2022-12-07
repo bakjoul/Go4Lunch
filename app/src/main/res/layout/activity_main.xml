@@ -49,9 +49,10 @@
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/main_suggestions_RecyclerView"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="wrap_content"
             android:layout_marginHorizontal="8dp"
             android:background="@color/white"
+            android:maxHeight="200dp"
             android:padding="8dp"
             android:scrollbars="vertical"
             android:visibility="visible"
