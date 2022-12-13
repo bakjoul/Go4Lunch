@@ -97,8 +97,9 @@ public class MapViewModel extends ViewModel {
                 if (isUserModeEnabled) {
                     return Transformations.switchMap(
                         isCameraMoveValidLiveData,
-                        isCameraValid -> {
-                            if (!isCameraValid) {
+                        isCameraMoveValid -> {
+                            if (!isCameraMoveValid) {
+                                Log.d("test", "MapViewModel: move not valid returning null");
                                 return new MutableLiveData<>(null);
                             } else {
                                 return Transformations.switchMap(
@@ -169,6 +170,7 @@ public class MapViewModel extends ViewModel {
         }
         if (!isUserModeEnabled) {
             cameraSingleLiveEvent.setValue(new LatLng(location.getLatitude(), location.getLongitude()));
+            mapLocationRepository.setCurrentMapLocation(location);
         }
         currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
         return Transformations.switchMap(
