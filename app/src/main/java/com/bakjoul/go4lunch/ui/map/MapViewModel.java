@@ -192,8 +192,12 @@ public class MapViewModel extends ViewModel {
         @Nullable Collection<String> chosenRestaurants,
         @Nullable String userSearch) {
         if (isMapReady == null || restaurantResponseWrapper == null || chosenRestaurants == null) {
+            Log.d("test", "combine if null: isMap= " + isMapReady);
+            Log.d("test", "combine if null: response= " + restaurantResponseWrapper);
+            Log.d("test", "combine if null: chosen= " + chosenRestaurants);
             return;
         }
+        Log.d("test", "combine: usersearch= " + userSearch);
 
         List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
         boolean isProgressBarVisible = restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.LOADING;
