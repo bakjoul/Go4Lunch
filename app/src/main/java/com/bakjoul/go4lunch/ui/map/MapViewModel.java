@@ -249,28 +249,45 @@ public class MapViewModel extends ViewModel {
                     }
 
                     if (userSearch != null) {
-                        if (!chosenRestaurants.contains(response.getPlaceId()) && response.getName().contains(userSearch)) {
+/*                        if (!chosenRestaurants.contains(response.getPlaceId()) && response.getName().contains(userSearch)) {
                             drawableRes = R.drawable.ic_restaurant_searched_red_marker;
                         } else if (chosenRestaurants.contains(response.getPlaceId()) && response.getName().contains(userSearch)) {
                             drawableRes = R.drawable.ic_restaurant_searched_green_marker;
+                        }*/
+
+                        if (response.getName().contains(userSearch)) {
+                            restaurantsMarkers.add(
+                                new RestaurantMarker(
+                                    response.getPlaceId(),
+                                    new LatLng(
+                                        response.getGeometry().getLocation().getLat(),
+                                        response.getGeometry().getLocation().getLng()
+                                    ),
+                                    response.getName(),
+                                    drawableRes
+                                )
+                            );
                         }
 
                         if (response.getName().contains(userSearch) && !isUserSearchMatched) {
                             isUserSearchMatched = true;
                         }
+
+
+                    } else {
+                        restaurantsMarkers.add(
+                            new RestaurantMarker(
+                                response.getPlaceId(),
+                                new LatLng(
+                                    response.getGeometry().getLocation().getLat(),
+                                    response.getGeometry().getLocation().getLng()
+                                ),
+                                response.getName(),
+                                drawableRes
+                            )
+                        );
                     }
 
-                    restaurantsMarkers.add(
-                        new RestaurantMarker(
-                            response.getPlaceId(),
-                            new LatLng(
-                                response.getGeometry().getLocation().getLat(),
-                                response.getGeometry().getLocation().getLng()
-                            ),
-                            response.getName(),
-                            drawableRes
-                        )
-                    );
                 }
             }
 
