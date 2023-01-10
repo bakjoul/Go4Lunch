@@ -82,7 +82,9 @@ public class MapViewModel extends ViewModel {
 
         LiveData<Location> gpsLocationLiveData = gpsLocationRepository.getCurrentLocationLiveData();
         LiveData<Location> mapLocationLiveData = mapLocationRepository.getCurrentMapLocationLiveData();
-        LiveData<Boolean> isUserModeEnabledLiveData = locationModeRepository.isUserModeEnabledLiveData();
+        LiveData<Boolean> isUserModeEnabledLiveData = Transformations.distinctUntilChanged(
+            locationModeRepository.isUserModeEnabledLiveData()
+        );
 
         cameraSingleLiveEvent.addSource(gpsLocationLiveData, location -> {
             if (location != null) {
@@ -96,23 +98,13 @@ public class MapViewModel extends ViewModel {
             isUserModeEnabled -> {
                 if (isUserModeEnabled) {
                     return Transformations.switchMap(
-                        isCameraMoveValidLiveData,
-                        isCameraMoveValid -> {
-                            if (!isCameraMoveValid) {
-                                Log.d("test", "MapViewModel: move not valid returning null");
-                                return new MutableLiveData<>(null);
-                            } else {
-                                return Transformations.switchMap(
-                                    mapLocationLiveData,
-                                    location -> getRestaurantResponseWrapperLiveData(restaurantRepository, isUserModeEnabled, location)
-                                );
-                            }
-                        }
+                        mapLocationLiveData,
+                        location -> getRestaurantResponseWrapperLiveData(restaurantRepository, true, location)
                     );
                 } else {
                     return Transformations.switchMap(
                         gpsLocationLiveData,
-                        location -> getRestaurantResponseWrapperLiveData(restaurantRepository, isUserModeEnabled, location)
+                        location -> getRestaurantResponseWrapperLiveData(restaurantRepository, false, location)
                     );
                 }
             }
@@ -339,29 +331,12 @@ public class MapViewModel extends ViewModel {
     }
 
     public void onCameraMovedByUser() {
-        if (!locationModeRepository.isUserModeEnabled()) {
-            locationModeRepository.setUserModeEnabled(true);
-        }
+        locationModeRepository.setUserModeEnabled(true);
     }
 
     public void onCameraMoved(@NonNull LatLng cameraPosition) {
-        if (locationModeRepository.isUserModeEnabled()) {
-            // If no known last location or if distance between new camera position and last location greater than given value
-            if (lastLocation == null || locationDistanceUtil.getDistance(cameraPosition, lastLocation) > MAP_MINIMUM_DISPLACEMENT) {
-                if (!isCameraMoveValid()) {
-                    isCameraMoveValidLiveData.setValue(true);
-                }
-
-                // Updates current map location
-                mapLocationRepository.setCurrentMapLocation(latLngToLocation(cameraPosition));
-                // Updates last location to current camera position
-                lastLocation = cameraPosition;
-            } else {
-                if (isCameraMoveValid()) {
-                    isCameraMoveValidLiveData.setValue(false);
-                }
-            }
-        }
+        // Updates current map location
+        mapLocationRepository.setCurrentMapLocation(latLngToLocation(cameraPosition));
     }
 
     public void onMyLocationButtonClicked() {

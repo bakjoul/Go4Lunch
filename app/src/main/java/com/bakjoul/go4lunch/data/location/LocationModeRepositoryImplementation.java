@@ -23,12 +23,6 @@ public class LocationModeRepositoryImplementation implements LocationModeReposit
     }
 
     @Override
-    public boolean isUserModeEnabled() {
-        //noinspection ConstantConditions This MutableLiveData always has a value
-        return isUserModeEnabledMutableLiveData.getValue();
-    }
-
-    @Override
     public void setUserModeEnabled(boolean enabled) {
         isUserModeEnabledMutableLiveData.setValue(enabled);
     }

@@ -195,33 +195,33 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
             if (fragment instanceof MapFragment) {
                 if (selected == FragmentToDisplay.MAP) {
                     setToolbarTitleAndSearchview(selected);
-                    transaction.show(fragment);
+                    transaction.attach(fragment);
                     shown = true;
                 } else {
-                    transaction.hide(fragment);
+                    transaction.detach(fragment);
                 }
             } else if (fragment instanceof RestaurantsFragment) {
                 if (selected == FragmentToDisplay.RESTAURANTS) {
                     setToolbarTitleAndSearchview(selected);
-                    transaction.show(fragment);
+                    transaction.attach(fragment);
                     shown = true;
                 } else {
-                    transaction.hide(fragment);
+                    transaction.detach(fragment);
                 }
             } else if (fragment instanceof WorkmatesFragment) {
                 if (selected == FragmentToDisplay.WORKMATES) {
                     setToolbarTitleAndSearchview(selected);
-                    transaction.show(fragment);
+                    transaction.attach(fragment);
                     shown = true;
                 } else {
-                    transaction.hide(fragment);
+                    transaction.detach(fragment);
                 }
             } else if (fragment instanceof NoPermissionFragment) {
                 if (selected == FragmentToDisplay.NO_PERMISSION) {
-                    transaction.show(fragment);
+                    transaction.attach(fragment);
                     shown = true;
                 } else {
-                    transaction.hide(fragment);
+                    transaction.detach(fragment);
                 }
             }
         }
