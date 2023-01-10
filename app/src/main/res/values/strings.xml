@@ -46,5 +46,6 @@
     <string name="main_toast_lunch">Vous n\'avez pas encore fait votre choix</string>
     <string name="main_searchview_query_hint_restaurants">Chercher un restaurant</string>
     <string name="main_searchview_query_hint_workmates">Chercher un collègue</string>
+    <string name="no_match">Aucune correspondance trouvée</string>
 
 </resources>

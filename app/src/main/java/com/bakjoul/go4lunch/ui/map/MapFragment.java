@@ -130,7 +130,7 @@ public class MapFragment extends Fragment {
 
         viewModel.getIsUserSearchUnmatchedSingleLiveEvent().observe(getViewLifecycleOwner(), isSearchUnmatched -> {
             if (isSearchUnmatched) {
-                Toast.makeText(requireContext(), "Aucun restaurant n'a été trouvé", Toast.LENGTH_SHORT).show();
+                Toast.makeText(requireContext(), R.string.no_match, Toast.LENGTH_SHORT).show();
             }
         });
 

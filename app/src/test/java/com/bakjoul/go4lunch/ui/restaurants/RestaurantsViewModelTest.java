@@ -22,10 +22,11 @@ import com.bakjoul.go4lunch.data.restaurants.model.LocationResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
-import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
+import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
+import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
@@ -102,7 +103,8 @@ public class RestaurantsViewModelTest {
     private final GetUserPositionUseCase getUserPositionUseCase = Mockito.mock(GetUserPositionUseCase.class);
     private final LocationModeRepository locationModeRepository = Mockito.mock(LocationModeRepository.class);
     private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
-    private final WorkmateRepositoryImplementation workmateRepositoryImplementation = Mockito.mock(WorkmateRepositoryImplementation.class);
+    private final WorkmateRepository workmateRepository = Mockito.mock(WorkmateRepository.class);
+    private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
     private final LocationDistanceUtil locationDistanceUtils = Mockito.mock(LocationDistanceUtil.class);
     private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
 
@@ -132,7 +134,7 @@ public class RestaurantsViewModelTest {
         doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbyRestaurants(eq(location));
 
         restaurantsAttendanceLiveData.setValue(new HashMap<>());
-        doReturn(restaurantsAttendanceLiveData).when(workmateRepositoryImplementation).getRestaurantsAttendance();
+        doReturn(restaurantsAttendanceLiveData).when(workmateRepository).getRestaurantsAttendance();
 
         doReturn("50m").when(locationDistanceUtils).getDistanceToStringFormat(location, new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude));
         doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", false);
@@ -141,7 +143,8 @@ public class RestaurantsViewModelTest {
             application,
             getUserPositionUseCase,
             restaurantRepository,
-            workmateRepositoryImplementation,
+            workmateRepository,
+            autocompleteRepository,
             locationDistanceUtils,
             restaurantImageMapper);
     }
@@ -308,7 +311,8 @@ public class RestaurantsViewModelTest {
                 "",
                 3,
                 true,
-                "fakeImageUrl"
+                "fakeImageUrl",
+                false
             )
         );
         restaurantsItemViewStateList.add(
@@ -321,7 +325,8 @@ public class RestaurantsViewModelTest {
                 "",
                 2.5f,
                 true,
-                null
+                null,
+                false
             )
         );
         restaurantsItemViewStateList.add(
@@ -334,7 +339,8 @@ public class RestaurantsViewModelTest {
                 "",
                 0,
                 false,
-                null
+                null,
+                false
             )
         );
         return new RestaurantsViewState(restaurantsItemViewStateList, false, false);
@@ -358,7 +364,8 @@ public class RestaurantsViewModelTest {
                 "(5)",
                 3,
                 true,
-                "fakeImageUrl"
+                "fakeImageUrl",
+                false
             )
         );
         return new RestaurantsViewState(restaurantsItemViewStateList, false, false);

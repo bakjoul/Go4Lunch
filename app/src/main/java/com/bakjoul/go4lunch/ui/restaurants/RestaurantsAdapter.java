@@ -81,6 +81,11 @@ public class RestaurantsAdapter extends ListAdapter<RestaurantsItemViewState, Re
                 .load(viewState.getPhotoUrl())
                 .centerCrop()
                 .into(photo);
+            if (viewState.isSearched()) {
+                binding.restaurantsItemContainer.setBackgroundColor(itemView.getResources().getColor(R.color.searchedItem));
+            } else {
+                binding.restaurantsItemContainer.setBackgroundColor(itemView.getResources().getColor(R.color.defaultBackground));
+            }
         }
 
         @Override

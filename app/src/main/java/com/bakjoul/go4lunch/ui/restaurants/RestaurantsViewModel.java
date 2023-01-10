@@ -18,9 +18,10 @@ import com.bakjoul.go4lunch.data.common_model.PhotoResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.LocationResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
-import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
+import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
+import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
@@ -60,7 +61,8 @@ public class RestaurantsViewModel extends ViewModel {
         @NonNull Application application,
         @NonNull GetUserPositionUseCase getUserPositionUseCase,
         @NonNull RestaurantRepository restaurantRepository,
-        @NonNull WorkmateRepositoryImplementation workmateRepositoryImplementation,
+        @NonNull WorkmateRepository workmateRepository,
+        @NonNull AutocompleteRepository autocompleteRepository,
         @NonNull LocationDistanceUtil locationDistanceUtils,
         @NonNull RestaurantImageMapper restaurantImageMapper
     ) {
@@ -84,19 +86,24 @@ public class RestaurantsViewModel extends ViewModel {
             }
         );
 
-        LiveData<Map<String, Integer>> restaurantsAttendanceLiveData = workmateRepositoryImplementation.getRestaurantsAttendance();
+        LiveData<Map<String, Integer>> restaurantsAttendanceLiveData = workmateRepository.getRestaurantsAttendance();
+        LiveData<String> userSearchLiveData = autocompleteRepository.getUserSearchLiveData();
 
         restaurantsViewStateMediatorLiveData.addSource(responseWrapperLiveData, responseWrapper ->
-            combine(responseWrapper, restaurantsAttendanceLiveData.getValue())
+            combine(responseWrapper, restaurantsAttendanceLiveData.getValue(), userSearchLiveData.getValue())
         );
         restaurantsViewStateMediatorLiveData.addSource(restaurantsAttendanceLiveData, restaurantAttendance ->
-            combine(responseWrapperLiveData.getValue(), restaurantAttendance)
+            combine(responseWrapperLiveData.getValue(), restaurantAttendance, userSearchLiveData.getValue())
+        );
+        restaurantsViewStateMediatorLiveData.addSource(userSearchLiveData, userSearch ->
+            combine(responseWrapperLiveData.getValue(), restaurantsAttendanceLiveData.getValue(), userSearch)
         );
     }
 
     private void combine(
         @Nullable RestaurantResponseWrapper restaurantResponseWrapper,
-        @Nullable Map<String, Integer> restaurantsAttendance
+        @Nullable Map<String, Integer> restaurantsAttendance,
+        @Nullable String userSearch
     ) {
         if (restaurantResponseWrapper == null || restaurantsAttendance == null) {
             return;
@@ -111,7 +118,7 @@ public class RestaurantsViewModel extends ViewModel {
 
             isProgressBarVisible = false;
 
-            map(restaurantResponseWrapper, restaurantsItemViewStates, restaurantsAttendance);
+            restaurantsItemViewStates = map(restaurantResponseWrapper, restaurantsAttendance, userSearch);
         }
 
         if (restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.IO_ERROR
@@ -129,30 +136,60 @@ public class RestaurantsViewModel extends ViewModel {
 
     }
 
-    private void map(
+    @NonNull
+    private List<RestaurantsItemViewState> map(
         @NonNull RestaurantResponseWrapper restaurantResponseWrapper,
-        List<RestaurantsItemViewState> restaurantsItemViewStates,
-        Map<String, Integer> restaurantsAttendance
+        @NonNull Map<String, Integer> restaurantsAttendance,
+        @Nullable String userSearch
     ) {
+        List<RestaurantsItemViewState> restaurantsItemViewStateList = new ArrayList<>();
+        List<RestaurantsItemViewState> notSearchedRestaurantsList = new ArrayList<>();
+
         if (restaurantResponseWrapper.getNearbySearchResponse() != null) {
             for (RestaurantResponse r : restaurantResponseWrapper.getNearbySearchResponse().getResults()) {
                 if (BUSINESS_STATUS_OPERATIONAL.equals(r.getBusinessStatus())) {
-                    restaurantsItemViewStates.add(
-                        new RestaurantsItemViewState(
-                            r.getPlaceId(),
-                            r.getName(),
-                            r.getVicinity(),
-                            isOpen(r.getOpeningHours()),
-                            getDistance(currentLocation, r.getGeometry().getLocation()),
-                            getAttendance(r.getPlaceId(), restaurantsAttendance),
-                            getRating(r.getRating()),
-                            isRatingBarVisible(r.getUserRatingsTotal()),
-                            getPhotoUrl(r.getPhotos())
-                        )
-                    );
+
+                    if (userSearch != null) {
+                        if (r.getName().contains(userSearch)) {
+                            restaurantsItemViewStateList.add(getItemViewStateFromIteratedResponse(restaurantsAttendance, r, true));
+                        } else {
+                            notSearchedRestaurantsList.add(getItemViewStateFromIteratedResponse(restaurantsAttendance, r, false));
+                        }
+
+                    } else {
+                        restaurantsItemViewStateList.add(
+                            getItemViewStateFromIteratedResponse(restaurantsAttendance, r, false)
+                        );
+                    }
                 }
             }
+
+            if (userSearch != null) {
+                restaurantsItemViewStateList.addAll(notSearchedRestaurantsList);
+            }
         }
+
+        return restaurantsItemViewStateList;
+    }
+
+    @NonNull
+    private RestaurantsItemViewState getItemViewStateFromIteratedResponse(
+        @NonNull Map<String, Integer> restaurantsAttendance,
+        @NonNull RestaurantResponse r,
+        boolean isSearched
+    ) {
+        return new RestaurantsItemViewState(
+            r.getPlaceId(),
+            r.getName(),
+            r.getVicinity(),
+            isOpen(r.getOpeningHours()),
+            getDistance(currentLocation, r.getGeometry().getLocation()),
+            getAttendance(r.getPlaceId(), restaurantsAttendance),
+            getRating(r.getRating()),
+            isRatingBarVisible(r.getUserRatingsTotal()),
+            getPhotoUrl(r.getPhotos()),
+            isSearched
+        );
     }
 
     @NonNull
