@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
-import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
+import com.bakjoul.go4lunch.domain.autocomplete.GetAutocompletePredictionsUseCase;
 import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
@@ -22,9 +22,9 @@ public class MainViewModelTest {
 
     private final Context context = Mockito.mock(Context.class);
     private final FirebaseAuth firebaseAuth = Mockito.mock(FirebaseAuth.class);
+    private final GetAutocompletePredictionsUseCase getAutocompletePredictionsUseCase = Mockito.mock(GetAutocompletePredictionsUseCase.class);
     private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
     private final LocationPermissionRepository locationPermissionRepository = Mockito.mock(LocationPermissionRepository.class);
-    private final GetUserPositionUseCase getUserPositionUseCase = Mockito.mock(GetUserPositionUseCase.class);
     private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
     private final UserRepository userRepository = Mockito.mock(UserRepository.class);
 
@@ -35,9 +35,9 @@ public class MainViewModelTest {
         viewModel = new MainViewModel(
             context,
             firebaseAuth,
+            getAutocompletePredictionsUseCase,
             gpsLocationRepository,
             locationPermissionRepository,
-            getUserPositionUseCase,
             autocompleteRepository,
             userRepository
         );

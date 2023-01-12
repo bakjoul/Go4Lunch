@@ -28,7 +28,6 @@ import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
-import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -112,7 +111,6 @@ public class MapViewModelTest {
     private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
     private final WorkmateRepository workmateRepository = Mockito.mock(WorkmateRepository.class);
     private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
-    private final LocationDistanceUtil locationDistanceUtil = Mockito.mock(LocationDistanceUtil.class);
 
     private final Location location = Mockito.mock(Location.class);
     private final MutableLiveData<Location> locationLiveData = new MutableLiveData<>();
@@ -145,8 +143,7 @@ public class MapViewModelTest {
             gpsLocationRepository,
             restaurantRepository,
             workmateRepository,
-            autocompleteRepository,
-            locationDistanceUtil
+            autocompleteRepository
         );
     }
 

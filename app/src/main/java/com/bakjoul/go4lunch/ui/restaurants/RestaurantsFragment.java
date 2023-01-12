@@ -13,6 +13,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.FragmentRestaurantsBinding;
@@ -46,22 +47,23 @@ public class RestaurantsFragment extends Fragment implements RestaurantsAdapter.
 
         RestaurantsViewModel viewModel = new ViewModelProvider(this).get(RestaurantsViewModel.class);
 
-        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
+        RecyclerView recyclerView = binding.restaurantsRecyclerView;
         RestaurantsAdapter adapter = new RestaurantsAdapter(this);
-        binding.restaurantsRecyclerView.setAdapter(adapter);
-        binding.restaurantsRecyclerView.setLayoutManager(linearLayoutManager);
+        LinearLayoutManager linearLayoutManager = new LinearLayoutManager(requireContext());
         DividerItemDecoration itemDecoration = new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
         itemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(requireContext(), R.drawable.custom_divider)));
-        binding.restaurantsRecyclerView.addItemDecoration(itemDecoration);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(linearLayoutManager);
+        recyclerView.addItemDecoration(itemDecoration);
 
         viewModel.getRestaurantsViewStateLiveData().observe(getViewLifecycleOwner(), viewState -> {
-            binding.restaurantsRecyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
-                @Override
-                public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
-                    linearLayoutManager.scrollToPosition(0);
-                    binding.restaurantsRecyclerView.removeOnLayoutChangeListener(this);
-                }
-            });
+                recyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
+                    @Override
+                    public void onLayoutChange(View v, int left, int top, int right, int bottom, int oldLeft, int oldTop, int oldRight, int oldBottom) {
+                        linearLayoutManager.scrollToPosition(0);
+                        recyclerView.removeOnLayoutChangeListener(this);
+                    }
+                });
 
                 if (viewState.isProgressBarVisible()) {
                     binding.listProgressBar.setVisibility(View.VISIBLE);

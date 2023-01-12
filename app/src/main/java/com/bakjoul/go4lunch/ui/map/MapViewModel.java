@@ -22,7 +22,6 @@ import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
-import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -37,22 +36,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class MapViewModel extends ViewModel {
 
-    private static final double MAP_MINIMUM_DISPLACEMENT = 1000;
-
     @NonNull
     private final MapLocationRepository mapLocationRepository;
 
     @NonNull
     private final LocationModeRepository locationModeRepository;
 
-    @NonNull
-    private final LocationDistanceUtil locationDistanceUtil;
-
     private final MutableLiveData<Boolean> isMapReadyMutableLiveData = new MutableLiveData<>(false);
 
     private final MutableLiveData<Boolean> nearbySearchRequestPingMutableLiveData = new MutableLiveData<>(true);
-
-    private final MutableLiveData<Boolean> isCameraMoveValidLiveData = new MutableLiveData<>(false);
 
     private final SingleLiveEvent<LatLng> cameraSingleLiveEvent = new SingleLiveEvent<>();
 
@@ -62,10 +54,6 @@ public class MapViewModel extends ViewModel {
 
     private final MediatorLiveData<MapViewState> mapViewStateMediatorLiveData = new MediatorLiveData<>();
 
-    private LatLng currentLocation = null;
-
-    private LatLng lastLocation = null;
-
     @Inject
     public MapViewModel(
         @NonNull MapLocationRepository mapLocationRepository,
@@ -73,12 +61,10 @@ public class MapViewModel extends ViewModel {
         @NonNull GpsLocationRepository gpsLocationRepository,
         @NonNull RestaurantRepository restaurantRepository,
         @NonNull WorkmateRepository workmateRepository,
-        @NonNull AutocompleteRepository autocompleteRepository,
-        @NonNull LocationDistanceUtil locationDistanceUtil
+        @NonNull AutocompleteRepository autocompleteRepository
     ) {
         this.mapLocationRepository = mapLocationRepository;
         this.locationModeRepository = locationModeRepository;
-        this.locationDistanceUtil = locationDistanceUtil;
 
         LiveData<Location> gpsLocationLiveData = gpsLocationRepository.getCurrentLocationLiveData();
         LiveData<Location> mapLocationLiveData = mapLocationRepository.getCurrentMapLocationLiveData();
@@ -92,7 +78,7 @@ public class MapViewModel extends ViewModel {
             }
         });
 
-        // TODO REFACTO & FIX DOUBLE CALL WHEN SWITCHING TO USER MODE AFTER HAVING SWITCHED BACK TO GPS
+        // TODO FIX DOUBLE CALL WHEN SWITCHING TO USER MODE AFTER HAVING SWITCHED BACK TO GPS
         LiveData<RestaurantResponseWrapper> responseWrapperLiveData = Transformations.switchMap(
             isUserModeEnabledLiveData,
             isUserModeEnabled -> {
@@ -109,30 +95,6 @@ public class MapViewModel extends ViewModel {
                 }
             }
         );
-
-        // ORIGINAL
-        /*LiveData<RestaurantResponseWrapper> responseWrapperLiveData = Transformations.switchMap(
-            locationLiveData,
-            new Function<Location, LiveData<RestaurantResponseWrapper>>() {
-                @Override
-                public LiveData<RestaurantResponseWrapper> apply(Location location) {
-                    if (location == null) {
-                        return new MutableLiveData<>(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.LOCATION_NULL));
-                    }
-                    cameraSingleLiveEvent.setValue(new LatLng(location.getLatitude(), location.getLongitude()));
-                    currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                    return Transformations.switchMap(
-                        nearbySearchRequestPingMutableLiveData,
-                        new Function<Boolean, LiveData<RestaurantResponseWrapper>>() {
-                            @Override
-                            public LiveData<RestaurantResponseWrapper> apply(Boolean aVoid) {
-                                return restaurantRepository.getNearbyRestaurants(location);
-                            }
-                        }
-                    );
-                }
-            }
-        );*/
 
         LiveData<Collection<String>> chosenRestaurantsLiveData = workmateRepository.getWorkmatesChosenRestaurantsLiveData();
         LiveData<String> userSearchLiveData = autocompleteRepository.getUserSearchLiveData();
@@ -164,7 +126,6 @@ public class MapViewModel extends ViewModel {
             cameraSingleLiveEvent.setValue(new LatLng(location.getLatitude(), location.getLongitude()));
             mapLocationRepository.setCurrentMapLocation(location);
         }
-        currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
         return Transformations.switchMap(
             nearbySearchRequestPingMutableLiveData,
             aVoid -> {
@@ -184,12 +145,8 @@ public class MapViewModel extends ViewModel {
         @Nullable Collection<String> chosenRestaurants,
         @Nullable String userSearch) {
         if (isMapReady == null || restaurantResponseWrapper == null || chosenRestaurants == null) {
-            Log.d("test", "combine if null: isMap= " + isMapReady);
-            Log.d("test", "combine if null: response= " + restaurantResponseWrapper);
-            Log.d("test", "combine if null: chosen= " + chosenRestaurants);
             return;
         }
-        Log.d("test", "combine: usersearch= " + userSearch);
 
         List<RestaurantMarker> restaurantsMarkers = new ArrayList<>();
         boolean isProgressBarVisible = restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.LOADING;
@@ -202,9 +159,6 @@ public class MapViewModel extends ViewModel {
             isProgressBarVisible = false;
 
             map(restaurantResponseWrapper, restaurantsMarkers, chosenRestaurants, userSearch);
-
-            // Updates last known location
-            lastLocation = currentLocation;
         }
 
         if (restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.IO_ERROR
@@ -241,6 +195,7 @@ public class MapViewModel extends ViewModel {
                     }
 
                     if (userSearch != null) {
+                        // Highlight searched restaurants
 /*                        if (!chosenRestaurants.contains(response.getPlaceId()) && response.getName().contains(userSearch)) {
                             drawableRes = R.drawable.ic_restaurant_searched_red_marker;
                         } else if (chosenRestaurants.contains(response.getPlaceId()) && response.getName().contains(userSearch)) {
@@ -264,7 +219,6 @@ public class MapViewModel extends ViewModel {
                         if (response.getName().contains(userSearch) && !isUserSearchMatched) {
                             isUserSearchMatched = true;
                         }
-
 
                     } else {
                         restaurantsMarkers.add(
@@ -295,11 +249,6 @@ public class MapViewModel extends ViewModel {
         location.setLatitude(latLng.latitude);
         location.setLongitude(latLng.longitude);
         return location;
-    }
-
-    private boolean isCameraMoveValid() {
-        //noinspection ConstantConditions This MutableLiveData always has a value
-        return isCameraMoveValidLiveData.getValue();
     }
 
     public SingleLiveEvent<LatLng> getCameraSingleLiveEvent() {
