@@ -54,6 +54,8 @@ public class RestaurantsViewModel extends ViewModel {
 
     private final SingleLiveEvent<Boolean> isRetryBarVisibleSingleLiveEvent = new SingleLiveEvent<>();
 
+    private final SingleLiveEvent<Boolean> isUserSearchUnmatchedSingleLiveEvent = new SingleLiveEvent<>();
+
     private final MediatorLiveData<RestaurantsViewState> restaurantsViewStateMediatorLiveData = new MediatorLiveData<>();
 
     @Inject
@@ -112,6 +114,7 @@ public class RestaurantsViewModel extends ViewModel {
         List<RestaurantsItemViewState> restaurantsItemViewStates = new ArrayList<>();
         boolean isProgressBarVisible = restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.LOADING;
         isRetryBarVisibleSingleLiveEvent.setValue(false);
+        isUserSearchUnmatchedSingleLiveEvent.setValue(false);
 
         if (restaurantResponseWrapper.getNearbySearchResponse() != null
             && restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.SUCCESS) {
@@ -146,6 +149,7 @@ public class RestaurantsViewModel extends ViewModel {
         List<RestaurantsItemViewState> notSearchedRestaurantsList = new ArrayList<>();
 
         if (restaurantResponseWrapper.getNearbySearchResponse() != null) {
+            boolean isUserSearchMatched = false;
             for (RestaurantResponse r : restaurantResponseWrapper.getNearbySearchResponse().getResults()) {
                 if (BUSINESS_STATUS_OPERATIONAL.equals(r.getBusinessStatus())) {
 
@@ -154,6 +158,10 @@ public class RestaurantsViewModel extends ViewModel {
                             restaurantsItemViewStateList.add(getItemViewStateFromIteratedResponse(restaurantsAttendance, r, true));
                         } else {
                             notSearchedRestaurantsList.add(getItemViewStateFromIteratedResponse(restaurantsAttendance, r, false));
+                        }
+
+                        if (r.getName().contains(userSearch) && !isUserSearchMatched) {
+                            isUserSearchMatched = true;
                         }
 
                     } else {
@@ -166,6 +174,10 @@ public class RestaurantsViewModel extends ViewModel {
 
             if (userSearch != null) {
                 restaurantsItemViewStateList.addAll(notSearchedRestaurantsList);
+
+                if (!isUserSearchMatched) {
+                    isUserSearchUnmatchedSingleLiveEvent.setValue(true);
+                }
             }
         }
 
@@ -241,6 +253,10 @@ public class RestaurantsViewModel extends ViewModel {
 
     public SingleLiveEvent<Boolean> getIsRetryBarVisibleSingleLiveEvent() {
         return isRetryBarVisibleSingleLiveEvent;
+    }
+
+    public SingleLiveEvent<Boolean> getIsUserSearchUnmatchedSingleLiveEvent() {
+        return isUserSearchUnmatchedSingleLiveEvent;
     }
 
     public LiveData<RestaurantsViewState> getRestaurantsViewStateLiveData() {

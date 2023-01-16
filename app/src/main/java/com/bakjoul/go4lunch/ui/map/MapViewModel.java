@@ -158,7 +158,7 @@ public class MapViewModel extends ViewModel {
 
             isProgressBarVisible = false;
 
-            map(restaurantResponseWrapper, restaurantsMarkers, chosenRestaurants, userSearch);
+            restaurantsMarkers = map(restaurantResponseWrapper, chosenRestaurants, userSearch);
         }
 
         if (restaurantResponseWrapper.getState() == RestaurantResponseWrapper.State.IO_ERROR
@@ -177,11 +177,14 @@ public class MapViewModel extends ViewModel {
         }
     }
 
-    private void map(
+    @NonNull
+    private List<RestaurantMarker> map(
         @NonNull RestaurantResponseWrapper restaurantResponseWrapper,
-        @NonNull List<RestaurantMarker> restaurantsMarkers,
         @NonNull Collection<String> chosenRestaurants,
-        @Nullable String userSearch) {
+        @Nullable String userSearch
+    ) {
+        List<RestaurantMarker> restaurantMarkerList = new ArrayList<>();
+
         if (restaurantResponseWrapper.getNearbySearchResponse() != null) {
             boolean isUserSearchMatched = false;
             for (RestaurantResponse response : restaurantResponseWrapper.getNearbySearchResponse().getResults()) {
@@ -203,7 +206,7 @@ public class MapViewModel extends ViewModel {
                         }*/
 
                         if (response.getName().contains(userSearch)) {
-                            restaurantsMarkers.add(
+                            restaurantMarkerList.add(
                                 new RestaurantMarker(
                                     response.getPlaceId(),
                                     new LatLng(
@@ -221,7 +224,7 @@ public class MapViewModel extends ViewModel {
                         }
 
                     } else {
-                        restaurantsMarkers.add(
+                        restaurantMarkerList.add(
                             new RestaurantMarker(
                                 response.getPlaceId(),
                                 new LatLng(
@@ -241,6 +244,8 @@ public class MapViewModel extends ViewModel {
                 isUserSearchUnmatchedSingleLiveEvent.setValue(true);
             }
         }
+
+        return restaurantMarkerList;
     }
 
     @NonNull
