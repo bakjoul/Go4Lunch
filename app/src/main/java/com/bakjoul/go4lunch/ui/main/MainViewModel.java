@@ -128,10 +128,6 @@ public class MainViewModel extends ViewModel {
         @Nullable UserGoingToRestaurantEntity userChosenRestaurant,
         @Nullable List<PredictionResponse> predictionsList
     ) {
-        if (userChosenRestaurant == null) {
-            return;
-        }
-
         Set<String> suggestionsSet = new HashSet<>();
         if (predictionsList != null) {
             for (PredictionResponse predictionResponse : predictionsList) {
@@ -144,7 +140,7 @@ public class MainViewModel extends ViewModel {
                 firebaseAuth.getCurrentUser().getPhotoUrl(),
                 firebaseAuth.getCurrentUser().getDisplayName(),
                 firebaseAuth.getCurrentUser().getEmail(),
-                userChosenRestaurant.getChosenRestaurantId(),
+                userChosenRestaurant != null ? userChosenRestaurant.getChosenRestaurantId() : null,
                 new ArrayList<>(suggestionsSet)
             )
         );
