@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -73,6 +74,13 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
                     binding.workmatesEmpty.setVisibility(View.VISIBLE);
                 } else {
                     binding.workmatesEmpty.setVisibility(View.GONE);
+                }
+            }
+        );
+
+        viewModel.getIsUserSearchUnmatchedSingleLiveEvent().observe(getViewLifecycleOwner(), isSearchUnmatched -> {
+                if (isSearchUnmatched) {
+                    Toast.makeText(requireContext(), R.string.no_match, Toast.LENGTH_SHORT).show();
                 }
             }
         );

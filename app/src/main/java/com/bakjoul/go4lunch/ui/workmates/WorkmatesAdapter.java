@@ -64,6 +64,11 @@ public class WorkmatesAdapter extends ListAdapter<WorkmateItemViewState, Workmat
                 binding.workmatesItemText.setTypeface(null, Typeface.BOLD);
                 binding.workmatesItemText.setTextColor(itemView.getResources().getColor(R.color.black));
             }
+            if (viewState.isSearched()) {
+                binding.workmatesItemContainer.setBackgroundColor(itemView.getResources().getColor(R.color.searchedItem));
+            } else {
+                binding.workmatesItemContainer.setBackgroundColor(itemView.getResources().getColor(R.color.defaultBackground));
+            }
         }
 
         @Override

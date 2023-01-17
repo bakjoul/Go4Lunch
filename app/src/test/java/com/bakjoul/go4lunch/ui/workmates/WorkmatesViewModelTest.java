@@ -9,6 +9,7 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
+import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
@@ -29,6 +30,7 @@ public class WorkmatesViewModelTest {
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     private final WorkmateRepositoryImplementation workmateRepositoryImplementation = Mockito.mock(WorkmateRepositoryImplementation.class);
+    private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
 
     private final MutableLiveData<List<WorkmateEntity>> availableWorkmatesLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<UserGoingToRestaurantEntity>> workmatesGoingToRestaurantsLiveData = new MutableLiveData<>();
@@ -40,7 +42,7 @@ public class WorkmatesViewModelTest {
         doReturn(availableWorkmatesLiveData).when(workmateRepositoryImplementation).getAvailableWorkmatesLiveData();
         doReturn(workmatesGoingToRestaurantsLiveData).when(workmateRepositoryImplementation).getWorkmatesGoingToRestaurantsLiveData();
 
-        viewModel = new WorkmatesViewModel(workmateRepositoryImplementation);
+        viewModel = new WorkmatesViewModel(workmateRepositoryImplementation, autocompleteRepository);
     }
 
     @Test
@@ -145,9 +147,9 @@ public class WorkmatesViewModelTest {
     private List<WorkmateItemViewState> getExpectedWorkmatesViewStateList() {
         return new ArrayList<>(
             Arrays.asList(
-                new WorkmateItemViewState("1", "fakePhotoUrl1", "fakeUsername1", "fakeRestaurantId", "fakeRestaurantName"),
-                new WorkmateItemViewState("2", "fakePhotoUrl2", "fakeUsername2", null, null),
-                new WorkmateItemViewState("3", "fakePhotoUrl3", "fakeUsername3", null, null)
+                new WorkmateItemViewState("1", "fakePhotoUrl1", "fakeUsername1", "fakeRestaurantId", "fakeRestaurantName", false),
+                new WorkmateItemViewState("2", "fakePhotoUrl2", "fakeUsername2", null, null, false),
+                new WorkmateItemViewState("3", "fakePhotoUrl3", "fakeUsername3", null, null, false)
             )
         );
     }

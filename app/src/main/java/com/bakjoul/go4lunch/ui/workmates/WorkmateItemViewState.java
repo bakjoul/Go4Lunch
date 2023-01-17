@@ -22,12 +22,15 @@ public class WorkmateItemViewState {
     @Nullable
     private final String chosenRestaurantName;
 
-    public WorkmateItemViewState(@NonNull String id, @Nullable String photoUrl, @NonNull String name, @Nullable String chosenRestaurantId, @Nullable String chosenRestaurantName) {
+    private final boolean isSearched;
+
+    public WorkmateItemViewState(@NonNull String id, @Nullable String photoUrl, @NonNull String name, @Nullable String chosenRestaurantId, @Nullable String chosenRestaurantName, boolean isSearched) {
         this.id = id;
         this.photoUrl = photoUrl;
         this.name = name;
         this.chosenRestaurantId = chosenRestaurantId;
         this.chosenRestaurantName = chosenRestaurantName;
+        this.isSearched = isSearched;
     }
 
     @NonNull
@@ -55,17 +58,21 @@ public class WorkmateItemViewState {
         return chosenRestaurantName;
     }
 
+    public boolean isSearched() {
+        return isSearched;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WorkmateItemViewState that = (WorkmateItemViewState) o;
-        return id.equals(that.id) && Objects.equals(photoUrl, that.photoUrl) && name.equals(that.name) && Objects.equals(chosenRestaurantId, that.chosenRestaurantId) && Objects.equals(chosenRestaurantName, that.chosenRestaurantName);
+        return isSearched == that.isSearched && id.equals(that.id) && Objects.equals(photoUrl, that.photoUrl) && name.equals(that.name) && Objects.equals(chosenRestaurantId, that.chosenRestaurantId) && Objects.equals(chosenRestaurantName, that.chosenRestaurantName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, photoUrl, name, chosenRestaurantId, chosenRestaurantName);
+        return Objects.hash(id, photoUrl, name, chosenRestaurantId, chosenRestaurantName, isSearched);
     }
 
     @NonNull
@@ -77,6 +84,7 @@ public class WorkmateItemViewState {
             ", name='" + name + '\'' +
             ", chosenRestaurantId='" + chosenRestaurantId + '\'' +
             ", chosenRestaurantName='" + chosenRestaurantName + '\'' +
+            ", isSearched=" + isSearched +
             '}';
     }
 }
