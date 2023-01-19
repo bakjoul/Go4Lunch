@@ -118,6 +118,7 @@ public class MapViewModelTest {
     private final MutableLiveData<RestaurantResponseWrapper> responseWrapperMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<Collection<String>> chosenRestaurantsLiveData = new MutableLiveData<>();
 
+    private final MutableLiveData<String> userSearchLiveData = new MutableLiveData<>();
 
     private MapViewModel viewModel;
 
@@ -126,16 +127,20 @@ public class MapViewModelTest {
         doReturn(FAKE_LOCATION.latitude).when(location).getLatitude();
         doReturn(FAKE_LOCATION.longitude).when(location).getLongitude();
         locationLiveData.setValue(location);
+        doReturn(locationLiveData).when(getUserPositionUseCase).invoke();
+        doReturn(locationLiveData).when(gpsLocationRepository).getCurrentLocationLiveData();
+        doReturn(locationLiveData).when(mapLocationRepository).getCurrentMapLocationLiveData();
 
         isUserModeEnabledLiveData.setValue(false);
         doReturn(isUserModeEnabledLiveData).when(locationModeRepository).isUserModeEnabledLiveData();
-
-        doReturn(locationLiveData).when(getUserPositionUseCase).invoke();
 
         doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbyRestaurants(eq(location));
 
         chosenRestaurantsLiveData.setValue(new ArrayList<>());
         doReturn(chosenRestaurantsLiveData).when(workmateRepository).getWorkmatesChosenRestaurantsLiveData();
+
+        userSearchLiveData.setValue(null);
+        doReturn(userSearchLiveData).when(autocompleteRepository).getUserSearchLiveData();
 
         viewModel = new MapViewModel(
             mapLocationRepository,

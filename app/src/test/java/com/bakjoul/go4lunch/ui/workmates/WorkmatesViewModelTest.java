@@ -35,12 +35,17 @@ public class WorkmatesViewModelTest {
     private final MutableLiveData<List<WorkmateEntity>> availableWorkmatesLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<UserGoingToRestaurantEntity>> workmatesGoingToRestaurantsLiveData = new MutableLiveData<>();
 
+    private final MutableLiveData<String> userSearchLiveData = new MutableLiveData<>();
+
     private WorkmatesViewModel viewModel;
 
     @Before
     public void setUp() {
         doReturn(availableWorkmatesLiveData).when(workmateRepositoryImplementation).getAvailableWorkmatesLiveData();
         doReturn(workmatesGoingToRestaurantsLiveData).when(workmateRepositoryImplementation).getWorkmatesGoingToRestaurantsLiveData();
+
+        userSearchLiveData.setValue(null);
+        doReturn(userSearchLiveData).when(autocompleteRepository).getUserSearchLiveData();
 
         viewModel = new WorkmatesViewModel(workmateRepositoryImplementation, autocompleteRepository);
     }

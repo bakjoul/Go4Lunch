@@ -114,6 +114,8 @@ public class RestaurantsViewModelTest {
     private final MutableLiveData<RestaurantResponseWrapper> responseWrapperMutableLiveData = new MutableLiveData<>();
     private final MutableLiveData<Map<String, Integer>> restaurantsAttendanceLiveData = new MutableLiveData<>();
 
+    private final MutableLiveData<String> userSearchLiveData = new MutableLiveData<>();
+
     private RestaurantsViewModel viewModel;
 
     @Before
@@ -125,16 +127,18 @@ public class RestaurantsViewModelTest {
         doReturn(FAKE_LOCATION.latitude).when(location).getLatitude();
         doReturn(FAKE_LOCATION.longitude).when(location).getLongitude();
         locationLiveData.setValue(location);
+        doReturn(locationLiveData).when(getUserPositionUseCase).invoke();
 
         isUserModeEnabledLiveData.setValue(false);
         doReturn(isUserModeEnabledLiveData).when(locationModeRepository).isUserModeEnabledLiveData();
-
-        doReturn(locationLiveData).when(getUserPositionUseCase).invoke();
 
         doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbyRestaurants(eq(location));
 
         restaurantsAttendanceLiveData.setValue(new HashMap<>());
         doReturn(restaurantsAttendanceLiveData).when(workmateRepository).getRestaurantsAttendance();
+
+        userSearchLiveData.setValue(null);
+        doReturn(userSearchLiveData).when(autocompleteRepository).getUserSearchLiveData();
 
         doReturn("50m").when(locationDistanceUtils).getDistanceToStringFormat(location, new LocationResponse(DEFAULT_LOCATION.latitude, DEFAULT_LOCATION.longitude));
         doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", false);
