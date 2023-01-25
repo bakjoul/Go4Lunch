@@ -126,6 +126,62 @@ public class WorkmatesViewModelTest {
         assertEquals(getExpectedWorkmatesViewStateList(), result.getWorkmatesItemViewStateList());
     }
 
+    @Test
+    public void matched_user_search_case() {
+        // Given
+        availableWorkmatesLiveData.setValue(getDefaultAvailableWorkmates());
+        workmatesGoingToRestaurantsLiveData.setValue(new ArrayList<>(
+                Collections.singletonList(
+                    new UserGoingToRestaurantEntity(
+                        "3",
+                        "fakeUsername3",
+                        "fakeUserEmail3",
+                        "fakeUserPhotoUrl3",
+                        "fakeRestaurantId",
+                        "searchedRestaurantName"
+                    )
+                )
+            )
+        );
+        userSearchLiveData.setValue("searchedRestaurant");
+
+        // When
+        WorkmatesViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getWorkmatesViewStateMediatorLiveData());
+        Boolean isSearchUnmatched = LiveDataTestUtil.getValueForTesting(viewModel.getIsUserSearchUnmatchedSingleLiveEvent());
+
+        // Then
+        assertEquals(getExpectedSearchedWorkmatesViewStateList(), result.getWorkmatesItemViewStateList());
+        assertEquals(false, isSearchUnmatched);
+    }
+
+    @Test
+    public void unmatched_user_search_case() {
+        // Given
+        availableWorkmatesLiveData.setValue(getDefaultAvailableWorkmates());
+        workmatesGoingToRestaurantsLiveData.setValue(new ArrayList<>(
+                Collections.singletonList(
+                    new UserGoingToRestaurantEntity(
+                        "1",
+                        "fakeUsername1",
+                        "fakeUserEmail1",
+                        "fakeUserPhotoUrl1",
+                        "fakeRestaurantId",
+                        "fakeRestaurantName"
+                    )
+                )
+            )
+        );
+        userSearchLiveData.setValue("abcdef");
+
+        // When
+        WorkmatesViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getWorkmatesViewStateMediatorLiveData());
+        Boolean isSearchUnmatched = LiveDataTestUtil.getValueForTesting(viewModel.getIsUserSearchUnmatchedSingleLiveEvent());
+
+        // Then
+        assertEquals(getExpectedWorkmatesViewStateList(), result.getWorkmatesItemViewStateList());
+        assertEquals(true, isSearchUnmatched);
+    }
+
     // region IN
     @NonNull
     private List<WorkmateEntity> getDefaultAvailableWorkmates() {
@@ -155,6 +211,17 @@ public class WorkmatesViewModelTest {
                 new WorkmateItemViewState("1", "fakePhotoUrl1", "fakeUsername1", "fakeRestaurantId", "fakeRestaurantName", false),
                 new WorkmateItemViewState("2", "fakePhotoUrl2", "fakeUsername2", null, null, false),
                 new WorkmateItemViewState("3", "fakePhotoUrl3", "fakeUsername3", null, null, false)
+            )
+        );
+    }
+
+    @NonNull
+    private List<WorkmateItemViewState> getExpectedSearchedWorkmatesViewStateList() {
+        return new ArrayList<>(
+            Arrays.asList(
+                new WorkmateItemViewState("3", "fakePhotoUrl3", "fakeUsername3", "fakeRestaurantId", "searchedRestaurantName", true),
+                new WorkmateItemViewState("1", "fakePhotoUrl1", "fakeUsername1", null, null, false),
+                new WorkmateItemViewState("2", "fakePhotoUrl2", "fakeUsername2", null, null, false)
             )
         );
     }
