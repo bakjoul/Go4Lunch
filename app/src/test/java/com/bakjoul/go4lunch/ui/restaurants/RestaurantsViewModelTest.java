@@ -268,6 +268,36 @@ public class RestaurantsViewModelTest {
         assertEquals(getDefaultRestaurantViewStateWithAttendance(), result);
     }
 
+    @Test
+    public void matched_user_search_case() {
+        // Given
+        responseWrapperMutableLiveData.setValue(getDefaultRestaurantResponseWrapper());
+        userSearchLiveData.setValue("RESTAURANT_3_NAME");
+
+        // When
+        RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewStateLiveData());
+        Boolean isSearchUnmatched = LiveDataTestUtil.getValueForTesting(viewModel.getIsUserSearchUnmatchedSingleLiveEvent());
+
+        // Then
+        assertEquals(getExpectedSearchViewState(), result);
+        assertEquals(false, isSearchUnmatched);
+    }
+
+    @Test
+    public void unmatched_user_search_case() {
+        // Given
+        responseWrapperMutableLiveData.setValue(getDefaultRestaurantResponseWrapper());
+        userSearchLiveData.setValue("RESTAURANT_ABC");
+
+        // When
+        RestaurantsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getRestaurantsViewStateLiveData());
+        Boolean isSearchUnmatched = LiveDataTestUtil.getValueForTesting(viewModel.getIsUserSearchUnmatchedSingleLiveEvent());
+
+        // Then
+        assertEquals(getDefaultRestaurantViewState(), result);
+        assertEquals(true, isSearchUnmatched);
+    }
+
     // region IN
     @NonNull
     private RestaurantResponseWrapper getDefaultRestaurantResponseWrapper() {
@@ -369,6 +399,54 @@ public class RestaurantsViewModelTest {
                 3,
                 true,
                 "fakeImageUrl",
+                false
+            )
+        );
+        return new RestaurantsViewState(restaurantsItemViewStateList, false, false);
+    }
+
+    @NonNull
+    private RestaurantsViewState getExpectedSearchViewState() {
+        List<RestaurantsItemViewState> restaurantsItemViewStateList = new ArrayList<>();
+        restaurantsItemViewStateList.add(
+            new RestaurantsItemViewState(
+                RESTAURANT_RESPONSE_3.getPlaceId(),
+                RESTAURANT_RESPONSE_3.getName(),
+                RESTAURANT_RESPONSE_3.getVicinity(),
+                NOT_AVAILABLE,
+                locationDistanceUtils.getDistanceToStringFormat(location, RESTAURANT_RESPONSE_3.getGeometry().getLocation()),
+                "",
+                0,
+                false,
+                null,
+                true
+            )
+        );
+        restaurantsItemViewStateList.add(
+            new RestaurantsItemViewState(
+                RESTAURANT_RESPONSE_1.getPlaceId(),
+                RESTAURANT_RESPONSE_1.getName(),
+                RESTAURANT_RESPONSE_1.getVicinity(),
+                OPEN,
+                "50m",
+                "",
+                3,
+                true,
+                "fakeImageUrl",
+                false
+            )
+        );
+        restaurantsItemViewStateList.add(
+            new RestaurantsItemViewState(
+                RESTAURANT_RESPONSE_2.getPlaceId(),
+                RESTAURANT_RESPONSE_2.getName(),
+                RESTAURANT_RESPONSE_2.getVicinity(),
+                CLOSED,
+                locationDistanceUtils.getDistanceToStringFormat(location, RESTAURANT_RESPONSE_2.getGeometry().getLocation()),
+                "",
+                2.5f,
+                true,
+                null,
                 false
             )
         );

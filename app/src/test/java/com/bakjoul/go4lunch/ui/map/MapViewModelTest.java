@@ -304,7 +304,7 @@ public class MapViewModelTest {
     }
 
     @Test
-    public void matched_user_search_should_display_only_matches() {
+    public void matched_user_search_case() {
         // Given
         viewModel.onMapReady();
         viewModel.onCameraMoved(FAKE_LOCATION);
@@ -321,7 +321,7 @@ public class MapViewModelTest {
     }
 
     @Test
-    public void unmatched_user_search_should_display_empty_viewstate() {
+    public void unmatched_user_search_case() {
         // Given
         viewModel.onMapReady();
         viewModel.onCameraMoved(FAKE_LOCATION);
