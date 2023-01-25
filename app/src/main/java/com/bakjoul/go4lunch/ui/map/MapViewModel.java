@@ -78,7 +78,6 @@ public class MapViewModel extends ViewModel {
             }
         });
 
-        // TODO FIX DOUBLE CALL WHEN SWITCHING TO USER MODE AFTER HAVING SWITCHED BACK TO GPS
         LiveData<RestaurantResponseWrapper> responseWrapperLiveData = Transformations.switchMap(
             isUserModeEnabledLiveData,
             isUserModeEnabled -> {

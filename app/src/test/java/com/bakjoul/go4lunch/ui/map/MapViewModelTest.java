@@ -303,6 +303,40 @@ public class MapViewModelTest {
         assertEquals(R.drawable.ic_restaurant_green_marker, result.getRestaurantsMarkers().get(0).getIcon());
     }
 
+    @Test
+    public void matched_user_search_should_display_only_matches() {
+        // Given
+        viewModel.onMapReady();
+        viewModel.onCameraMoved(FAKE_LOCATION);
+        responseWrapperMutableLiveData.setValue(getDefaultRestaurantResponseWrapper());
+        userSearchLiveData.setValue("RESTAURANT_1_NAME");
+
+        // When
+        MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
+        Boolean isSearchUnmatched = LiveDataTestUtil.getValueForTesting(viewModel.getIsUserSearchUnmatchedSingleLiveEvent());
+
+        // Then
+        assertEquals(getExpectedSearchViewState(), result);
+        assertEquals(false, isSearchUnmatched);
+    }
+
+    @Test
+    public void unmatched_user_search_should_display_empty_viewstate() {
+        // Given
+        viewModel.onMapReady();
+        viewModel.onCameraMoved(FAKE_LOCATION);
+        responseWrapperMutableLiveData.setValue(getDefaultRestaurantResponseWrapper());
+        userSearchLiveData.setValue("RESTAURANT_ABC");
+
+        // When
+        MapViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMapViewStateLiveData());
+        Boolean isSearchUnmatched = LiveDataTestUtil.getValueForTesting(viewModel.getIsUserSearchUnmatchedSingleLiveEvent());
+
+        // Then
+        assertEquals(getViewStateWithEmptyMarkers(), result);
+        assertEquals(true, isSearchUnmatched);
+    }
+
     // region IN
     @NonNull
     private RestaurantResponseWrapper getDefaultRestaurantResponseWrapper() {
@@ -383,6 +417,21 @@ public class MapViewModelTest {
             new ArrayList<>(),
             false
         );
+    }
+
+    @NonNull
+    private MapViewState getExpectedSearchViewState() {
+        return new MapViewState(
+            Collections.singletonList(
+                new RestaurantMarker(
+                    RESTAURANT_RESPONSE_1.getPlaceId(),
+                    new LatLng(
+                        RESTAURANT_RESPONSE_1.getGeometry().getLocation().getLat(),
+                        RESTAURANT_RESPONSE_1.getGeometry().getLocation().getLng()
+                    ),
+                    RESTAURANT_RESPONSE_1.getName(),
+                    R.drawable.ic_restaurant_red_marker
+                )), false);
     }
     // endregion OUT
 }
