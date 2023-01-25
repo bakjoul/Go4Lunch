@@ -3,8 +3,8 @@ package com.bakjoul.go4lunch.ui.dispatcher;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
+import com.bakjoul.go4lunch.domain.dispatcher.GetAuthUseCase;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
-import com.google.firebase.auth.FirebaseAuth;
 
 import javax.inject.Inject;
 
@@ -17,11 +17,11 @@ public class DispatcherViewModel extends ViewModel {
     private final SingleLiveEvent<DispatcherViewAction> viewActionSingleLiveEvent = new SingleLiveEvent<>();
 
     @Inject
-    public DispatcherViewModel(@NonNull FirebaseAuth firebaseAuth) {
-        if (firebaseAuth.getCurrentUser() == null) {
-            viewActionSingleLiveEvent.setValue(DispatcherViewAction.GO_TO_CONNECT_SCREEN);
-        } else {
+    public DispatcherViewModel(@NonNull GetAuthUseCase getAuthUseCase) {
+        if (getAuthUseCase.isLoggedIn()) {
             viewActionSingleLiveEvent.setValue(DispatcherViewAction.GO_TO_MAIN_SCREEN);
+        } else {
+            viewActionSingleLiveEvent.setValue(DispatcherViewAction.GO_TO_CONNECT_SCREEN);
         }
     }
 
