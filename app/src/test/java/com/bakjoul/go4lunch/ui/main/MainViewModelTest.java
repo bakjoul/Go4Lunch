@@ -2,11 +2,15 @@ package com.bakjoul.go4lunch.ui.main;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
+import android.Manifest;
 import android.content.Context;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
@@ -260,6 +264,25 @@ public class MainViewModelTest {
         assertEquals("suggestion_example", result);
     }
 
+    @Test
+    public void verify_onResume_with_permission() {
+        // Given
+        doReturn(PackageManager.PERMISSION_GRANTED).when(context).checkPermission(
+            eq(Manifest.permission.ACCESS_FINE_LOCATION),
+            anyInt(),
+            anyInt()
+        );
+        initViewModel();
+
+        // When
+        viewModel.onResume();
+
+        // Then
+        Mockito.verify(gpsLocationRepository).startLocationUpdates();
+        Mockito.verify(locationPermissionRepository).setLocationPermission(true);
+        Mockito.verifyNoMoreInteractions(gpsLocationRepository, locationPermissionRepository);
+    }
+
     // region IN
     private void initViewModel() {
         viewModel = new MainViewModel(
@@ -272,6 +295,8 @@ public class MainViewModelTest {
             autocompleteRepository,
             userRepository
         );
+
+        Mockito.verify(locationPermissionRepository).getLocationPermissionLiveData();
     }
     // endregion IN
 
