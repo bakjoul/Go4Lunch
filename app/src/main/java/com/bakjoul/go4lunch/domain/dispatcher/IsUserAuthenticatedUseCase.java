@@ -6,17 +6,17 @@ import com.google.firebase.auth.FirebaseAuth;
 
 import javax.inject.Inject;
 
-public class GetAuthUseCase {
+public class IsUserAuthenticatedUseCase {
 
     @NonNull
     private final FirebaseAuth firebaseAuth;
 
     @Inject
-    public GetAuthUseCase(@NonNull FirebaseAuth firebaseAuth) {
+    public IsUserAuthenticatedUseCase(@NonNull FirebaseAuth firebaseAuth) {
         this.firebaseAuth = firebaseAuth;
     }
 
-    public boolean isLoggedIn() {
+    public boolean invoke() {
         return firebaseAuth.getCurrentUser() != null;
     }
 }

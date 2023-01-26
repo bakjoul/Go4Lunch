@@ -5,7 +5,7 @@ import static org.mockito.Mockito.doReturn;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
-import com.bakjoul.go4lunch.domain.dispatcher.GetAuthUseCase;
+import com.bakjoul.go4lunch.domain.dispatcher.IsUserAuthenticatedUseCase;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 
 import org.junit.Rule;
@@ -17,15 +17,15 @@ public class DispatcherViewModelTest {
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-    private final GetAuthUseCase getAuthUseCase = Mockito.mock(GetAuthUseCase.class);
+    private final IsUserAuthenticatedUseCase isUserAuthenticatedUseCase = Mockito.mock(IsUserAuthenticatedUseCase.class);
 
     private DispatcherViewModel viewModel;
 
     @Test
     public void currentUser_null_should_expose_go_to_connect_screen_view_action() {
         // Given
-        doReturn(false).when(getAuthUseCase).isLoggedIn();
-        viewModel = new DispatcherViewModel(getAuthUseCase);
+        doReturn(false).when(isUserAuthenticatedUseCase).invoke();
+        viewModel = new DispatcherViewModel(isUserAuthenticatedUseCase);
 
         // When
         DispatcherViewAction result = LiveDataTestUtil.getValueForTesting(viewModel.getViewActionSingleLiveEvent());
@@ -37,8 +37,8 @@ public class DispatcherViewModelTest {
     @Test
     public void currentUser_loggedIn_should_expose_go_to_main_screen_view_action() {
         // Given
-        doReturn(true).when(getAuthUseCase).isLoggedIn();
-        viewModel = new DispatcherViewModel(getAuthUseCase);
+        doReturn(true).when(isUserAuthenticatedUseCase).invoke();
+        viewModel = new DispatcherViewModel(isUserAuthenticatedUseCase);
 
         // When
         DispatcherViewAction result = LiveDataTestUtil.getValueForTesting(viewModel.getViewActionSingleLiveEvent());

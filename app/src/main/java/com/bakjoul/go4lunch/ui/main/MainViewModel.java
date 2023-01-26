@@ -20,7 +20,7 @@ import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.autocomplete.model.PredictionResponse;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.autocomplete.GetAutocompletePredictionsUseCase;
-import com.bakjoul.go4lunch.domain.dispatcher.GetAuthUseCase;
+import com.bakjoul.go4lunch.domain.dispatcher.IsUserAuthenticatedUseCase;
 import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
@@ -75,7 +75,7 @@ public class MainViewModel extends ViewModel {
     public MainViewModel(
         @ApplicationContext @NonNull Context context,
         @NonNull FirebaseAuth firebaseAuth,
-        @NonNull GetAuthUseCase getAuthUseCase,
+        @NonNull IsUserAuthenticatedUseCase isUserAuthenticatedUseCase,
         @NonNull GetAutocompletePredictionsUseCase getAutocompletePredictionsUseCase,
         @NonNull GpsLocationRepository gpsLocationRepository,
         @NonNull LocationPermissionRepository locationPermissionRepository,
@@ -87,7 +87,7 @@ public class MainViewModel extends ViewModel {
         this.locationPermissionRepository = locationPermissionRepository;
         this.autocompleteRepository = autocompleteRepository;
 
-        if (getAuthUseCase.isLoggedIn()) {
+        if (isUserAuthenticatedUseCase.invoke()) {
             userRepository.createFirestoreUser();
 
             LiveData<UserGoingToRestaurantEntity> userChosenRestaurantLiveData = userRepository.getChosenRestaurantLiveData();

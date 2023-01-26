@@ -17,7 +17,7 @@ import com.bakjoul.go4lunch.data.autocomplete.model.PredictionResponse;
 import com.bakjoul.go4lunch.data.autocomplete.model.StructuredFormattingResponse;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.autocomplete.GetAutocompletePredictionsUseCase;
-import com.bakjoul.go4lunch.domain.dispatcher.GetAuthUseCase;
+import com.bakjoul.go4lunch.domain.dispatcher.IsUserAuthenticatedUseCase;
 import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
@@ -42,7 +42,7 @@ public class MainViewModelTest {
 
     private final Context context = Mockito.mock(Context.class);
     private final FirebaseAuth firebaseAuth = Mockito.mock(FirebaseAuth.class);
-    private final GetAuthUseCase getAuthUseCase = Mockito.mock(GetAuthUseCase.class);
+    private final IsUserAuthenticatedUseCase isUserAuthenticatedUseCase = Mockito.mock(IsUserAuthenticatedUseCase.class);
     private final GetAutocompletePredictionsUseCase getAutocompletePredictionsUseCase = Mockito.mock(GetAutocompletePredictionsUseCase.class);
     private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
     private final LocationPermissionRepository locationPermissionRepository = Mockito.mock(LocationPermissionRepository.class);
@@ -82,7 +82,7 @@ public class MainViewModelTest {
     @Test
     public void user_null_should_expose_null_main_view_state() {
         // Given
-        doReturn(false).when(getAuthUseCase).isLoggedIn();
+        doReturn(false).when(isUserAuthenticatedUseCase).invoke();
         initViewModel();
 
         // When
@@ -95,7 +95,7 @@ public class MainViewModelTest {
     @Test
     public void initial_case() {
         // Given
-        doReturn(true).when(getAuthUseCase).isLoggedIn();
+        doReturn(true).when(isUserAuthenticatedUseCase).invoke();
         initViewModel();
         userChosenRestaurantLiveData.setValue(null);
         predictionsLiveData.setValue(null);
@@ -111,7 +111,7 @@ public class MainViewModelTest {
     @Test
     public void user_going_to_restaurant_should_expose_chosen_restaurant_id_in_view_state() {
         // Given
-        doReturn(true).when(getAuthUseCase).isLoggedIn();
+        doReturn(true).when(isUserAuthenticatedUseCase).invoke();
         initViewModel();
         userChosenRestaurantLiveData.setValue(
             new UserGoingToRestaurantEntity(
@@ -134,7 +134,7 @@ public class MainViewModelTest {
     @Test
     public void matching_user_search_should_expose_matching_suggestions_in_view_state() {
         // Given
-        doReturn(true).when(getAuthUseCase).isLoggedIn();
+        doReturn(true).when(isUserAuthenticatedUseCase).invoke();
         initViewModel();
         viewModel.onSearchViewQueryTextChanged("fakeRestaurant");
         predictionsLiveData.setValue(
@@ -161,7 +161,7 @@ public class MainViewModelTest {
     @Test
     public void onBottomNavigationViewButtonClicked_should_update_dedicated_livedata() {
         // Given
-        doReturn(true).when(getAuthUseCase).isLoggedIn();
+        doReturn(true).when(isUserAuthenticatedUseCase).invoke();
         initViewModel();
         viewModel.onBottomNavigationClicked(MainViewModel.BottomNavigationViewButton.RESTAURANTS);
 
@@ -175,7 +175,7 @@ public class MainViewModelTest {
     @Test
     public void locationPermission_null_shoud_expose_fragmentToDisplay_null() {
         // Given
-        doReturn(true).when(getAuthUseCase).isLoggedIn();
+        doReturn(true).when(isUserAuthenticatedUseCase).invoke();
         initViewModel();
         isLocationPermissionEnabledLiveData.setValue(null);
 
@@ -189,7 +189,7 @@ public class MainViewModelTest {
     @Test
     public void locationPermission_disabled_shoud_expose_fragmentToDisplay_no_permission() {
         // Given
-        doReturn(true).when(getAuthUseCase).isLoggedIn();
+        doReturn(true).when(isUserAuthenticatedUseCase).invoke();
         initViewModel();
         isLocationPermissionEnabledLiveData.setValue(false);
 
@@ -203,7 +203,7 @@ public class MainViewModelTest {
     @Test
     public void locationPermission_enabled_shoud_expose_fragmentToDisplay_map() {
         // Given
-        doReturn(true).when(getAuthUseCase).isLoggedIn();
+        doReturn(true).when(isUserAuthenticatedUseCase).invoke();
         initViewModel();
         isLocationPermissionEnabledLiveData.setValue(true);
 
@@ -217,7 +217,7 @@ public class MainViewModelTest {
     @Test
     public void locationPermission_enabled_and_bottomNavViewBtn_workmates_shoud_expose_fragmentToDisplay_workmates() {
         // Given
-        doReturn(true).when(getAuthUseCase).isLoggedIn();
+        doReturn(true).when(isUserAuthenticatedUseCase).invoke();
         initViewModel();
         isLocationPermissionEnabledLiveData.setValue(true);
         viewModel.onBottomNavigationClicked(MainViewModel.BottomNavigationViewButton.WORKMATES);
@@ -232,7 +232,7 @@ public class MainViewModelTest {
     @Test
     public void bottomNavViewBtn_null_error_should_expose_fragmentToDisplay_null() {
         // Given
-        doReturn(true).when(getAuthUseCase).isLoggedIn();
+        doReturn(true).when(isUserAuthenticatedUseCase).invoke();
         initViewModel();
         viewModel.onBottomNavigationClicked(null);
 
@@ -246,7 +246,7 @@ public class MainViewModelTest {
     @Test
     public void onSuggestionClicked_should_set_user_search_livedata_in_autocomplete_repo() {
         // Given
-        doReturn(true).when(getAuthUseCase).isLoggedIn();
+        doReturn(true).when(isUserAuthenticatedUseCase).invoke();
         initViewModel();
 
         viewModel.onSuggestionClicked("suggestion_example");
@@ -265,7 +265,7 @@ public class MainViewModelTest {
         viewModel = new MainViewModel(
             context,
             firebaseAuth,
-            getAuthUseCase,
+            isUserAuthenticatedUseCase,
             getAutocompletePredictionsUseCase,
             gpsLocationRepository,
             locationPermissionRepository,
