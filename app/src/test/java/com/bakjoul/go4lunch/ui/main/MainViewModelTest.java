@@ -283,6 +283,25 @@ public class MainViewModelTest {
         Mockito.verifyNoMoreInteractions(gpsLocationRepository, locationPermissionRepository);
     }
 
+    @Test
+    public void verify_onResume_without_permission() {
+        // Given
+        doReturn(PackageManager.PERMISSION_DENIED).when(context).checkPermission(
+            eq(Manifest.permission.ACCESS_FINE_LOCATION),
+            anyInt(),
+            anyInt()
+        );
+        initViewModel();
+
+        // When
+        viewModel.onResume();
+
+        // Then
+        Mockito.verify(gpsLocationRepository).stopLocationUpdates();
+        Mockito.verify(locationPermissionRepository).setLocationPermission(false);
+        Mockito.verifyNoMoreInteractions(gpsLocationRepository, locationPermissionRepository);
+    }
+
     // region IN
     private void initViewModel() {
         viewModel = new MainViewModel(
