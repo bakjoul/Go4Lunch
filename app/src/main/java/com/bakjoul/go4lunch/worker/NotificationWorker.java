@@ -21,7 +21,10 @@ public class NotificationWorker extends Worker {
     private static final String CHANNEL_ID = "CHANNEL_ID";
 
     @AssistedInject
-    public NotificationWorker(@Assisted Context context, @Assisted WorkerParameters workerParams) {
+    public NotificationWorker(
+        @Assisted Context context,
+        @Assisted WorkerParameters workerParams
+    ) {
         super(context, workerParams);
     }
 

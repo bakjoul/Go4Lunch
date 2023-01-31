@@ -33,7 +33,7 @@ public class GpsLocationRepositoryImplementation implements GpsLocationRepositor
     private final MutableLiveData<Boolean> isLocationPermissionAllowedLiveData = new MutableLiveData<>(false);
 
     @NonNull
-    private final FusedLocationProviderClient fusedLocationProvider;
+    private final FusedLocationProviderClient fusedLocationProviderClient;
 
     private final LocationCallback locationCallback;
 
@@ -45,8 +45,8 @@ public class GpsLocationRepositoryImplementation implements GpsLocationRepositor
         .build();
 
     @Inject
-    public GpsLocationRepositoryImplementation(@NonNull FusedLocationProviderClient fusedLocationProvider) {
-        this.fusedLocationProvider = fusedLocationProvider;
+    public GpsLocationRepositoryImplementation(@NonNull FusedLocationProviderClient fusedLocationProviderClient) {
+        this.fusedLocationProviderClient = fusedLocationProviderClient;
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
@@ -63,9 +63,9 @@ public class GpsLocationRepositoryImplementation implements GpsLocationRepositor
             Log.d(TAG, "switchMap() called with: isLocationPermissionAllowed = [" + isLocationPermissionAllowed + "]");
 
             if (isLocationPermissionAllowed) {
-                fusedLocationProvider.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
+                fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
             } else {
-                fusedLocationProvider.removeLocationUpdates(locationCallback);
+                fusedLocationProviderClient.removeLocationUpdates(locationCallback);
             }
 
             return locationMutableLiveData;
