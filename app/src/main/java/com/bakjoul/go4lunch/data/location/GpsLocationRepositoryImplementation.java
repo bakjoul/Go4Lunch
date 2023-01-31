@@ -45,8 +45,7 @@ public class GpsLocationRepositoryImplementation implements GpsLocationRepositor
         .build();
 
     @Inject
-    public GpsLocationRepositoryImplementation(
-        @NonNull FusedLocationProviderClient fusedLocationProvider) {
+    public GpsLocationRepositoryImplementation(@NonNull FusedLocationProviderClient fusedLocationProvider) {
         this.fusedLocationProvider = fusedLocationProvider;
         locationCallback = new LocationCallback() {
             @Override
@@ -83,5 +82,10 @@ public class GpsLocationRepositoryImplementation implements GpsLocationRepositor
     public void stopLocationUpdates() {
         Log.d(TAG, "stopLocationUpdates() called");
         isLocationPermissionAllowedLiveData.setValue(false);
+    }
+
+    // For testing
+    public LiveData<Boolean> getIsLocationPermissionAllowedLiveData() {
+        return isLocationPermissionAllowedLiveData;
     }
 }
