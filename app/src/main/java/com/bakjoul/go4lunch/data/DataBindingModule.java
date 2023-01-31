@@ -18,6 +18,7 @@ import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
+import com.bakjoul.go4lunch.worker.NotificationWorker;
 
 import javax.inject.Singleton;
 
@@ -25,6 +26,8 @@ import dagger.Binds;
 import dagger.Module;
 import dagger.hilt.InstallIn;
 import dagger.hilt.components.SingletonComponent;
+import dagger.multibindings.ClassKey;
+import dagger.multibindings.IntoMap;
 
 @Module
 @InstallIn(SingletonComponent.class)
@@ -65,4 +68,9 @@ public abstract class DataBindingModule {
     @Singleton
     @Binds
     public abstract AutocompleteRepository bindsAutocompleteRepository(AutocompleteRepositoryImplementation implementation);
+
+   /* @Binds
+    @IntoMap
+    @ClassKey(NotificationWorker.class)
+    public abstract NotificationWorker bindsNotificationWorker()*/
 }

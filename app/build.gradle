@@ -7,12 +7,12 @@ plugins {
 }
 
 android {
-    compileSdk 32
+    compileSdk 33
 
     defaultConfig {
         applicationId "com.bakjoul.go4lunch"
         minSdk 21
-        targetSdk 32
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
@@ -54,13 +54,14 @@ android {
 
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
-    implementation 'androidx.appcompat:appcompat:1.5.1'
+    implementation 'androidx.appcompat:appcompat:1.6.0'
     implementation 'androidx.lifecycle:lifecycle-livedata:2.5.1'
-    implementation 'com.google.android.material:material:1.7.0'
+    implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     // Hilt
     implementation "com.google.dagger:hilt-android:2.42"
     annotationProcessor 'com.google.dagger:hilt-compiler:2.42'
+    implementation 'androidx.hilt:hilt-work:1.0.0'
     // Firebase
     implementation platform('com.google.firebase:firebase-bom:30.3.1')
     implementation 'com.google.firebase:firebase-auth'
@@ -68,7 +69,7 @@ dependencies {
     // Facebook
     implementation 'com.facebook.android:facebook-login:latest.release'
     // Google
-    implementation 'com.google.android.gms:play-services-auth:20.4.0'
+    implementation 'com.google.android.gms:play-services-auth:20.4.1'
     implementation 'com.google.android.gms:play-services-maps:18.1.0'
     implementation 'com.google.android.gms:play-services-location:21.0.1'
     // Glide
@@ -81,6 +82,8 @@ dependencies {
     implementation "com.squareup.okhttp3:logging-interceptor:4.9.3"
     // Distance calculation
     implementation 'com.google.maps.android:android-maps-utils:0.4'
+    // Worker
+    implementation 'androidx.work:work-runtime:2.7.1'
 
     testImplementation 'junit:junit:4.13.2'
     // LiveData tests
