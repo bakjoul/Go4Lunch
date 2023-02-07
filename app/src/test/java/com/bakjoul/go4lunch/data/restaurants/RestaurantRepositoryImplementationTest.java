@@ -6,13 +6,11 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
 
 import android.location.Location;
-import android.util.LruCache;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
 import com.bakjoul.go4lunch.data.api.GoogleApis;
-import com.bakjoul.go4lunch.data.restaurants.model.NearbySearchQuery;
 import com.bakjoul.go4lunch.data.restaurants.model.NearbySearchResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
@@ -51,7 +49,6 @@ public class RestaurantRepositoryImplementationTest {
         Location location = Mockito.mock(Location.class);
         Call<NearbySearchResponse> mockedCall = Mockito.mock(Call.class);
         doReturn(mockedCall).when(googleApis).getNearbyRestaurants(anyString(), anyString(), anyString(), anyString());
-
         Mockito.doAnswer(invocation -> {
             Callback<NearbySearchResponse> callback = invocation.getArgument(0);
             callback.onResponse(mockedCall, Response.success(getDefaultNearbySearchResponse()));
@@ -84,7 +81,6 @@ public class RestaurantRepositoryImplementationTest {
         Location location = Mockito.mock(Location.class);
         Call<NearbySearchResponse> mockedCall = Mockito.mock(Call.class);
         doReturn(mockedCall).when(googleApis).getNearbyRestaurants(anyString(), anyString(), anyString(), anyString());
-
         Mockito.doAnswer(invocation -> {
             Callback<NearbySearchResponse> callback = invocation.getArgument(0);
             callback.onResponse(mockedCall, Response.success(getDefaultNearbySearchResponse()));
