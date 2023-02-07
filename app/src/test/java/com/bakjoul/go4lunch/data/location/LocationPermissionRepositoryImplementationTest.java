@@ -22,11 +22,6 @@ public class LocationPermissionRepositoryImplementationTest {
 
     private LocationPermissionRepositoryImplementation locationPermissionRepositoryImplementation;
 
-/*    @Before
-    public void setUp() {
-        locationPermissionRepositoryImplementation = new LocationPermissionRepositoryImplementation(isLocationPermissionGrantedUseCase);
-    }*/
-
     @Test
     public void location_permission_granted_should_set_permission_livedata_to_true() {
         // Given
