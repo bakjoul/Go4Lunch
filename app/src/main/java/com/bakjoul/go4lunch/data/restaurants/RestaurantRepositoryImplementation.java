@@ -48,21 +48,21 @@ public class RestaurantRepositoryImplementation implements RestaurantRepository 
     }
 
     // For testing
-    Random random = new Random();
-    boolean randomBoolean = false;
+/*    Random random = new Random();
+    boolean randomBoolean = false;*/
 
     @Override
     public LiveData<RestaurantResponseWrapper> getNearbyRestaurants(@NonNull Location location) {
         // For testing
-        randomBoolean = random.nextInt(1) == 0;
+        //
         //
 
         MutableLiveData<RestaurantResponseWrapper> wrapperMutableLiveData = new MutableLiveData<>();
         wrapperMutableLiveData.setValue(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.LOADING));
 
         // For testing
-        if (randomBoolean) {
-            Log.d("test", "Request initiated");
+/*        if (randomBoolean) {
+            Log.d("test", "Request initiated");*/
             //
 
             NearbySearchQuery query = generateQuery(location.getLatitude(), location.getLongitude());
@@ -114,12 +114,12 @@ public class RestaurantRepositoryImplementation implements RestaurantRepository 
                     }
                 });
             }
-        }
+        //}
         // For testing
-        else {
+/*        else {
             Log.d("test", "Request failed");
             wrapperMutableLiveData.setValue(new RestaurantResponseWrapper(null, RestaurantResponseWrapper.State.IO_ERROR));
-        }
+        }*/
         //
         return wrapperMutableLiveData;
     }
