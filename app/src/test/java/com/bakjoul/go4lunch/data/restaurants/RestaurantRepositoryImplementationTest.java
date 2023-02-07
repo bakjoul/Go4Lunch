@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.verify;
 
 import android.location.Location;
 
@@ -34,19 +35,14 @@ public class RestaurantRepositoryImplementationTest {
 
     private final GoogleApis googleApis = Mockito.mock(GoogleApis.class);
 
-    //private final LruCache<NearbySearchQuery, NearbySearchResponse> lruCache = Mockito.mock(LruCache.class);
+    private Location location;
 
     private RestaurantRepositoryImplementation restaurantRepositoryImplementation;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
-        restaurantRepositoryImplementation = new RestaurantRepositoryImplementation(googleApis);
-    }
-
-    @Test
-    public void nominal_case() {
-        // Given
-        Location location = Mockito.mock(Location.class);
+        location = Mockito.mock(Location.class);
         Call<NearbySearchResponse> mockedCall = Mockito.mock(Call.class);
         doReturn(mockedCall).when(googleApis).getNearbyRestaurants(anyString(), anyString(), anyString(), anyString());
         Mockito.doAnswer(invocation -> {
@@ -55,8 +51,15 @@ public class RestaurantRepositoryImplementationTest {
             return null;
         }).when(mockedCall).enqueue(any(Callback.class));
 
+        restaurantRepositoryImplementation = new RestaurantRepositoryImplementation(googleApis);
+    }
+
+    @Test
+    public void nominal_case() {
         // When
-        RestaurantResponseWrapper result = LiveDataTestUtil.getValueForTesting(restaurantRepositoryImplementation.getNearbyRestaurants(location));
+        RestaurantResponseWrapper result = LiveDataTestUtil.getValueForTesting(
+            restaurantRepositoryImplementation.getNearbyRestaurants(location)
+        );
 
         // Then
         assertEquals(getExpectedResponseWrapper(), result);
@@ -75,26 +78,21 @@ public class RestaurantRepositoryImplementationTest {
         assertEquals(getExpectedResponseWrapper(), result);
     }*/
 
-    /*@Test
+    @Test
     public void verify_lru_cache_state() {
         // Given
-        Location location = Mockito.mock(Location.class);
-        Call<NearbySearchResponse> mockedCall = Mockito.mock(Call.class);
-        doReturn(mockedCall).when(googleApis).getNearbyRestaurants(anyString(), anyString(), anyString(), anyString());
-        Mockito.doAnswer(invocation -> {
-            Callback<NearbySearchResponse> callback = invocation.getArgument(0);
-            callback.onResponse(mockedCall, Response.success(getDefaultNearbySearchResponse()));
-            return null;
-        }).when(mockedCall).enqueue(any(Callback.class));
-        LiveDataTestUtil.getValueForTesting(restaurantRepositoryImplementation.getNearbyRestaurants(location)); // Passe du When au Given
+        LiveDataTestUtil.getValueForTesting(restaurantRepositoryImplementation.getNearbyRestaurants(location));
 
         // When
-        RestaurantResponseWrapper result = LiveDataTestUtil.getValueForTesting(restaurantRepositoryImplementation.getNearbyRestaurants(location));
+        RestaurantResponseWrapper result = LiveDataTestUtil.getValueForTesting(
+            restaurantRepositoryImplementation.getNearbyRestaurants(location)
+        );
 
         // Then
         assertEquals(getExpectedResponseWrapper(), result);
-        verify(googleApis).getNearbyRestaurants(anyString(), anyString(), anyString(), anyString()); // We call the function twice but we verify we called server only once
-    }*/
+        // We call the function twice but we verify we called server only once
+        verify(googleApis).getNearbyRestaurants(anyString(), anyString(), anyString(), anyString());
+    }
 
     // region IN
     @NonNull
