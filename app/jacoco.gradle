@@ -27,6 +27,10 @@ android.applicationVariants.all { variant ->
             '**/*ViewModel.class',
             '**/*RepositoryImplementation.class'
     ]
+    def filesToExclude = [
+            '**/UserRepositoryImplementation.class',
+            '**/WorkmateRepositoryImplementation.class'
+    ]
 
     task("jacoco${variantName}Report", type: JacocoReport, dependsOn: "test${variantName}UnitTest") {
         group 'Reporting'
@@ -48,6 +52,6 @@ android.applicationVariants.all { variant ->
 
         getSourceDirectories().setFrom(files(android.sourceSets.main.java.srcDirs))
         getExecutionData().setFrom(files("${buildDir}/jacoco/test${variantName}UnitTest.exec"))
-        getClassDirectories().setFrom(fileTree(dir: variant.javaCompileProvider.get().destinationDir, includes: filesToAnalyze))
+        getClassDirectories().setFrom(fileTree(dir: variant.javaCompileProvider.get().destinationDir, includes: filesToAnalyze, excludes: filesToExclude))
     }
 }
