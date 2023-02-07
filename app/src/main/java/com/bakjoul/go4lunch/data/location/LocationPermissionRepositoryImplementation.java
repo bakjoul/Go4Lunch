@@ -1,20 +1,16 @@
 package com.bakjoul.go4lunch.data.location;
 
-import android.Manifest;
-import android.content.Context;
-import android.content.pm.PackageManager;
 import android.util.Log;
 
-import androidx.core.app.ActivityCompat;
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bakjoul.go4lunch.domain.location.IsLocationPermissionGrantedUseCase;
 import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
-import dagger.hilt.android.qualifiers.ApplicationContext;
 
 @Singleton
 public class LocationPermissionRepositoryImplementation implements LocationPermissionRepository {
@@ -24,8 +20,8 @@ public class LocationPermissionRepositoryImplementation implements LocationPermi
     private final MutableLiveData<Boolean> isLocationPermissionGranted = new MutableLiveData<>();
 
     @Inject
-    public LocationPermissionRepositoryImplementation(@ApplicationContext Context context) {
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+    public LocationPermissionRepositoryImplementation(@NonNull IsLocationPermissionGrantedUseCase isLocationPermissionGrantedUseCase) {
+        if (isLocationPermissionGrantedUseCase.invoke()) {
             isLocationPermissionGranted.setValue(true);
         } else {
             isLocationPermissionGranted.setValue(false);
