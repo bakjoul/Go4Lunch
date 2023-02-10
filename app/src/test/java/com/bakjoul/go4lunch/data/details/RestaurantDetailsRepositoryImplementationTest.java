@@ -3,6 +3,7 @@ package com.bakjoul.go4lunch.data.details;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
@@ -30,29 +31,45 @@ public class RestaurantDetailsRepositoryImplementationTest {
 
     private RestaurantDetailsRepositoryImplementation restaurantDetailsRepositoryImplementation;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
+        Call<DetailsResponse> mockedCall = Mockito.mock(Call.class);
+        Mockito.doReturn(mockedCall).when(googleApis).getRestaurantDetails(anyString(), anyString());
+        Mockito.doAnswer(invocation -> {
+            Callback<DetailsResponse> callback = invocation.getArgument(0);
+            callback.onResponse(mockedCall, Response.success(getExpectedDetailsResponse()));
+            return null;
+        }).when(mockedCall).enqueue(any(Callback.class));
+
         restaurantDetailsRepositoryImplementation = new RestaurantDetailsRepositoryImplementation(googleApis);
     }
 
     @Test
     public void nominal_case() {
-        Call<DetailsResponse> mockedCall = Mockito.mock(Call.class);
-        Mockito.doReturn(mockedCall).when(googleApis).getRestaurantDetails(anyString(), anyString());
-        Mockito.doAnswer(invocation -> {
-            Callback<DetailsResponse> callback = invocation.getArgument(0);
-            callback.onResponse(
-                mockedCall,
-                Response.success(getExpectedDetailsResponse())
-            );
-            return null;
-        }).when(mockedCall).enqueue(any(Callback.class));
-
         // When
-        DetailsResponse result = LiveDataTestUtil.getValueForTesting(restaurantDetailsRepositoryImplementation.getDetailsResponse("restaurantId"));
+        DetailsResponse result = LiveDataTestUtil.getValueForTesting(
+            restaurantDetailsRepositoryImplementation.getDetailsResponse("restaurantId")
+        );
 
         // Then
         assertEquals(getExpectedDetailsResponse(), result);
+    }
+
+    @Test
+    public void verify_lru_cache_state() {
+        // Given
+        LiveDataTestUtil.getValueForTesting(restaurantDetailsRepositoryImplementation.getDetailsResponse("restaurantId"));
+
+        // When
+        DetailsResponse result = LiveDataTestUtil.getValueForTesting(
+            restaurantDetailsRepositoryImplementation.getDetailsResponse("restaurantId")
+        );
+
+        // Then
+        assertEquals(getExpectedDetailsResponse(), result);
+        // Checks that the server was only called once
+        verify(googleApis).getRestaurantDetails(anyString(), anyString());
     }
 
     // region IN

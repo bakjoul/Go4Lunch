@@ -2,9 +2,9 @@ package com.bakjoul.go4lunch.data.autocomplete;
 
 import android.location.Location;
 import android.util.Log;
-import android.util.LruCache;
 
 import androidx.annotation.NonNull;
+import androidx.collection.LruCache;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 

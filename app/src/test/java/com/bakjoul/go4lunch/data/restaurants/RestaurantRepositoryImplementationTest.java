@@ -65,19 +65,6 @@ public class RestaurantRepositoryImplementationTest {
         assertEquals(getExpectedResponseWrapper(), result);
     }
 
-/*    @Test
-    public void existing_response_for_given_query_should_be_exposed() {
-        // Given
-        Location location = Mockito.mock(Location.class);
-        doReturn(getDefaultNearbySearchResponse()).when(lruCache).get(any(NearbySearchQuery.class));
-
-        // When
-        RestaurantResponseWrapper result = LiveDataTestUtil.getValueForTesting(restaurantRepositoryImplementation.getNearbyRestaurants(location));
-
-        // Then
-        assertEquals(getExpectedResponseWrapper(), result);
-    }*/
-
     @Test
     public void verify_lru_cache_state() {
         // Given

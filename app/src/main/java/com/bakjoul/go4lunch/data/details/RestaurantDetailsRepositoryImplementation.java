@@ -1,9 +1,9 @@
 package com.bakjoul.go4lunch.data.details;
 
 import android.util.Log;
-import android.util.LruCache;
 
 import androidx.annotation.NonNull;
+import androidx.collection.LruCache;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 

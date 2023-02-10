@@ -3,6 +3,7 @@ package com.bakjoul.go4lunch.data.autocomplete;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 
 import android.location.Location;
 
@@ -33,33 +34,55 @@ public class AutocompleteRepositoryImplementationTest {
 
     private final GoogleApis googleApis = Mockito.mock(GoogleApis.class);
 
+    private Location location;
+
     private AutocompleteRepositoryImplementation autocompleteRepositoryImplementation;
 
+    @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
+        location = Mockito.mock(Location.class);
+        Call<AutocompleteResponse> mockedCall = Mockito.mock(Call.class);
+        Mockito.doReturn(mockedCall).when(googleApis).getRestaurantAutocomplete(anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
+        Mockito.doAnswer(invocation -> {
+            Callback<AutocompleteResponse> callback = invocation.getArgument(0);
+            callback.onResponse(mockedCall, Response.success(getExpectedAutocompleteResponse())
+            );
+            return null;
+        }).when(mockedCall).enqueue(any(Callback.class));
+
         autocompleteRepositoryImplementation = new AutocompleteRepositoryImplementation(googleApis);
     }
 
     @Test
     public void nominal_case() {
-        Location location = Mockito.mock(Location.class);
-        Call<AutocompleteResponse> mockedCall = Mockito.mock(Call.class);
-        Mockito.doReturn(mockedCall).when(googleApis).getRestaurantAutocomplete(anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
-        Mockito.doAnswer(invocation -> {
-            Callback<AutocompleteResponse> callback = invocation.getArgument(0);
-            callback.onResponse(
-                mockedCall,
-                Response.success(getExpectedAutocompleteResponse())
-            );
-            return null;
-        }).when(mockedCall).enqueue(any(Callback.class));
-
         // When
-        List<PredictionResponse> result = LiveDataTestUtil.getValueForTesting(autocompleteRepositoryImplementation.getPredictionsLiveData("test", location));
+        List<PredictionResponse> result = LiveDataTestUtil.getValueForTesting(
+            autocompleteRepositoryImplementation.getPredictionsLiveData("test", location)
+        );
 
         // Then
         assertEquals(getExpectedPredictionResponseList(), result);
+    }
 
+    @Test
+    public void verify_lru_cache_state() {
+        // Given
+        LiveDataTestUtil.getValueForTesting(
+            autocompleteRepositoryImplementation.getPredictionsLiveData("test", location)
+        );
+
+        // When
+        List<PredictionResponse> result = LiveDataTestUtil.getValueForTesting(
+            autocompleteRepositoryImplementation.getPredictionsLiveData("test", location)
+        );
+
+        // Then
+        assertEquals(getExpectedPredictionResponseList(), result);
+        // Checks that the server was only called once
+        verify(googleApis).getRestaurantAutocomplete(
+            anyString(), anyString(), anyString(), anyString(), anyString(), anyString()
+        );
     }
 
     @Test

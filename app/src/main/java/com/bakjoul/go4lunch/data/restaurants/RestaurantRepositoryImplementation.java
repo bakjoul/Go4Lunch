@@ -104,6 +104,7 @@ public class RestaurantRepositoryImplementation implements RestaurantRepository 
         return wrapperMutableLiveData;
     }
 
+    @NonNull
     private NearbySearchQuery generateQuery(double latitude, double longitude) {
         return new NearbySearchQuery(
             BigDecimal.valueOf(latitude).setScale(GPS_SCALE, RoundingMode.HALF_UP),
@@ -111,6 +112,7 @@ public class RestaurantRepositoryImplementation implements RestaurantRepository 
         );
     }
 
+    @NonNull
     private String locationToString(@NonNull Location location) {
         return location.getLatitude() + "," + location.getLongitude();
     }
