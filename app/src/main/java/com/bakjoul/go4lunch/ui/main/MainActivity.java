@@ -187,7 +187,6 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
     }
 
     private void displayFragment(FragmentToDisplay selected) {
-        Log.d("Nino", "displayFragment() called with: selected = [" + selected + "]");
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         boolean shown = false;
 

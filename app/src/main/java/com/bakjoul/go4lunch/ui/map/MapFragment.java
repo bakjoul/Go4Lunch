@@ -38,7 +38,6 @@ public class MapFragment extends Fragment {
     private static final float MOVE_CAMERA_ZOOM = 13.5f;
 
     private FragmentMapBinding binding;
-    private GoogleMap googleMap;
     private FloatingMarkerTitlesOverlay floatingMarkerOverlay;
 
     @NonNull
@@ -61,7 +60,6 @@ public class MapFragment extends Fragment {
         if (supportMapFragment != null) {
             // On map ready
             supportMapFragment.getMapAsync(googleMap -> {
-                this.googleMap = googleMap;
                 setFloatingMarkersOverlay(googleMap);
                 viewModel.onMapReady();
                 googleMap.setMinZoomPreference(MIN_ZOOM_PREFERENCE);
@@ -90,45 +88,44 @@ public class MapFragment extends Fragment {
                         retryBar.show();
                     }
                 });
+                viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), viewState -> {
+                    // Progress bar visibility
+                    if (!viewState.isProgressBarVisible()) {
+                        binding.mapProgressBar.setVisibility(View.GONE);
+                    } else {
+                        binding.mapProgressBar.setVisibility(View.VISIBLE);
+                    }
+
+                        googleMap.clear();
+                        floatingMarkerOverlay.clearMarkers();
+
+                        // Adds markers
+                        List<RestaurantMarker> markersList = viewState.getRestaurantsMarkers();
+                        for (int i = 0; i < markersList.size(); i++) {
+                            MarkerOptions markerOptions = new MarkerOptions()
+                                .position(markersList.get(i).getPosition())
+                                .title(markersList.get(i).getTitle())
+                                .icon(getIcon(markersList.get(i)));
+                            googleMap
+                                .addMarker(markerOptions)
+                                .setTag(markersList.get(i).getId());
+
+                            // Adds markers title overlay
+                            MarkerInfo markerInfo = new MarkerInfo(markersList.get(i).getPosition(), markersList.get(i).getTitle(), getResources().getColor(R.color.white));
+                            floatingMarkerOverlay.addMarker(i, markerInfo);
+                        }
+
+                        // Adds markers click listeners
+                        googleMap.setOnMarkerClickListener(marker -> {
+                            DetailsActivity.navigate((String) marker.getTag(), getActivity());
+                            return true;
+                        });
+
+                });
             });
         }
 
-        viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), viewState -> {
-            // Progress bar visibility
-            if (!viewState.isProgressBarVisible()) {
-                binding.mapProgressBar.setVisibility(View.GONE);
-            } else {
-                binding.mapProgressBar.setVisibility(View.VISIBLE);
-            }
 
-            if (googleMap != null) {
-                googleMap.clear();
-                floatingMarkerOverlay.clearMarkers();
-
-                // Adds markers
-                List<RestaurantMarker> markersList = viewState.getRestaurantsMarkers();
-                for (int i = 0; i < markersList.size(); i++) {
-                    MarkerOptions markerOptions = new MarkerOptions()
-                        .position(markersList.get(i).getPosition())
-                        .title(markersList.get(i).getTitle())
-                        .icon(getIcon(markersList.get(i)));
-                    googleMap
-                        .addMarker(markerOptions)
-                        .setTag(markersList.get(i).getId());
-
-                    // Adds markers title overlay
-                    MarkerInfo markerInfo = new MarkerInfo(markersList.get(i).getPosition(), markersList.get(i).getTitle(), getResources().getColor(R.color.white));
-                    floatingMarkerOverlay.addMarker(i, markerInfo);
-                }
-
-                // Adds markers click listeners
-                googleMap.setOnMarkerClickListener(marker -> {
-                    DetailsActivity.navigate((String) marker.getTag(), getActivity());
-                    return true;
-                });
-            }
-
-        });
 
         viewModel.getIsUserSearchUnmatchedSingleLiveEvent().observe(getViewLifecycleOwner(), isSearchUnmatched -> {
             if (isSearchUnmatched) {

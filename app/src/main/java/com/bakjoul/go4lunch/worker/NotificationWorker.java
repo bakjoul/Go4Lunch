@@ -1,5 +1,8 @@
 package com.bakjoul.go4lunch.worker;
 
+import static android.os.Build.VERSION;
+import static android.os.Build.VERSION_CODES;
+
 import android.annotation.SuppressLint;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -42,10 +45,14 @@ public class NotificationWorker extends Worker {
         Intent intent = new Intent(getApplicationContext(), DetailsActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
-        PendingIntent pendingIntent = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, PendingIntent.FLAG_IMMUTABLE);
+        final int flag;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            flag = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        } else {
+            flag = PendingIntent.FLAG_UPDATE_CURRENT;
         }
+
+        PendingIntent pendingIntent = PendingIntent.getActivity(getApplicationContext(), 0, intent, flag);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_hot_bowl)
@@ -55,13 +62,14 @@ public class NotificationWorker extends Worker {
             .setContentIntent(pendingIntent);
 
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getApplicationContext());
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        if (VERSION.SDK_INT >= VERSION_CODES.O) {
             notificationManager.createNotificationChannel(
                 new NotificationChannel(
                     CHANNEL_ID,
                     getApplicationContext().getString(R.string.app_name),
                     NotificationManager.IMPORTANCE_DEFAULT
-                ));
+                )
+            );
         }
 
         notificationManager.notify(NOTIFICATION_ID, builder.build());
