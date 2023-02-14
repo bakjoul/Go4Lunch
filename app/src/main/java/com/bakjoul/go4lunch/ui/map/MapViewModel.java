@@ -2,7 +2,6 @@ package com.bakjoul.go4lunch.ui.map;
 
 import android.location.Location;
 import android.location.LocationManager;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -127,14 +126,7 @@ public class MapViewModel extends ViewModel {
         }
         return Transformations.switchMap(
             nearbySearchRequestPingMutableLiveData,
-            aVoid -> {
-                if (isUserModeEnabled) {
-                    Log.d("test", "USERMODE API CALL");
-                } else {
-                    Log.d("test", "GPS API CALL");
-                }
-                return restaurantRepository.getNearbyRestaurants(location);
-            }
+            aVoid -> restaurantRepository.getNearbyRestaurants(location)
         );
     }
 
