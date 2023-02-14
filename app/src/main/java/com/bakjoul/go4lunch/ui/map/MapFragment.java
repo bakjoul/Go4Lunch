@@ -94,9 +94,6 @@ public class MapFragment extends Fragment {
         }
 
         viewModel.getMapViewStateLiveData().observe(getViewLifecycleOwner(), viewState -> {
-            googleMap.clear();
-            floatingMarkerOverlay.clearMarkers();
-
             // Progress bar visibility
             if (!viewState.isProgressBarVisible()) {
                 binding.mapProgressBar.setVisibility(View.GONE);
@@ -104,28 +101,33 @@ public class MapFragment extends Fragment {
                 binding.mapProgressBar.setVisibility(View.VISIBLE);
             }
 
-            // Adds markers
-            List<RestaurantMarker> markersList = viewState.getRestaurantsMarkers();
-            for (int i = 0; i < markersList.size(); i++) {
-                MarkerOptions markerOptions = new MarkerOptions()
-                    .position(markersList.get(i).getPosition())
-                    .title(markersList.get(i).getTitle())
-                    .icon(getIcon(markersList.get(i)));
-                googleMap
-                    .addMarker(markerOptions)
-                    .setTag(markersList.get(i).getId());
+            if (googleMap != null) {
+                googleMap.clear();
+                floatingMarkerOverlay.clearMarkers();
 
+                // Adds markers
+                List<RestaurantMarker> markersList = viewState.getRestaurantsMarkers();
+                for (int i = 0; i < markersList.size(); i++) {
+                    MarkerOptions markerOptions = new MarkerOptions()
+                        .position(markersList.get(i).getPosition())
+                        .title(markersList.get(i).getTitle())
+                        .icon(getIcon(markersList.get(i)));
+                    googleMap
+                        .addMarker(markerOptions)
+                        .setTag(markersList.get(i).getId());
 
-                // Adds markers title overlay
-                MarkerInfo markerInfo = new MarkerInfo(markersList.get(i).getPosition(), markersList.get(i).getTitle(), getResources().getColor(R.color.white));
-                floatingMarkerOverlay.addMarker(i, markerInfo);
+                    // Adds markers title overlay
+                    MarkerInfo markerInfo = new MarkerInfo(markersList.get(i).getPosition(), markersList.get(i).getTitle(), getResources().getColor(R.color.white));
+                    floatingMarkerOverlay.addMarker(i, markerInfo);
+                }
+
+                // Adds markers click listeners
+                googleMap.setOnMarkerClickListener(marker -> {
+                    DetailsActivity.navigate((String) marker.getTag(), getActivity());
+                    return true;
+                });
             }
 
-            // Adds markers click listeners
-            googleMap.setOnMarkerClickListener(marker -> {
-                DetailsActivity.navigate((String) marker.getTag(), getActivity());
-                return true;
-            });
         });
 
         viewModel.getIsUserSearchUnmatchedSingleLiveEvent().observe(getViewLifecycleOwner(), isSearchUnmatched -> {
