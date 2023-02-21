@@ -37,14 +37,14 @@ public class MainApplication extends Application implements Configuration.Provid
             1,
             TimeUnit.DAYS
         )
-            //.setInitialDelay(getDelayFromLunchTime(), TimeUnit.MILLISECONDS)
+            .setInitialDelay(getDelayFromLunchTime(), TimeUnit.MILLISECONDS)
             .build();
 
         WorkManager.getInstance(this).enqueue(workRequest);
     }
 
     private long getDelayFromLunchTime() {
-        Duration delay = Duration.between(LocalTime.now(clock), LocalTime.of(17, 4));
+        Duration delay = Duration.between(LocalTime.now(clock), LocalTime.of(12, 0));
 
         if (delay.isNegative()) {
             delay = delay.plusDays(1);

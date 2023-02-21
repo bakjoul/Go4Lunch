@@ -47,5 +47,9 @@
     <string name="main_searchview_query_hint_restaurants">Chercher un restaurant</string>
     <string name="main_searchview_query_hint_workmates">Chercher un collègue</string>
     <string name="no_match">Aucune correspondance trouvée</string>
+    <string name="notification_title">C\'est l\'heure de déjeuner !</string>
+    <string name="notification_waiting_for_you">\u0020vous attend au\u0020</string>
+    <string name="notification_and">\u0020et\u0020</string>
+    <string name="notification_with">avec\u0020</string>
 
 </resources>
