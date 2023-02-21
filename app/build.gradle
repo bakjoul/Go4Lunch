@@ -54,7 +54,7 @@ android {
 
 dependencies {
     coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
-    implementation 'androidx.appcompat:appcompat:1.6.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
     implementation 'androidx.lifecycle:lifecycle-livedata:2.5.1'
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
@@ -82,7 +82,7 @@ dependencies {
     // Distance calculation
     implementation 'com.google.maps.android:android-maps-utils:0.4'
     // Worker
-    implementation 'androidx.work:work-runtime:2.7.1'
+    implementation 'androidx.work:work-runtime:2.8.0'
     implementation 'androidx.hilt:hilt-work:1.0.0'
     annotationProcessor 'androidx.hilt:hilt-compiler:1.0.0'
 
@@ -90,7 +90,7 @@ dependencies {
     // LiveData tests
     testImplementation 'androidx.arch.core:core-testing:2.1.0'
     // Mockito
-    testImplementation 'org.mockito:mockito-core:3.11.1'
+    testImplementation 'org.mockito:mockito-core:4.6.1'
     testImplementation 'org.mockito:mockito-inline:2.13.0'
 
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
