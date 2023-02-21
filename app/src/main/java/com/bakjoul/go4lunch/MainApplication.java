@@ -41,7 +41,7 @@ public class MainApplication extends Application implements Configuration.Provid
             1,
             TimeUnit.DAYS
         )
-            //.setInitialDelay(getDelayFromLunchTime(), TimeUnit.MILLISECONDS)
+            .setInitialDelay(getDelayFromLunchTime(), TimeUnit.MILLISECONDS)
             .build();
 
         workManager.enqueue(workRequest);

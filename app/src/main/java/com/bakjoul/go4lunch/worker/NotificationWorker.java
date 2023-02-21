@@ -42,15 +42,17 @@ public class NotificationWorker extends Worker {
     private static final String CHANNEL_ID = "CHANNEL_ID";
     private static final int NOTIFICATION_ID = 1;
 
+    @NonNull
     private final FirebaseFirestore firebaseFirestore;
+    @NonNull
     private final FirebaseAuth firebaseAuth;
 
     @AssistedInject
     public NotificationWorker(
         @Assisted Context context,
         @Assisted WorkerParameters workerParams,
-        FirebaseFirestore firebaseFirestore,
-        FirebaseAuth firebaseAuth
+        @NonNull FirebaseFirestore firebaseFirestore,
+        @NonNull FirebaseAuth firebaseAuth
     ) {
         super(context, workerParams);
         this.firebaseFirestore = firebaseFirestore;
@@ -116,6 +118,7 @@ public class NotificationWorker extends Worker {
     private String getContextDetails(@NonNull UserGoingToRestaurantEntity userGoingToRestaurantEntity) {
         StringBuilder workmatesGoingToRestaurantList = new StringBuilder();
         CountDownLatch latch = new CountDownLatch(1);
+
         firebaseFirestore.collection("usersGoingToRestaurants")
             .whereEqualTo("chosenRestaurantId", userGoingToRestaurantEntity.getChosenRestaurantId())
             .addSnapshotListener((querySnapshot, error) -> {
@@ -149,12 +152,16 @@ public class NotificationWorker extends Worker {
             e.printStackTrace();
         }
 
-        return getApplicationContext().getString(R.string.notification_with) + workmatesGoingToRestaurantList;
+        if (workmatesGoingToRestaurantList.toString().isEmpty()) {
+            return "";
+        } else {
+            return getApplicationContext().getString(R.string.notification_with) + workmatesGoingToRestaurantList;
+        }
     }
 
     @NonNull
     private String getBigText(UserGoingToRestaurantEntity userGoingToRestaurantEntity) {
-        return getContentText(userGoingToRestaurantEntity) + "\n" + getContextDetails(userGoingToRestaurantEntity);
+        return getContentText(userGoingToRestaurantEntity) + getContextDetails(userGoingToRestaurantEntity);
     }
 
     private UserGoingToRestaurantEntity getUserChosenRestaurantData() {

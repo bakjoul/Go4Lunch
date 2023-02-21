@@ -50,6 +50,6 @@
     <string name="notification_title">C\'est l\'heure de déjeuner !</string>
     <string name="notification_waiting_for_you">\u0020vous attend au\u0020</string>
     <string name="notification_and">\u0020et\u0020</string>
-    <string name="notification_with">avec\u0020</string>
+    <string name="notification_with">\navec\u0020</string>
 
 </resources>
