@@ -1,8 +1,10 @@
 package com.bakjoul.go4lunch.data;
 
+import android.app.Application;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.work.WorkManager;
 
 import com.bakjoul.go4lunch.data.api.GoogleApis;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -72,6 +74,12 @@ public class DataModule {
     @Provides
     public GoogleApis provideGoogleApis(@NonNull Retrofit retrofit) {
         return retrofit.create(GoogleApis.class);
+    }
+
+    @Singleton
+    @Provides
+    public WorkManager provideWorkManager(@NonNull Application application) {
+        return WorkManager.getInstance(application);
     }
 
     @Singleton

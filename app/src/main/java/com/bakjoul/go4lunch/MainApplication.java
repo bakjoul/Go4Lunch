@@ -26,21 +26,25 @@ public class MainApplication extends Application implements Configuration.Provid
     HiltWorkerFactory workerFactory;
 
     @Inject
+    WorkManager workManager;
+
+    @Inject
     Clock clock;
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        // TODO Bakjoul check if not already scheduled (tag is helpful there)
         PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(
             NotificationWorker.class,
             1,
             TimeUnit.DAYS
         )
-            .setInitialDelay(getDelayFromLunchTime(), TimeUnit.MILLISECONDS)
+            //.setInitialDelay(getDelayFromLunchTime(), TimeUnit.MILLISECONDS)
             .build();
 
-        WorkManager.getInstance(this).enqueue(workRequest);
+        workManager.enqueue(workRequest);
     }
 
     private long getDelayFromLunchTime() {

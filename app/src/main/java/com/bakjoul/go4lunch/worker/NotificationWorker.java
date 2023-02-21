@@ -30,7 +30,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import dagger.assisted.Assisted;
 import dagger.assisted.AssistedInject;
@@ -43,12 +42,19 @@ public class NotificationWorker extends Worker {
     private static final String CHANNEL_ID = "CHANNEL_ID";
     private static final int NOTIFICATION_ID = 1;
 
+    private final FirebaseFirestore firebaseFirestore;
+    private final FirebaseAuth firebaseAuth;
+
     @AssistedInject
     public NotificationWorker(
         @Assisted Context context,
-        @Assisted WorkerParameters workerParams
+        @Assisted WorkerParameters workerParams,
+        FirebaseFirestore firebaseFirestore,
+        FirebaseAuth firebaseAuth
     ) {
         super(context, workerParams);
+        this.firebaseFirestore = firebaseFirestore;
+        this.firebaseAuth = firebaseAuth;
     }
 
     @SuppressLint("MissingPermission")
@@ -110,12 +116,11 @@ public class NotificationWorker extends Worker {
     private String getContextDetails(@NonNull UserGoingToRestaurantEntity userGoingToRestaurantEntity) {
         StringBuilder workmatesGoingToRestaurantList = new StringBuilder();
         CountDownLatch latch = new CountDownLatch(1);
-        FirebaseFirestore.getInstance().collection("usersGoingToRestaurants")
+        firebaseFirestore.collection("usersGoingToRestaurants")
             .whereEqualTo("chosenRestaurantId", userGoingToRestaurantEntity.getChosenRestaurantId())
             .addSnapshotListener((querySnapshot, error) -> {
                 if (error != null) {
                     Log.i(TAG, "Listen failed", error);
-                    return;
                 }
                 if (querySnapshot != null) {
                     List<UserGoingToRestaurantResponse> responses = querySnapshot.toObjects(UserGoingToRestaurantResponse.class);
@@ -125,23 +130,21 @@ public class NotificationWorker extends Worker {
                     for (int i = 0; i < entities.size(); i++) {
                         workmatesGoingToRestaurantList.append(entities.get(i).getUsername());
 
-                        if (entities.size() >= 2 && i == entities.size() - 2) {
-                            workmatesGoingToRestaurantList.append(getApplicationContext().getString(R.string.notification_and));
-                        }
-                        if (entities.size() >= 3 && i == entities.size() - 2) {
+                        if (i + 2 < entities.size()) {
                             workmatesGoingToRestaurantList.append(", ");
-                        }
-                        if (i == entities.size() - 1) {
+                        } else if (i + 1 < entities.size()) {
+                            workmatesGoingToRestaurantList.append(getApplicationContext().getString(R.string.notification_and));
+                        } else if (i == entities.size()) {
                             workmatesGoingToRestaurantList.append(".");
                         }
                     }
-
-                    latch.countDown();
                 }
+
+                latch.countDown();
             });
 
         try {
-            latch.await(10, TimeUnit.SECONDS);
+            latch.await();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -158,22 +161,22 @@ public class NotificationWorker extends Worker {
         UserGoingToRestaurantEntity[] entity = new UserGoingToRestaurantEntity[1];
         CountDownLatch latch = new CountDownLatch(1);
 
-        if (FirebaseAuth.getInstance().getUid() != null) {
-            FirebaseFirestore.getInstance().collection("usersGoingToRestaurants").document(FirebaseAuth.getInstance().getUid())
+        if (firebaseAuth.getUid() != null) {
+            firebaseFirestore.collection("usersGoingToRestaurants").document(firebaseAuth.getUid())
                 .addSnapshotListener((documentSnapshot, error) -> {
                     if (error != null) {
                         Log.i(TAG, "Listen failed", error);
-                        return;
                     }
                     if (documentSnapshot != null) {
                         UserGoingToRestaurantResponse response = documentSnapshot.toObject(UserGoingToRestaurantResponse.class);
                         entity[0] = mapResponse(response);
-                        latch.countDown();
                     }
+
+                    latch.countDown();
                 });
 
             try {
-                latch.await(10, TimeUnit.SECONDS);
+                latch.await();
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
