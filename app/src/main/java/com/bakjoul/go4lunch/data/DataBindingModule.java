@@ -32,37 +32,37 @@ public abstract class DataBindingModule {
 
     @Singleton
     @Binds
-    public abstract UserRepository bindsUserRepository(UserRepositoryImplementation implementation);
+    public abstract UserRepository bindUserRepository(UserRepositoryImplementation implementation);
 
     @Singleton
     @Binds
-    public abstract GpsLocationRepository bindsGpsLocationRepository(GpsLocationRepositoryImplementation implementation);
+    public abstract GpsLocationRepository bindGpsLocationRepository(GpsLocationRepositoryImplementation implementation);
 
     @Singleton
     @Binds
-    public abstract LocationModeRepository bindsLocationModeRepository(LocationModeRepositoryImplementation implementation);
+    public abstract LocationModeRepository bindLocationModeRepository(LocationModeRepositoryImplementation implementation);
 
     @Singleton
     @Binds
-    public abstract LocationPermissionRepository bindsLocationPermissionRepository(LocationPermissionRepositoryImplementation implementation);
+    public abstract LocationPermissionRepository bindLocationPermissionRepository(LocationPermissionRepositoryImplementation implementation);
 
     @Singleton
     @Binds
-    public abstract MapLocationRepository bindsMapLocationRepository(MapLocationRepositoryImplementation implementation);
+    public abstract MapLocationRepository bindMapLocationRepository(MapLocationRepositoryImplementation implementation);
 
     @Singleton
     @Binds
-    public abstract RestaurantDetailsRepository bindsRestaurantDetailsRepository(RestaurantDetailsRepositoryImplementation implementation);
+    public abstract RestaurantDetailsRepository bindRestaurantDetailsRepository(RestaurantDetailsRepositoryImplementation implementation);
 
     @Singleton
     @Binds
-    public abstract RestaurantRepository bindsRestaurantRepository(RestaurantRepositoryImplementation implementation);
+    public abstract RestaurantRepository bindRestaurantRepository(RestaurantRepositoryImplementation implementation);
 
     @Singleton
     @Binds
-    public abstract WorkmateRepository bindsWorkmateRepository(WorkmateRepositoryImplementation implementation);
+    public abstract WorkmateRepository bindWorkmateRepository(WorkmateRepositoryImplementation implementation);
 
     @Singleton
     @Binds
-    public abstract AutocompleteRepository bindsAutocompleteRepository(AutocompleteRepositoryImplementation implementation);
+    public abstract AutocompleteRepository bindAutocompleteRepository(AutocompleteRepositoryImplementation implementation);
 }

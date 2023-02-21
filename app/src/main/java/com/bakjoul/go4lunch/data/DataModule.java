@@ -33,25 +33,25 @@ public class DataModule {
 
     @Provides
     @Singleton
-    public FirebaseAuth providesFirebaseAuth() {
+    public FirebaseAuth provideFirebaseAuth() {
         return FirebaseAuth.getInstance();
     }
 
     @Provides
     @Singleton
-    public FirebaseFirestore providesFirebaseFirestore() {
+    public FirebaseFirestore provideFirebaseFirestore() {
         return FirebaseFirestore.getInstance();
     }
 
     @Provides
     @Singleton
-    public FusedLocationProviderClient providesFusedLocationProviderClient(@ApplicationContext Context context) {
+    public FusedLocationProviderClient provideFusedLocationProviderClient(@ApplicationContext Context context) {
         return LocationServices.getFusedLocationProviderClient(context);
     }
 
     @Provides
     @Singleton
-    public Retrofit providesRetrofit() {
+    public Retrofit provideRetrofit() {
         HttpLoggingInterceptor interceptor = new HttpLoggingInterceptor();
         interceptor.setLevel(HttpLoggingInterceptor.Level.BASIC);
 
@@ -70,13 +70,13 @@ public class DataModule {
 
     @Singleton
     @Provides
-    public GoogleApis providesGoogleApis(@NonNull Retrofit retrofit) {
+    public GoogleApis provideGoogleApis(@NonNull Retrofit retrofit) {
         return retrofit.create(GoogleApis.class);
     }
 
     @Singleton
     @Provides
-    public Clock providesClock() {
+    public Clock provideClock() {
         return Clock.systemDefaultZone();
     }
 }
