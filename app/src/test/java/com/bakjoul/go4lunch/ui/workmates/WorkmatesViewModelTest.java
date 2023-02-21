@@ -113,7 +113,8 @@ public class WorkmatesViewModelTest {
                         "fakeUserEmail1",
                         "fakeUserPhotoUrl1",
                         "fakeRestaurantId",
-                        "fakeRestaurantName"
+                        "fakeRestaurantName",
+                        "fakeRestaurantAddress"
                     )
                 )
             )
@@ -138,7 +139,8 @@ public class WorkmatesViewModelTest {
                         "fakeUserEmail3",
                         "fakeUserPhotoUrl3",
                         "fakeRestaurantId",
-                        "searchedRestaurantName"
+                        "searchedRestaurantName",
+                        "fakeRestaurantAddress"
                     )
                 )
             )
@@ -166,7 +168,8 @@ public class WorkmatesViewModelTest {
                         "fakeUserEmail1",
                         "fakeUserPhotoUrl1",
                         "fakeRestaurantId",
-                        "fakeRestaurantName"
+                        "fakeRestaurantName",
+                        "fakeRestaurantAddress"
                     )
                 )
             )

@@ -9,7 +9,7 @@ public interface UserRepository {
 
     void createFirestoreUser();
 
-    void chooseRestaurant(@NonNull String restaurantId, @NonNull String restaurantName);
+    void chooseRestaurant(@NonNull String restaurantId, @NonNull String restaurantName, @NonNull String restaurantAddress);
 
     void unchooseRestaurant();
 

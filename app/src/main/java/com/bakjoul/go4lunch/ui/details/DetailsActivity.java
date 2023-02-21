@@ -134,7 +134,7 @@ public class DetailsActivity extends AppCompatActivity {
             if (binding.detailsFabSelect.isSelected()) {
                 viewModel.onRestaurantUnchoosed();
             } else {
-                viewModel.onRestaurantChoosed(viewState.getId(), viewState.getName());
+                viewModel.onRestaurantChoosed(viewState.getId(), viewState.getName(), viewState.getAddress());
             }
         });
     }

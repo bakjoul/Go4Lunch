@@ -124,7 +124,8 @@ public class MainViewModelTest {
                 "fakeEmail",
                 "fakePhotoUrl",
                 "fakeChosenRestaurantId",
-                "fakeRestaurantName"
+                "fakeRestaurantName",
+                "fakeRestaurantAddress"
             )
         );
 

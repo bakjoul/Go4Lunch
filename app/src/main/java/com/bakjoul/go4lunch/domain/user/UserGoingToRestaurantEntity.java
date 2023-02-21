@@ -23,13 +23,17 @@ public class UserGoingToRestaurantEntity {
     @NonNull
     private final String chosenRestaurantName;
 
-    public UserGoingToRestaurantEntity(@NonNull String id, @NonNull String username, @NonNull String email, @NonNull String photoUrl, @NonNull String chosenRestaurantId, @NonNull String chosenRestaurantName) {
+    @NonNull
+    private final String chosenRestaurantAddress;
+
+    public UserGoingToRestaurantEntity(@NonNull String id, @NonNull String username, @NonNull String email, @NonNull String photoUrl, @NonNull String chosenRestaurantId, @NonNull String chosenRestaurantName, @NonNull String chosenRestaurantAddress) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.photoUrl = photoUrl;
         this.chosenRestaurantId = chosenRestaurantId;
         this.chosenRestaurantName = chosenRestaurantName;
+        this.chosenRestaurantAddress = chosenRestaurantAddress;
     }
 
     @NonNull
@@ -62,17 +66,22 @@ public class UserGoingToRestaurantEntity {
         return chosenRestaurantName;
     }
 
+    @NonNull
+    public String getChosenRestaurantAddress() {
+        return chosenRestaurantAddress;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserGoingToRestaurantEntity entity = (UserGoingToRestaurantEntity) o;
-        return id.equals(entity.id) && username.equals(entity.username) && email.equals(entity.email) && photoUrl.equals(entity.photoUrl) && chosenRestaurantId.equals(entity.chosenRestaurantId) && chosenRestaurantName.equals(entity.chosenRestaurantName);
+        return id.equals(entity.id) && username.equals(entity.username) && email.equals(entity.email) && photoUrl.equals(entity.photoUrl) && chosenRestaurantId.equals(entity.chosenRestaurantId) && chosenRestaurantName.equals(entity.chosenRestaurantName) && chosenRestaurantAddress.equals(entity.chosenRestaurantAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, email, photoUrl, chosenRestaurantId, chosenRestaurantName);
+        return Objects.hash(id, username, email, photoUrl, chosenRestaurantId, chosenRestaurantName, chosenRestaurantAddress);
     }
 
     @NonNull
@@ -85,6 +94,7 @@ public class UserGoingToRestaurantEntity {
             ", photoUrl='" + photoUrl + '\'' +
             ", chosenRestaurantId='" + chosenRestaurantId + '\'' +
             ", chosenRestaurantName='" + chosenRestaurantName + '\'' +
+            ", chosenRestaurantAddress='" + chosenRestaurantAddress + '\'' +
             '}';
     }
 }

@@ -24,17 +24,21 @@ public class UserGoingToRestaurantResponse {
     @Nullable
     private final String chosenRestaurantName;
 
+    @Nullable
+    private final String chosenRestaurantAddress;
+
     public UserGoingToRestaurantResponse() {
-        this(null, null, null, null, null, null);
+        this(null, null, null, null, null, null, null);
     }
 
-    public UserGoingToRestaurantResponse(@Nullable String id, @Nullable String username, @Nullable String email, @Nullable String photoUrl, @Nullable String chosenRestaurantId, @Nullable String chosenRestaurantName) {
+    public UserGoingToRestaurantResponse(@Nullable String id, @Nullable String username, @Nullable String email, @Nullable String photoUrl, @Nullable String chosenRestaurantId, @Nullable String chosenRestaurantName, @Nullable String chosenRestaurantAddress) {
         this.id = id;
         this.username = username;
         this.email = email;
         this.photoUrl = photoUrl;
         this.chosenRestaurantId = chosenRestaurantId;
         this.chosenRestaurantName = chosenRestaurantName;
+        this.chosenRestaurantAddress = chosenRestaurantAddress;
     }
 
     @Nullable
@@ -67,17 +71,22 @@ public class UserGoingToRestaurantResponse {
         return chosenRestaurantName;
     }
 
+    @Nullable
+    public String getChosenRestaurantAddress() {
+        return chosenRestaurantAddress;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         UserGoingToRestaurantResponse that = (UserGoingToRestaurantResponse) o;
-        return Objects.equals(id, that.id) && Objects.equals(username, that.username) && Objects.equals(email, that.email) && Objects.equals(photoUrl, that.photoUrl) && Objects.equals(chosenRestaurantId, that.chosenRestaurantId) && Objects.equals(chosenRestaurantName, that.chosenRestaurantName);
+        return Objects.equals(id, that.id) && Objects.equals(username, that.username) && Objects.equals(email, that.email) && Objects.equals(photoUrl, that.photoUrl) && Objects.equals(chosenRestaurantId, that.chosenRestaurantId) && Objects.equals(chosenRestaurantName, that.chosenRestaurantName) && Objects.equals(chosenRestaurantAddress, that.chosenRestaurantAddress);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, email, photoUrl, chosenRestaurantId, chosenRestaurantName);
+        return Objects.hash(id, username, email, photoUrl, chosenRestaurantId, chosenRestaurantName, chosenRestaurantAddress);
     }
 
     @NonNull
@@ -90,6 +99,7 @@ public class UserGoingToRestaurantResponse {
             ", photoUrl='" + photoUrl + '\'' +
             ", chosenRestaurantId='" + chosenRestaurantId + '\'' +
             ", chosenRestaurantName='" + chosenRestaurantName + '\'' +
+            ", chosenRestaurantAddress='" + chosenRestaurantAddress + '\'' +
             '}';
     }
 }

@@ -316,8 +316,8 @@ public class DetailsViewModel extends ViewModel {
         return status.toString();
     }
 
-    public void onRestaurantChoosed(String restaurantId, String restaurantName) {
-        userRepository.chooseRestaurant(restaurantId, restaurantName);
+    public void onRestaurantChoosed(String restaurantId, String restaurantName, String restaurantAddress) {
+        userRepository.chooseRestaurant(restaurantId, restaurantName, restaurantAddress);
     }
 
     public void onRestaurantUnchoosed() {

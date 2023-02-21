@@ -58,6 +58,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
                     && response.getPhotoUrl() != null
                     && response.getChosenRestaurantId() != null
                     && response.getChosenRestaurantName() != null
+                    && response.getChosenRestaurantAddress() != null
                     && firebaseAuth.getCurrentUser() != null
                     && !response.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
                     entity = new UserGoingToRestaurantEntity(
@@ -66,7 +67,8 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
                         response.getEmail(),
                         response.getPhotoUrl(),
                         response.getChosenRestaurantId(),
-                        response.getChosenRestaurantName()
+                        response.getChosenRestaurantName(),
+                        response.getChosenRestaurantAddress()
                     );
                 } else {
                     entity = null;
@@ -111,6 +113,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
                     && response.getPhotoUrl() != null
                     && response.getChosenRestaurantId() != null
                     && response.getChosenRestaurantName() != null
+                    && response.getChosenRestaurantAddress() != null
                     && firebaseAuth.getCurrentUser() != null
                     && !response.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
                     entity = new UserGoingToRestaurantEntity(
@@ -119,7 +122,8 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
                         response.getEmail(),
                         response.getPhotoUrl(),
                         response.getChosenRestaurantId(),
-                        response.getChosenRestaurantName()
+                        response.getChosenRestaurantName(),
+                        response.getChosenRestaurantAddress()
                     );
                 } else {
                     entity = null;

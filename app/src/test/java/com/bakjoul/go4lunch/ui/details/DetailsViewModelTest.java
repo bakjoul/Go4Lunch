@@ -358,7 +358,8 @@ public class DetailsViewModelTest {
                 "fakeEmail",
                 "fakePhotoUrl",
                 RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(),
-                "fakeChosenRestaurantName"
+                "fakeChosenRestaurantName",
+                "fakeChosenRestaurantAddress"
             )
         );
 
@@ -407,10 +408,10 @@ public class DetailsViewModelTest {
         detailsResponseLiveData.setValue(new DetailsResponse(RESTAURANT_DETAILS_RESPONSE_1, "OK"));
 
         // When
-        viewModel.onRestaurantChoosed(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName");
+        viewModel.onRestaurantChoosed(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName", "fakeAddress");
 
         // Then
-        verify(userRepositoryImplementation).chooseRestaurant(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName");
+        verify(userRepositoryImplementation).chooseRestaurant(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName", "fakeAddress");
     }
 
     @Test
@@ -483,9 +484,9 @@ public class DetailsViewModelTest {
     @NonNull
     private List<UserGoingToRestaurantEntity> getFakeWorkmatesList() {
         return new ArrayList<>(Arrays.asList(
-            new UserGoingToRestaurantEntity("fakeUserId_1", "fakeUsername_1", "fakeEmail_1", "fakeUserPhotoUrl_1", RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeChosenRestaurantName"),
-            new UserGoingToRestaurantEntity("fakeUserId_2", "fakeUsername_2", "fakeEmail_2", "fakeUserPhotoUrl_2", RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeChosenRestaurantName"),
-            new UserGoingToRestaurantEntity("fakeUserId_3", "fakeUsername_3", "fakeEmail_3", "fakeUserPhotoUrl_3", RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeChosenRestaurantName")
+            new UserGoingToRestaurantEntity("fakeUserId_1", "fakeUsername_1", "fakeEmail_1", "fakeUserPhotoUrl_1", RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeChosenRestaurantName", "fakeChosenRestaurantAddress"),
+            new UserGoingToRestaurantEntity("fakeUserId_2", "fakeUsername_2", "fakeEmail_2", "fakeUserPhotoUrl_2", RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeChosenRestaurantName", "fakeChosenRestaurantAddress"),
+            new UserGoingToRestaurantEntity("fakeUserId_3", "fakeUsername_3", "fakeEmail_3", "fakeUserPhotoUrl_3", RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeChosenRestaurantName", "fakeChosenRestaurantAddress")
         ));
     }
     // endregion IN

@@ -66,10 +66,15 @@ public class UserRepositoryImplementation implements UserRepository {
     }
 
     @Override
-    public void chooseRestaurant(@NonNull String restaurantId, @NonNull String restaurantName) {
+    public void chooseRestaurant(
+        @NonNull String restaurantId,
+        @NonNull String restaurantName,
+        @NonNull String restaurantAddress
+    ) {
         final Map<String, Object> chosenRestaurantData = getCurrentUserData();
         chosenRestaurantData.put("chosenRestaurantId", restaurantId);
         chosenRestaurantData.put("chosenRestaurantName", restaurantName);
+        chosenRestaurantData.put("chosenRestaurantAddress", restaurantAddress);
 
         if (firebaseAuth.getUid() != null) {
             firestoreDb
@@ -152,14 +157,16 @@ public class UserRepositoryImplementation implements UserRepository {
                         && response.getEmail() != null
                         && response.getPhotoUrl() != null
                         && response.getChosenRestaurantId() != null
-                        && response.getChosenRestaurantName() != null) {
+                        && response.getChosenRestaurantName() != null
+                        && response.getChosenRestaurantAddress() != null) {
                         entity = new UserGoingToRestaurantEntity(
                             response.getId(),
                             response.getUsername(),
                             response.getEmail(),
                             response.getPhotoUrl(),
                             response.getChosenRestaurantId(),
-                            response.getChosenRestaurantName()
+                            response.getChosenRestaurantName(),
+                            response.getChosenRestaurantAddress()
                         );
                     } else {
                         entity = null;
