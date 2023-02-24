@@ -7,7 +7,6 @@ import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Build;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -276,25 +275,64 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
     }
 
     private void checkLocationPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            showRequestPermissionRationale();
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
+            && ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS)) {
+            showRequestPermissionRationale("");
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+            showRequestPermissionRationale("location");
+        } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS)) {
+            showRequestPermissionRationale("notification");
         } else {
-            requestLocationPermission();
+            requestPermissions("");
         }
     }
 
-    private void showRequestPermissionRationale() {
+    private void showRequestPermissionRationale(@NonNull String permission) {
+        String title;
+        String message;
+        String request;
+
+        switch (permission) {
+            case "location":
+                title = getString(R.string.location_permission_rationale_title);
+                message = getString(R.string.location_permission_rationale_message);
+                request = "location";
+                break;
+            case "notification":
+                title = getString(R.string.notification_permission_rationale_title);
+                message = getString(R.string.notification_permission_rationale_message);
+                request = "notification";
+                break;
+            default:
+                title = getString(R.string.permissions_rationale_title);
+                message = getString(R.string.permissions_rationale_message);
+                request = "";
+                break;
+        }
+
         new AlertDialog.Builder(this)
-            .setTitle(getString(R.string.permission_rationale_title))
-            .setMessage(getString(R.string.permission_rationale_message))
-            .setPositiveButton(getString(R.string.permission_rationale_positive_button), (dialogInterface, i) -> requestLocationPermission())
+            .setTitle(title)
+            .setMessage(message)
+            .setPositiveButton(getString(R.string.permission_rationale_positive_button), (dialogInterface, i) -> requestPermissions(request))
             .setNegativeButton(getString(R.string.permission_rationale_negative_button), (dialogInterface, i) -> dialogInterface.dismiss())
             .create()
             .show();
     }
 
-    private void requestLocationPermission() {
-        ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+    private void requestPermissions(@NonNull String permissions) {
+        if (permissions.equals("location")) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, 1);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (permissions.equals("notification")) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.POST_NOTIFICATIONS}, 2);
+            } else {
+                ActivityCompat.requestPermissions(
+                    this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.POST_NOTIFICATIONS},
+                    0
+                );
+            }
+        }
     }
 
     @Override

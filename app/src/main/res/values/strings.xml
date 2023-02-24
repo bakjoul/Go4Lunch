@@ -23,8 +23,8 @@
     <string name="restaurant_is_open">Ouvert</string>
     <string name="restaurant_is_closed">Fermé</string>
     <string name="information_not_available">Information indisponible</string>
-    <string name="permission_rationale_title">Localisation requise</string>
-    <string name="permission_rationale_message">Pour continuer, activez la localisation de l\'appareil.</string>
+    <string name="location_permission_rationale_title">Localisation requise</string>
+    <string name="location_permission_rationale_message">Pour continuer, autorisez la localisation de l\'appareil.</string>
     <string name="permission_rationale_positive_button">OK</string>
     <string name="permission_rationale_negative_button">Annuler</string>
     <string name="details_select_restaurant_desc">Choisir ce restaurant</string>
@@ -51,5 +51,9 @@
     <string name="notification_waiting_for_you">\u0020vous attend au\u0020</string>
     <string name="notification_and">\u0020et\u0020</string>
     <string name="notification_with">\navec\u0020</string>
+    <string name="permissions_rationale_title">Permissions requises</string>
+    <string name="notification_permission_rationale_title">Permission de notification requise</string>
+    <string name="notification_permission_rationale_message">Pour continuer, autorisez les notifications.</string>
+    <string name="permissions_rationale_message">Pour continuer, autorisez la localisation et les notifications.</string>
 
 </resources>
