@@ -54,7 +54,7 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        checkLocationPermission();
+        checkPermissions();
 
         viewModel = new ViewModelProvider(this).get(MainViewModel.class);
 
@@ -274,16 +274,21 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
         }
     }
 
-    private void checkLocationPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
-            && ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS)) {
-            showRequestPermissionRationale("");
-        } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            showRequestPermissionRationale("location");
-        } else if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS)) {
-            showRequestPermissionRationale("notification");
+    private void checkPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                && ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.POST_NOTIFICATIONS)) {
+                showRequestPermissionRationale("");
+            } else {
+                requestPermissions("");
+            }
+
         } else {
-            requestPermissions("");
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+                showRequestPermissionRationale("location");
+            } else {
+                requestPermissions("location");
+            }
         }
     }
 
