@@ -5,6 +5,7 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.hilt.work.HiltWorkerFactory;
 import androidx.work.Configuration;
+import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
@@ -22,6 +23,8 @@ import dagger.hilt.android.HiltAndroidApp;
 @HiltAndroidApp
 public class MainApplication extends Application implements Configuration.Provider {
 
+    private static final String TAG = "NOTIFICATION_WORK_REQUEST";
+
     @Inject
     HiltWorkerFactory workerFactory;
 
@@ -35,7 +38,6 @@ public class MainApplication extends Application implements Configuration.Provid
     public void onCreate() {
         super.onCreate();
 
-        // TODO Bakjoul check if not already scheduled (tag is helpful there)
         PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(
             NotificationWorker.class,
             1,
@@ -44,7 +46,7 @@ public class MainApplication extends Application implements Configuration.Provid
             .setInitialDelay(getDelayFromLunchTime(), TimeUnit.MILLISECONDS)
             .build();
 
-        workManager.enqueue(workRequest);
+        workManager.enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, workRequest);
     }
 
     private long getDelayFromLunchTime() {
