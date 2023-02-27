@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Go4Lunch">
         <activity
+            android:name=".SettingsActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.dispatcher.DispatcherActivity"
             android:exported="true">
             <intent-filter>
@@ -42,9 +45,7 @@
             android:value="@string/fb_client_token" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="${MAPS_API_KEY}" />
-
-        <!-- If you want to disable android.startup completely. -->
+            android:value="${MAPS_API_KEY}" /> <!-- If you want to disable android.startup completely. -->
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

@@ -44,13 +44,14 @@ public class MainApplication extends Application implements Configuration.Provid
             TimeUnit.DAYS
         )
             .setInitialDelay(getDelayFromLunchTime(), TimeUnit.MILLISECONDS)
+            .addTag(TAG)
             .build();
 
         workManager.enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, workRequest);
     }
 
     private long getDelayFromLunchTime() {
-        Duration delay = Duration.between(LocalTime.now(clock), LocalTime.of(12, 0));
+        Duration delay = Duration.between(LocalTime.now(clock), LocalTime.of(12, 6));
 
         if (delay.isNegative()) {
             delay = delay.plusDays(1);
