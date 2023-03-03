@@ -43,21 +43,21 @@ public class MainApplication extends Application implements Configuration.Provid
             1,
             TimeUnit.DAYS
         )
-            .setInitialDelay(getDelayFromLunchTime(), TimeUnit.MILLISECONDS)
-            .addTag(TAG)
+            .setInitialDelay(getDelayFromLunchTime().toMillis(), TimeUnit.MILLISECONDS)
             .build();
 
         workManager.enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, workRequest);
     }
 
-    private long getDelayFromLunchTime() {
-        Duration delay = Duration.between(LocalTime.now(clock), LocalTime.of(12, 6));
+    @NonNull
+    private Duration getDelayFromLunchTime() {
+        Duration delay = Duration.between(LocalTime.now(clock), LocalTime.of(12, 0));
 
         if (delay.isNegative()) {
             delay = delay.plusDays(1);
         }
 
-        return delay.toMillis();
+        return delay;
     }
 
     @NonNull
