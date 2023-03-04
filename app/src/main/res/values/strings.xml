@@ -55,5 +55,7 @@
     <string name="notification_permission_rationale_title">Permission de notification requise</string>
     <string name="notification_permission_rationale_message">Pour continuer, autorisez les notifications.</string>
     <string name="permissions_rationale_message">Pour continuer, autorisez la localisation et les notifications.</string>
+    <string name="settings_toggle_lunch_reminder">Rappel de déjeuner</string>
+    <string name="settings_toolbar_title">Settings</string>
 
 </resources>
