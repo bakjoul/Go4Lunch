@@ -7,6 +7,7 @@ import com.bakjoul.go4lunch.data.location.LocationModeRepositoryImplementation;
 import com.bakjoul.go4lunch.data.location.LocationPermissionRepositoryImplementation;
 import com.bakjoul.go4lunch.data.location.MapLocationRepositoryImplementation;
 import com.bakjoul.go4lunch.data.restaurants.RestaurantRepositoryImplementation;
+import com.bakjoul.go4lunch.data.settings.SettingsRepositoryImplementation;
 import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
@@ -16,6 +17,7 @@ import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
+import com.bakjoul.go4lunch.domain.settings.SettingsRepository;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 
@@ -65,4 +67,8 @@ public abstract class DataBindingModule {
     @Singleton
     @Binds
     public abstract AutocompleteRepository bindAutocompleteRepository(AutocompleteRepositoryImplementation implementation);
+
+    @Singleton
+    @Binds
+    public abstract SettingsRepository bindSettingsRepository(SettingsRepositoryImplementation implementation);
 }
