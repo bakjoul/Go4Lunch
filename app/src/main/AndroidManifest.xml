@@ -14,9 +14,10 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Go4Lunch">
+        android:theme="@style/Theme.Go4Lunch"
+        tools:ignore="DataExtractionRules">
         <activity
-            android:name=".SettingsActivity"
+            android:name=".ui.settings.SettingsActivity"
             android:exported="false" />
         <activity
             android:name=".ui.dispatcher.DispatcherActivity"

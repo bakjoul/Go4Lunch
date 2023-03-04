@@ -34,6 +34,7 @@ import com.bakjoul.go4lunch.ui.main.MainViewModel.BottomNavigationViewButton;
 import com.bakjoul.go4lunch.ui.main.MainViewModel.FragmentToDisplay;
 import com.bakjoul.go4lunch.ui.map.MapFragment;
 import com.bakjoul.go4lunch.ui.restaurants.RestaurantsFragment;
+import com.bakjoul.go4lunch.ui.settings.SettingsActivity;
 import com.bakjoul.go4lunch.ui.workmates.WorkmatesFragment;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -45,7 +46,6 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
 
     private ActivityMainBinding binding;
     private MainViewModel viewModel;
-
     private boolean isBottomNavigationViewListenerDisabled = false;
 
     @Override
@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
                     }
                     break;
                 case R.id.mainNavigationDrawer_menu_settings:
+                    startActivity(new Intent(this, SettingsActivity.class));
                     break;
                 case R.id.mainNavigationDrawer_menu_logout:
                     viewModel.logOut();
