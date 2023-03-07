@@ -30,12 +30,17 @@ public class SettingsRepositoryImplementation implements SettingsRepository {
     }
 
     @Override
-    public void setNotification(boolean isEnabled) {
-        sharedPreferences.edit().putBoolean(KEY_LUNCH_REMINDER, isEnabled).apply();
+    public void setNotification(boolean areNotificationsEnabled) {
+        sharedPreferences.edit().putBoolean(KEY_LUNCH_REMINDER, areNotificationsEnabled).apply();
     }
 
     @Override
-    public LiveData<Boolean> isNotificationEnabled() {
+    public boolean areNotificationsEnabled() {
+        return sharedPreferences.getBoolean(KEY_LUNCH_REMINDER, true);
+    }
+
+    @Override
+    public LiveData<Boolean> areNotificationsEnabledLiveData() {
         return new BooleanSharedPreferencesLiveData(context, PREFERENCES_FILENAME, KEY_LUNCH_REMINDER);
     }
 }

@@ -6,5 +6,7 @@ public interface SettingsRepository {
 
     void setNotification(boolean isEnabled);
 
-    LiveData<Boolean> isNotificationEnabled();
+    boolean areNotificationsEnabled();
+
+    LiveData<Boolean> areNotificationsEnabledLiveData();
 }

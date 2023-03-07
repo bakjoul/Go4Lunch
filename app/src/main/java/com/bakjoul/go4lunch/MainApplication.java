@@ -9,6 +9,7 @@ import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
+import com.bakjoul.go4lunch.domain.settings.AreNotificationsEnabledUseCase;
 import com.bakjoul.go4lunch.worker.NotificationWorker;
 
 import java.time.Clock;
@@ -23,10 +24,13 @@ import dagger.hilt.android.HiltAndroidApp;
 @HiltAndroidApp
 public class MainApplication extends Application implements Configuration.Provider {
 
-    private static final String TAG = "NOTIFICATION_WORK_REQUEST";
+    private static final String WORK_NAME = "NOTIFICATION_WORK_REQUEST";
 
     @Inject
     HiltWorkerFactory workerFactory;
+
+    @Inject
+    AreNotificationsEnabledUseCase areNotificationsEnabledUseCase;
 
     @Inject
     WorkManager workManager;
@@ -38,15 +42,17 @@ public class MainApplication extends Application implements Configuration.Provid
     public void onCreate() {
         super.onCreate();
 
-        PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(
-            NotificationWorker.class,
-            1,
-            TimeUnit.DAYS
-        )
-            .setInitialDelay(getDelayFromLunchTime().toMillis(), TimeUnit.MILLISECONDS)
-            .build();
+        if (areNotificationsEnabledUseCase.invoke()) {
+            PeriodicWorkRequest workRequest = new PeriodicWorkRequest.Builder(
+                NotificationWorker.class,
+                1,
+                TimeUnit.DAYS
+            )
+                .setInitialDelay(getDelayFromLunchTime().toMillis(), TimeUnit.MILLISECONDS)
+                .build();
 
-        workManager.enqueueUniquePeriodicWork(TAG, ExistingPeriodicWorkPolicy.KEEP, workRequest);
+            workManager.enqueueUniquePeriodicWork(WORK_NAME, ExistingPeriodicWorkPolicy.KEEP, workRequest);
+        }
     }
 
     @NonNull

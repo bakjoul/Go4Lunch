@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.bakjoul.go4lunch.domain.settings.SetNotificationsPreferencesUseCase;
 import com.bakjoul.go4lunch.domain.settings.SettingsRepository;
 
 import javax.inject.Inject;
@@ -18,16 +19,23 @@ public class SettingsViewModel extends ViewModel {
     @NonNull
     private final SettingsRepository settingsRepository;
 
+    @NonNull
+    private final SetNotificationsPreferencesUseCase setNotificationsPreferencesUseCase;
+
     @Inject
-    public SettingsViewModel(@NonNull SettingsRepository settingsRepository) {
+    public SettingsViewModel(
+        @NonNull SettingsRepository settingsRepository,
+        @NonNull SetNotificationsPreferencesUseCase setNotificationsPreferencesUseCase
+    ) {
         this.settingsRepository = settingsRepository;
+        this.setNotificationsPreferencesUseCase = setNotificationsPreferencesUseCase;
     }
 
     public LiveData<SettingsViewState> getSettingsViewStateLiveData() {
         return Transformations.switchMap(
-            settingsRepository.isNotificationEnabled(),
-            isNotificationEnabled -> {
-                if (isNotificationEnabled) {
+            settingsRepository.areNotificationsEnabledLiveData(),
+            areNotificationsEnabled -> {
+                if (areNotificationsEnabled) {
                     return new MutableLiveData<>(new SettingsViewState(true));
                 } else {
                     return new MutableLiveData<>(new SettingsViewState(false));
@@ -37,6 +45,6 @@ public class SettingsViewModel extends ViewModel {
     }
 
     public void onNotificationSwitchChanged(boolean isChecked) {
-        settingsRepository.setNotification(isChecked);
+        setNotificationsPreferencesUseCase.invoke(isChecked);
     }
 }
