@@ -27,6 +27,10 @@ import com.bakjoul.go4lunch.ui.details.DetailsActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.time.Clock;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.temporal.ChronoField;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -47,16 +51,21 @@ public class NotificationWorker extends Worker {
     @NonNull
     private final FirebaseAuth firebaseAuth;
 
+    @NonNull
+    private final Clock clock;
+
     @AssistedInject
     public NotificationWorker(
         @Assisted Context context,
         @Assisted WorkerParameters workerParams,
         @NonNull FirebaseFirestore firebaseFirestore,
-        @NonNull FirebaseAuth firebaseAuth
+        @NonNull FirebaseAuth firebaseAuth,
+        @NonNull Clock clock
     ) {
         super(context, workerParams);
         this.firebaseFirestore = firebaseFirestore;
         this.firebaseAuth = firebaseAuth;
+        this.clock = clock;
     }
 
     @SuppressLint("MissingPermission")
@@ -64,8 +73,13 @@ public class NotificationWorker extends Worker {
     @Override
     public Result doWork() {
         UserGoingToRestaurantEntity userGoingToRestaurantEntity = getUserChosenRestaurantData();
-
         if (userGoingToRestaurantEntity == null) {
+            return Result.success();
+        }
+
+        LocalDate today = LocalDate.now(clock);
+        if (DayOfWeek.of(today.get(ChronoField.DAY_OF_WEEK)) == DayOfWeek.SATURDAY
+            || DayOfWeek.of(today.get(ChronoField.DAY_OF_WEEK)) == DayOfWeek.SUNDAY) {
             return Result.success();
         }
 
