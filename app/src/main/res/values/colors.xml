@@ -16,4 +16,6 @@
     <color name="red">#FFD1031C</color>
     <color name="searchedItem">#256495ED</color>
     <color name="defaultBackground">#FFFBFE</color>
+    <color name="message_grey">#FFE4E6EB</color>
+    <color name="message_blue">#FF0084FF</color>
 </resources>

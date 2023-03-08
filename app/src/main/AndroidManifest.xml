@@ -17,6 +17,9 @@
         android:theme="@style/Theme.Go4Lunch"
         tools:ignore="DataExtractionRules">
         <activity
+            android:name=".ui.chat.ChatActivity"
+            android:exported="false" />
+        <activity
             android:name=".ui.settings.SettingsActivity"
             android:exported="false" />
         <activity
