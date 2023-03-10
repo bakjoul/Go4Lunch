@@ -18,16 +18,21 @@ import com.bumptech.glide.Glide;
 public class WorkmatesAdapter extends ListAdapter<WorkmateItemViewState, WorkmatesAdapter.ViewHolder> {
 
     private final OnWorkmateClickListener onWorkmateClickListener;
+    private final OnWorkmatePhotoClickListener onWorkmatePhotoClickListener;
 
-    public WorkmatesAdapter(OnWorkmateClickListener onWorkmateClickListener) {
+    public WorkmatesAdapter(
+        OnWorkmateClickListener onWorkmateClickListener,
+        OnWorkmatePhotoClickListener onWorkmatePhotoClickListener
+    ) {
         super(new WorkmatesAdapterDiffCallback());
         this.onWorkmateClickListener = onWorkmateClickListener;
+        this.onWorkmatePhotoClickListener = onWorkmatePhotoClickListener;
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        return new ViewHolder(FragmentWorkmatesItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false), this.onWorkmateClickListener);
+        return new ViewHolder(FragmentWorkmatesItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false), this.onWorkmateClickListener, this.onWorkmatePhotoClickListener);
     }
 
     @Override
@@ -40,16 +45,23 @@ public class WorkmatesAdapter extends ListAdapter<WorkmateItemViewState, Workmat
         private final FragmentWorkmatesItemBinding binding;
         private final OnWorkmateClickListener onWorkmateClickListener;
 
-        public ViewHolder(@NonNull FragmentWorkmatesItemBinding binding, OnWorkmateClickListener onWorkmateClickListener) {
+        private final OnWorkmatePhotoClickListener onWorkmatePhotoClickListener;
+
+        public ViewHolder(
+            @NonNull FragmentWorkmatesItemBinding binding,
+            OnWorkmateClickListener onWorkmateClickListener,
+            OnWorkmatePhotoClickListener onWorkmatePhotoClickListener
+        ) {
             super(binding.getRoot());
             this.binding = binding;
 
             binding.getRoot().setOnClickListener(this);
             this.onWorkmateClickListener = onWorkmateClickListener;
+            this.onWorkmatePhotoClickListener = onWorkmatePhotoClickListener;
         }
 
         public void bind(@NonNull WorkmateItemViewState viewState) {
-            itemView.setTag(viewState.getChosenRestaurantId());
+            itemView.setTag(new WorkmateTag(viewState.getChosenRestaurantId(), viewState.getId()));
             ImageView photo = binding.workmatesItemPhoto;
             Glide.with(photo.getContext())
                 .load(viewState.getPhotoUrl())
@@ -69,6 +81,10 @@ public class WorkmatesAdapter extends ListAdapter<WorkmateItemViewState, Workmat
             } else {
                 binding.workmatesItemContainer.setBackgroundColor(itemView.getResources().getColor(R.color.defaultBackground));
             }
+
+            binding.workmatesItemPhoto.setOnClickListener(
+                v -> onWorkmatePhotoClickListener.onWorkmatePhotoClicked(getAdapterPosition())
+            );
         }
 
         @Override
@@ -92,5 +108,9 @@ public class WorkmatesAdapter extends ListAdapter<WorkmateItemViewState, Workmat
 
     public interface OnWorkmateClickListener {
         void onWorkmateClicked(int position);
+    }
+
+    public interface OnWorkmatePhotoClickListener {
+        void onWorkmatePhotoClicked(int position);
     }
 }

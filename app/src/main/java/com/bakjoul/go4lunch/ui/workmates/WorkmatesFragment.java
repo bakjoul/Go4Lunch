@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.FragmentWorkmatesBinding;
+import com.bakjoul.go4lunch.ui.chat.ChatActivity;
 import com.bakjoul.go4lunch.ui.details.DetailsActivity;
 
 import java.util.Objects;
@@ -25,7 +26,7 @@ import java.util.Objects;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWorkmateClickListener {
+public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWorkmateClickListener, WorkmatesAdapter.OnWorkmatePhotoClickListener {
 
     private FragmentWorkmatesBinding binding;
     private SearchView searchView;
@@ -50,7 +51,7 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
 
         WorkmatesViewModel viewModel = new ViewModelProvider(this).get(WorkmatesViewModel.class);
 
-        WorkmatesAdapter adapter = new WorkmatesAdapter(this);
+        WorkmatesAdapter adapter = new WorkmatesAdapter(this, this);
         binding.workmatesRecyclerView.setAdapter(adapter);
         DividerItemDecoration itemDecoration = new DividerItemDecoration(requireContext(), DividerItemDecoration.VERTICAL);
         itemDecoration.setDrawable(Objects.requireNonNull(ContextCompat.getDrawable(requireContext(), R.drawable.custom_divider)));
@@ -96,9 +97,16 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
         }
 
         if (binding.workmatesRecyclerView.getLayoutManager() != null) {
-            DetailsActivity.navigate(
-                binding.workmatesRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString(), getActivity()
-            );
+            WorkmateTag workmateTag = (WorkmateTag) binding.workmatesRecyclerView.getLayoutManager().findViewByPosition(position).getTag();
+            DetailsActivity.navigate(workmateTag.getChosenRestaurantId(), getActivity());
+        }
+    }
+
+    @Override
+    public void onWorkmatePhotoClicked(int position) {
+        if (binding.workmatesRecyclerView.getLayoutManager() != null) {
+            WorkmateTag workmateTag = (WorkmateTag) binding.workmatesRecyclerView.getLayoutManager().findViewByPosition(position).getTag();
+            ChatActivity.navigate(workmateTag.getWorkmateId(), getActivity());
         }
     }
 }
