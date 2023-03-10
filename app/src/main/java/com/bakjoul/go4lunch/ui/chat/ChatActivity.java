@@ -8,12 +8,12 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.ActivityChatBinding;
@@ -49,13 +49,22 @@ public class ChatActivity extends AppCompatActivity {
         binding = ActivityChatBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        ChatViewModel viewModel = new ViewModelProvider(this).get(ChatViewModel.class);
+
+        //ChatAdapter adapter = new ChatAdapter();
+        ChatAdapterSimple adapter = new ChatAdapterSimple();
+        binding.chatRecyclerView.setAdapter(adapter);
+
         setToolbar();
-        binding.chatSendBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d("test", "onClick: ");
+        binding.chatSendBtn.setOnClickListener(v -> {
+            if (binding.chatInputEdit.getText() != null) {
+                viewModel.sendMessage(binding.chatInputEdit.getText().toString());
             }
         });
+
+        viewModel.getChatViewStateLiveData().observe(this, viewState ->
+            adapter.submitList(viewState.getMessageItemViewStates())
+        );
     }
 
     private void setToolbar() {
