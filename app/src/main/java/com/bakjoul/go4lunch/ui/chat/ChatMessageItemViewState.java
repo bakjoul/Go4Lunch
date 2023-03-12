@@ -2,12 +2,14 @@ package com.bakjoul.go4lunch.ui.chat;
 
 import androidx.annotation.NonNull;
 
+import com.bakjoul.go4lunch.data.chat.ChatMessageItemType;
+
 import java.util.Objects;
 
 public class ChatMessageItemViewState {
 
     @NonNull
-    private final String timestamp;
+    private final ChatMessageItemType itemType;
 
     @NonNull
     private final String sender;
@@ -15,15 +17,19 @@ public class ChatMessageItemViewState {
     @NonNull
     private final String content;
 
-    public ChatMessageItemViewState(@NonNull String timestamp, @NonNull String sender, @NonNull String content) {
-        this.timestamp = timestamp;
+    @NonNull
+    private final String timestamp;
+
+    public ChatMessageItemViewState(@NonNull ChatMessageItemType itemType, @NonNull String sender, @NonNull String content, @NonNull String timestamp) {
+        this.itemType = itemType;
         this.sender = sender;
         this.content = content;
+        this.timestamp = timestamp;
     }
 
     @NonNull
-    public String getTimestamp() {
-        return timestamp;
+    public ChatMessageItemType getItemType() {
+        return itemType;
     }
 
     @NonNull
@@ -36,26 +42,32 @@ public class ChatMessageItemViewState {
         return content;
     }
 
+    @NonNull
+    public String getTimestamp() {
+        return timestamp;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChatMessageItemViewState that = (ChatMessageItemViewState) o;
-        return timestamp.equals(that.timestamp) && sender.equals(that.sender) && content.equals(that.content);
+        return itemType == that.itemType && sender.equals(that.sender) && content.equals(that.content) && timestamp.equals(that.timestamp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(timestamp, sender, content);
+        return Objects.hash(itemType, sender, content, timestamp);
     }
 
     @NonNull
     @Override
     public String toString() {
         return "ChatMessageItemViewState{" +
-            "timestamp='" + timestamp + '\'' +
+            "itemType=" + itemType +
             ", sender='" + sender + '\'' +
             ", content='" + content + '\'' +
+            ", timestamp='" + timestamp + '\'' +
             '}';
     }
 }

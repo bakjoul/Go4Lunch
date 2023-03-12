@@ -7,9 +7,11 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
+import com.bakjoul.go4lunch.data.chat.ChatMessageItemType;
 import com.bakjoul.go4lunch.data.chat.ChatMessageResponse;
 import com.bakjoul.go4lunch.domain.chat.ChatRepository;
 import com.google.firebase.Timestamp;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -29,13 +31,17 @@ public class ChatViewModel extends ViewModel {
     @NonNull
     private final ChatRepository chatRepository;
 
+    @NonNull
+    private final FirebaseAuth firebaseAuth;
+
     @Inject
     public ChatViewModel(
         @NonNull ChatRepository chatRepository,
+        @NonNull FirebaseAuth firebaseAuth,
         @NonNull SavedStateHandle savedStateHandle
     ) {
         this.chatRepository = chatRepository;
-
+        this.firebaseAuth = firebaseAuth;
         workmateId = savedStateHandle.get(KEY);
 
         chatRepository.createConversation(workmateId);
@@ -61,10 +67,23 @@ public class ChatViewModel extends ViewModel {
         List<ChatMessageItemViewState> messageItemViewStates = new ArrayList<>();
         for (ChatMessageResponse message : messages) {
             ChatMessageItemViewState itemViewState =
-                new ChatMessageItemViewState(convertTimestamp(message.getTimestamp()), message.getSender(), message.getContent());
+                new ChatMessageItemViewState(
+                    getItemType(message),
+                    message.getSender(),
+                    message.getContent(),
+                    convertTimestamp(message.getTimestamp())
+                );
             messageItemViewStates.add(itemViewState);
         }
         return messageItemViewStates;
+    }
+
+    private ChatMessageItemType getItemType(@NonNull ChatMessageResponse message) {
+        if (message.getSender().equals(firebaseAuth.getUid())) {
+            return ChatMessageItemType.SENT;
+        } else {
+            return ChatMessageItemType.RECEIVED;
+        }
     }
 
     @NonNull

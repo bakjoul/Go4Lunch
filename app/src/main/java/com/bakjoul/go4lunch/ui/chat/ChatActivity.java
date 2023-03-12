@@ -50,8 +50,7 @@ public class ChatActivity extends AppCompatActivity {
         ChatViewModel viewModel = new ViewModelProvider(this).get(ChatViewModel.class);
 
         RecyclerView recyclerView = binding.chatRecyclerView;
-        //ChatAdapter adapter = new ChatAdapter();
-        ChatAdapterSimple adapter = new ChatAdapterSimple();
+        ChatAdapter adapter = new ChatAdapter();
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, true);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(linearLayoutManager);

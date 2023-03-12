@@ -9,42 +9,20 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bakjoul.go4lunch.data.chat.ChatMessageItemType;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemReceiverBinding;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemSenderBinding;
 
+import java.util.List;
+
 public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, RecyclerView.ViewHolder> {
+
+    private static final int RECEIVED_MESSAGE_VIEW_TYPE = 0;
+    private static final int SENT_MESSAGE_VIEW_TYPE = 1;
 
     public ChatAdapter() {
         super(new ChatAdapterDiffCallback());
     }
-
-    @NonNull
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        switch (viewType) {
-            case 0:
-                return new ReceiverViewHolder(ActivityChatItemReceiverBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
-            case 1:
-                return new SenderViewHolder(ActivityChatItemSenderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
-            default:
-                throw new IllegalStateException("Unexpected value: " + viewType);
-        }
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        switch (holder.getItemViewType()) {
-            case 0:
-                ((ReceiverViewHolder) holder).bind(getItem(position));
-                break;
-            case 1:
-                ((SenderViewHolder) holder).bind(getItem(position));
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + holder.getItemViewType());
-        }
-    }
-
 
     abstract static class BaseViewHolder extends RecyclerView.ViewHolder {
         public BaseViewHolder(@NonNull View itemView) {
@@ -84,6 +62,44 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, RecyclerV
             binding.chatItemSenderMessage.setText(viewState.getContent());
             binding.chatItemSenderTimestamp.setText(viewState.getTimestamp());
         }
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        switch (viewType) {
+            case 0:
+                return new ReceiverViewHolder(ActivityChatItemReceiverBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+            case 1:
+                return new SenderViewHolder(ActivityChatItemSenderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+            default:
+                throw new IllegalStateException("Unexpected value: " + viewType);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        switch (holder.getItemViewType()) {
+            case 0:
+                ((ReceiverViewHolder) holder).bind(getItem(position));
+                break;
+            case 1:
+                ((SenderViewHolder) holder).bind(getItem(position));
+                break;
+            default:
+                throw new IllegalStateException("Unexpected value: " + holder.getItemViewType());
+        }
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        ChatMessageItemViewState itemViewState = getItem(position);
+        if (itemViewState.getItemType() == ChatMessageItemType.RECEIVED) {
+            return RECEIVED_MESSAGE_VIEW_TYPE;
+        } else if (itemViewState.getItemType() == ChatMessageItemType.SENT) {
+            return SENT_MESSAGE_VIEW_TYPE;
+        }
+        throw new IllegalArgumentException("Unknown message item view type");
     }
 
     private static class ChatAdapterDiffCallback extends DiffUtil.ItemCallback<ChatMessageItemViewState> {
