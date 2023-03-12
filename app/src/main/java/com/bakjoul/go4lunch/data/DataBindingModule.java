@@ -1,5 +1,6 @@
 package com.bakjoul.go4lunch.data;
 
+import com.bakjoul.go4lunch.data.auth.AuthRepositoryFirebase;
 import com.bakjoul.go4lunch.data.autocomplete.AutocompleteRepositoryImplementation;
 import com.bakjoul.go4lunch.data.chat.ChatRepositoryImplementation;
 import com.bakjoul.go4lunch.data.details.RestaurantDetailsRepositoryImplementation;
