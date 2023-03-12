@@ -1,44 +1,39 @@
-package com.bakjoul.go4lunch.data.chat;
+package com.bakjoul.go4lunch.domain.chat;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.google.firebase.Timestamp;
 
 import java.util.Objects;
 
-public class ChatMessageResponse {
+public class ChatMessageEntity {
 
-    @Nullable
+    @NonNull
     private final String content;
 
-    @Nullable
+    @NonNull
     private final String sender;
 
-    @Nullable
-    private final com.google.firebase.Timestamp timestamp;
+    @NonNull
+    private final Timestamp timestamp;
 
-    public ChatMessageResponse() {
-        this(null, null, null);
-    }
-
-    public ChatMessageResponse(@Nullable String content, @Nullable String sender, @Nullable Timestamp timestamp) {
+    public ChatMessageEntity(@NonNull String content, @NonNull String sender, @NonNull Timestamp timestamp) {
         this.content = content;
         this.sender = sender;
         this.timestamp = timestamp;
     }
 
-    @Nullable
+    @NonNull
     public String getContent() {
         return content;
     }
 
-    @Nullable
+    @NonNull
     public String getSender() {
         return sender;
     }
 
-    @Nullable
+    @NonNull
     public Timestamp getTimestamp() {
         return timestamp;
     }
@@ -47,8 +42,8 @@ public class ChatMessageResponse {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ChatMessageResponse that = (ChatMessageResponse) o;
-        return Objects.equals(content, that.content) && Objects.equals(sender, that.sender) && Objects.equals(timestamp, that.timestamp);
+        ChatMessageEntity that = (ChatMessageEntity) o;
+        return content.equals(that.content) && sender.equals(that.sender) && timestamp.equals(that.timestamp);
     }
 
     @Override
@@ -59,7 +54,7 @@ public class ChatMessageResponse {
     @NonNull
     @Override
     public String toString() {
-        return "ChatMessageResponse{" +
+        return "ChatMessageEntity{" +
             "content='" + content + '\'' +
             ", sender='" + sender + '\'' +
             ", timestamp=" + timestamp +
