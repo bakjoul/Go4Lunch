@@ -52,10 +52,10 @@ public class ChatMessageResponse {
     @NonNull
     @Override
     public String toString() {
-        return "ChatMessage{" +
+        return "ChatMessageResponse{" +
             "content='" + content + '\'' +
             ", sender='" + sender + '\'' +
-            ", timeStamp=" + timestamp +
+            ", timestamp=" + timestamp +
             '}';
     }
 }

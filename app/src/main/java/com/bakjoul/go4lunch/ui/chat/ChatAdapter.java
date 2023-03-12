@@ -66,7 +66,7 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, RecyclerV
         @Override
         void bind(@NonNull ChatMessageItemViewState viewState) {
             binding.chatItemReceiverMessage.setText(viewState.getContent());
-            binding.chatItemReceiverTimestamp.setText(viewState.getTimestamp().toString());
+            binding.chatItemReceiverTimestamp.setText(viewState.getTimestamp());
         }
     }
 
@@ -82,7 +82,7 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, RecyclerV
         @Override
         void bind(@NonNull ChatMessageItemViewState viewState) {
             binding.chatItemSenderMessage.setText(viewState.getContent());
-            binding.chatItemSenderTimestamp.setText(viewState.getTimestamp().toString());
+            binding.chatItemSenderTimestamp.setText(viewState.getTimestamp());
         }
     }
 

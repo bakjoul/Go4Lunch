@@ -55,7 +55,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/chat_input_hint"
-                android:inputType="textAutoComplete" />
+                android:inputType="textAutoCorrect|textCapSentences" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <androidx.appcompat.widget.AppCompatImageView
