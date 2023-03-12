@@ -10,15 +10,15 @@ import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bakjoul.go4lunch.data.chat.ChatMessageItemType;
+import com.bakjoul.go4lunch.databinding.ActivityChatItemDateBinding;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemReceiverBinding;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemSenderBinding;
 
-import java.util.List;
-
 public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, RecyclerView.ViewHolder> {
 
-    private static final int RECEIVED_MESSAGE_VIEW_TYPE = 0;
-    private static final int SENT_MESSAGE_VIEW_TYPE = 1;
+    private static final int DATE_HEADER_VIEW_TYPE = 0;
+    private static final int RECEIVED_MESSAGE_VIEW_TYPE = 1;
+    private static final int SENT_MESSAGE_VIEW_TYPE = 2;
 
     public ChatAdapter() {
         super(new ChatAdapterDiffCallback());
@@ -30,6 +30,21 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, RecyclerV
         }
 
         abstract void bind(ChatMessageItemViewState viewState);
+    }
+
+    public static class DateHeaderViewHolder extends BaseViewHolder {
+
+        private final ActivityChatItemDateBinding binding;
+
+        public DateHeaderViewHolder(@NonNull ActivityChatItemDateBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+        }
+
+        @Override
+        void bind(@NonNull ChatMessageItemViewState viewState) {
+            binding.chatItemDate.setText("");
+        }
     }
 
     public static class ReceiverViewHolder extends BaseViewHolder {
@@ -68,9 +83,11 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, RecyclerV
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         switch (viewType) {
-            case 0:
+            case DATE_HEADER_VIEW_TYPE:
+                return new DateHeaderViewHolder(ActivityChatItemDateBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+            case RECEIVED_MESSAGE_VIEW_TYPE:
                 return new ReceiverViewHolder(ActivityChatItemReceiverBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
-            case 1:
+            case SENT_MESSAGE_VIEW_TYPE:
                 return new SenderViewHolder(ActivityChatItemSenderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
             default:
                 throw new IllegalStateException("Unexpected value: " + viewType);
@@ -80,10 +97,13 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, RecyclerV
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         switch (holder.getItemViewType()) {
-            case 0:
+            case DATE_HEADER_VIEW_TYPE:
+                ((DateHeaderViewHolder) holder).bind(getItem(position));
+                break;
+            case RECEIVED_MESSAGE_VIEW_TYPE:
                 ((ReceiverViewHolder) holder).bind(getItem(position));
                 break;
-            case 1:
+            case SENT_MESSAGE_VIEW_TYPE:
                 ((SenderViewHolder) holder).bind(getItem(position));
                 break;
             default:

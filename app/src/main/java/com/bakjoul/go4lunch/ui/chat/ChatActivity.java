@@ -85,6 +85,7 @@ public class ChatActivity extends AppCompatActivity {
         });
     }
 
+    // Directly sends message when hitting Enter key on keyboards
     private void setInputOnKeyListener() {
         binding.chatInputEdit.setOnKeyListener((v, keyCode, event) -> {
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
