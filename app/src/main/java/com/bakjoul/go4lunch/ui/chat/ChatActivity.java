@@ -101,7 +101,7 @@ public class ChatActivity extends AppCompatActivity {
         // Hides keyboard on click outside of input
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             View view = getCurrentFocus();
-            if (view.isFocused() && view instanceof EditText) {
+            if (view instanceof EditText && view.isFocused()) {
                 Rect rect = new Rect();
                 view.getGlobalVisibleRect(rect);
                 int x = (int) ev.getRawX();
