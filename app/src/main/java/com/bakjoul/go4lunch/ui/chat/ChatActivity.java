@@ -90,8 +90,6 @@ public class ChatActivity extends AppCompatActivity {
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
                 String input = binding.chatInputEdit.getText() != null ? binding.chatInputEdit.getText().toString() : "";
                 if (!input.isEmpty()) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
                     binding.chatSendBtn.performClick();
                     return true;
                 }
@@ -122,6 +120,7 @@ public class ChatActivity extends AppCompatActivity {
                 if (!rect.contains(x, y)) {
                     InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
                     imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    view.clearFocus();
                 }
             }
         }
