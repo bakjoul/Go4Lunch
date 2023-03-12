@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
@@ -21,7 +22,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.ActivityChatBinding;
-import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Collections;
 import java.util.List;
@@ -57,12 +57,8 @@ public class ChatActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(linearLayoutManager);
 
         setToolbar();
-        binding.chatSendBtn.setOnClickListener(v -> {
-            if (binding.chatInputEdit.getText() != null) {
-                viewModel.sendMessage(binding.chatInputEdit.getText().toString());
-                binding.chatInputEdit.setText("");
-            }
-        });
+        setSendButtonOnClickListener(viewModel);
+        setInputOnKeyListener();
 
         viewModel.getChatViewStateLiveData().observe(this, viewState -> {
                 List<ChatMessageItemViewState> messages = viewState.getMessageItemViewStates();
@@ -79,6 +75,30 @@ public class ChatActivity extends AppCompatActivity {
                 });
             }
         );
+    }
+
+    private void setSendButtonOnClickListener(ChatViewModel viewModel) {
+        binding.chatSendBtn.setOnClickListener(v -> {
+            if (binding.chatInputEdit.getText() != null) {
+                viewModel.sendMessage(binding.chatInputEdit.getText().toString());
+                binding.chatInputEdit.setText("");
+            }
+        });
+    }
+
+    private void setInputOnKeyListener() {
+        binding.chatInputEdit.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
+                String input = binding.chatInputEdit.getText() != null ? binding.chatInputEdit.getText().toString() : "";
+                if (!input.isEmpty()) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+                    binding.chatSendBtn.performClick();
+                    return true;
+                }
+            }
+            return false;
+        });
     }
 
     @Override
@@ -120,11 +140,5 @@ public class ChatActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             toolbar.setBackgroundColor(getColor(R.color.primaryColor));
         }
-    }
-
-    private void hideSoftKeyboard(@NonNull TextInputEditText textInputEditText) {
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(textInputEditText.getWindowToken(), 0);
-        textInputEditText.clearFocus();
     }
 }
