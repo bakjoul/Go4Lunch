@@ -1,5 +1,7 @@
 package com.bakjoul.go4lunch.domain.chat;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 
 import com.bakjoul.go4lunch.domain.auth.AuthRepository;
@@ -7,6 +9,8 @@ import com.bakjoul.go4lunch.domain.auth.AuthRepository;
 import javax.inject.Inject;
 
 public class SendMessageUseCase {
+
+    private static final String TAG = "SendMessageUseCase";
 
     @NonNull
     private final ChatRepository chatRepository;
@@ -28,7 +32,7 @@ public class SendMessageUseCase {
         String currentUserId = authRepository.getCurrentUserId();
 
         if (currentUserId == null) {
-            // TODO Bakjoul handle not connected error
+            Log.d(TAG, "User is not logged in");
         } else {
             chatRepository.sendMessage(currentUserId, receiverId, content);
         }
