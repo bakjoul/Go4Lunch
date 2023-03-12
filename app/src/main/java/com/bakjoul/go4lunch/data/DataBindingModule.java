@@ -11,6 +11,7 @@ import com.bakjoul.go4lunch.data.restaurants.RestaurantRepositoryImplementation;
 import com.bakjoul.go4lunch.data.settings.SettingsRepositoryImplementation;
 import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
 import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
+import com.bakjoul.go4lunch.domain.auth.AuthRepository;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.chat.ChatRepository;
 import com.bakjoul.go4lunch.domain.details.RestaurantDetailsRepository;
@@ -77,4 +78,8 @@ public abstract class DataBindingModule {
     @Singleton
     @Binds
     public abstract ChatRepository bindChatRepository(ChatRepositoryImplementation implementation);
+
+    @Singleton
+    @Binds
+    public abstract AuthRepository bindAuthRepository(AuthRepositoryFirebase implementation);
 }

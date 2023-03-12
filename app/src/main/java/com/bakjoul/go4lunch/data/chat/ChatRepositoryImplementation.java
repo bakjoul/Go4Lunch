@@ -6,6 +6,7 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bakjoul.go4lunch.data.utils.FirestoreCollectionLiveData;
 import com.bakjoul.go4lunch.data.utils.FirestoreDocumentLiveData;
 import com.bakjoul.go4lunch.domain.chat.ChatRepository;
 import com.bakjoul.go4lunch.domain.chat.ChatThreadEntity;
@@ -16,6 +17,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -29,7 +31,7 @@ public class ChatRepositoryImplementation implements ChatRepository {
     private final FirebaseFirestore firestoreDb;
 
     @NonNull
-    private final FirebaseAuth firebaseAuth;
+    private final FirebaseAuth firebaseAuth; // TODO Bakjoul not authorized ! :D
 
     @Inject
     public ChatRepositoryImplementation(
@@ -40,9 +42,10 @@ public class ChatRepositoryImplementation implements ChatRepository {
         this.firebaseAuth = firebaseAuth;
     }
 
+    // TODO Bakjoul supprimable!
     @Override
     public void createConversation(String workmateId) {
-        String chatId = getChatId(workmateId);
+        String chatId = getChatId(firebaseAuth.getUid(), workmateId);
 
         firestoreDb.collection("chats").document(chatId)
             .get()
@@ -64,12 +67,12 @@ public class ChatRepositoryImplementation implements ChatRepository {
     }
 
     @NonNull
-    private String getChatId(String workmateId) {
-        if (firebaseAuth.getUid() != null
-            && firebaseAuth.getUid().compareTo(workmateId) < 0) {
-            return firebaseAuth.getUid() + workmateId;
+    private String getChatId(String sender, String receiver) {
+        if (sender != null
+            && sender.compareTo(receiver) < 0) {
+            return sender + receiver;
         } else {
-            return workmateId + firebaseAuth.getUid();
+            return receiver + sender;
         }
     }
 
@@ -78,29 +81,21 @@ public class ChatRepositoryImplementation implements ChatRepository {
         if (firebaseAuth.getUid() == null) {
             return new MutableLiveData<>();
         } else {
-            return new FirestoreDocumentLiveData<ChatThreadResponse, ChatThreadEntity>(
-                firestoreDb.collection("chats").document(getChatId(workmateId)),
+            return new FirestoreCollectionLiveData<ChatThreadResponse, List<ChatThreadEntity>>(
+                firestoreDb.collection("chats").document(getChatId(firebaseAuth.getUid(), workmateId)).collection("chat"),
                 ChatThreadResponse.class
             ) {
 
                 @Override
-                public ChatThreadEntity map(ChatThreadResponse response) {
-                    if (response == null) {
-                        return null;
-                    }
-
-                    final ChatThreadEntity entity;
-
-                    if (response.getId() != null
-                        && response.getMessages() != null) {
-                        entity = new ChatThreadEntity(
+                public List<ChatThreadEntity> map(ChatThreadResponse response) {
+                    if (response != null && response.getId() != null && response.getMessages() != null) {
+                        return new ChatThreadEntity( // TODO Bakjoul change mapping to List<>
                             response.getId(),
                             response.getMessages()
                         );
                     } else {
-                        entity = null;
+                        return null;
                     }
-                    return entity;
                 }
             };
 
@@ -108,14 +103,22 @@ public class ChatRepositoryImplementation implements ChatRepository {
     }
 
     @Override
-    public void sendMessage(String content, String workmateId) {
-        if (firebaseAuth.getUid() != null) {
+    public void sendMessage(String sender, String receiver, String content) {
+        if (sender != null && receiver != null) {
             ChatMessageResponse chatMessageResponse = new ChatMessageResponse(content, firebaseAuth.getUid(), new Timestamp(new Date()));
             firestoreDb.collection("chats")
-                .document(getChatId(workmateId))
-                .update("messages", FieldValue.arrayUnion(chatMessageResponse))
-                .addOnCompleteListener(task -> Log.d(TAG, "Message sent to " + workmateId))
-                .addOnFailureListener(e -> Log.d(TAG, "Message could not be sent: " + e.getMessage()));
+                .document(getChatId(sender, receiver))
+                .collection("chat")
+                .document()
+                .set(chatMessageResponse)
+                //.update("messages", FieldValue.arrayUnion(chatMessageResponse))
+                .addOnCompleteListener(task -> {
+                    if (task.getException() == null) {
+                        Log.d(TAG, "Message sent to " + receiver);
+                    } else {
+                         Log.d(TAG, "Message could not be sent: " + task.getException().getMessage());
+                    }
+                });
         }
     }
 }

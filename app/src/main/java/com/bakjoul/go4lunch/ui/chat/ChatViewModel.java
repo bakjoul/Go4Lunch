@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel;
 import com.bakjoul.go4lunch.data.chat.ChatMessageItemType;
 import com.bakjoul.go4lunch.data.chat.ChatMessageResponse;
 import com.bakjoul.go4lunch.domain.chat.ChatRepository;
+import com.bakjoul.go4lunch.domain.chat.SendMessageUseCase;
 import com.google.firebase.Timestamp;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -29,19 +30,19 @@ public class ChatViewModel extends ViewModel {
     private final String workmateId;
 
     @NonNull
-    private final ChatRepository chatRepository;
+    private final SendMessageUseCase sendMessageUseCase;
 
     @NonNull
-    private final FirebaseAuth firebaseAuth;
+    private final ChatRepository chatRepository; // TODO Bakjoul remove any repo dependency from VMs, use UseCase only!
 
     @Inject
     public ChatViewModel(
+        @NonNull SendMessageUseCase sendMessageUseCase,
         @NonNull ChatRepository chatRepository,
-        @NonNull FirebaseAuth firebaseAuth,
         @NonNull SavedStateHandle savedStateHandle
     ) {
+        this.sendMessageUseCase = sendMessageUseCase;
         this.chatRepository = chatRepository;
-        this.firebaseAuth = firebaseAuth;
         workmateId = savedStateHandle.get(KEY);
 
         chatRepository.createConversation(workmateId);
@@ -61,9 +62,14 @@ public class ChatViewModel extends ViewModel {
         );
     }
 
+    public void sendMessage(@NonNull String content) {
+        if (content.length() > 0) {
+            sendMessageUseCase.invoke(workmateId, content);
+        }
+    }
 
     @NonNull
-    private List<ChatMessageItemViewState> mapMessages(@NonNull List<ChatMessageResponse> messages) {
+    private List<ChatMessageItemViewState> mapMessages(@NonNull List<ChatMessageResponse> messages) { // TODO Bakjoul ChatMessageResponse -> ChatMessageEntity
         List<ChatMessageItemViewState> messageItemViewStates = new ArrayList<>();
         for (ChatMessageResponse message : messages) {
             ChatMessageItemViewState itemViewState =
@@ -79,22 +85,16 @@ public class ChatViewModel extends ViewModel {
     }
 
     private ChatMessageItemType getItemType(@NonNull ChatMessageResponse message) {
-        if (message.getSender().equals(firebaseAuth.getUid())) {
+       // if (message.getSender().equals(firebaseAuth.getUid())) { // TODO BAKJOUL Exprimer sender // receiver dans l'entity
             return ChatMessageItemType.SENT;
-        } else {
-            return ChatMessageItemType.RECEIVED;
-        }
+//        } else {
+//            return ChatMessageItemType.RECEIVED;
+//        }
     }
 
     @NonNull
     private String convertTimestamp(@NonNull Timestamp timestamp) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
         return dateFormat.format(timestamp.toDate());
-    }
-
-    public void sendMessage(@NonNull String content) {
-        if (content.length() > 0) {
-            chatRepository.sendMessage(content, workmateId);
-        }
     }
 }

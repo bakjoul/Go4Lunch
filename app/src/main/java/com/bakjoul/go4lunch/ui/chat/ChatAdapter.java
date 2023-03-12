@@ -14,14 +14,41 @@ import com.bakjoul.go4lunch.databinding.ActivityChatItemDateBinding;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemReceiverBinding;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemSenderBinding;
 
-public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, RecyclerView.ViewHolder> {
+public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, ChatAdapter.BaseViewHolder> {
 
-    private static final int DATE_HEADER_VIEW_TYPE = 0;
-    private static final int RECEIVED_MESSAGE_VIEW_TYPE = 1;
-    private static final int SENT_MESSAGE_VIEW_TYPE = 2;
+    private enum Type {
+        DATE_HEADER_VIEW_TYPE,
+        RECEIVED_MESSAGE_VIEW_TYPE,
+        SENT_MESSAGE_VIEW_TYPE
+    }
 
     public ChatAdapter() {
         super(new ChatAdapterDiffCallback());
+    }
+
+    @NonNull
+    @Override
+    public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        switch (Type.values()[viewType]) {
+            case DATE_HEADER_VIEW_TYPE:
+                return new DateHeaderViewHolder(ActivityChatItemDateBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+            case RECEIVED_MESSAGE_VIEW_TYPE:
+                return new ReceiverViewHolder(ActivityChatItemReceiverBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+            case SENT_MESSAGE_VIEW_TYPE:
+                return new SenderViewHolder(ActivityChatItemSenderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+            default:
+                throw new IllegalStateException("Unexpected value: " + viewType);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull BaseViewHolder holder, int position) {
+        holder.bind(getItem(position));
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return getItem(position).getItemType().ordinal();
     }
 
     abstract static class BaseViewHolder extends RecyclerView.ViewHolder {
@@ -77,49 +104,6 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, RecyclerV
             binding.chatItemSenderMessage.setText(viewState.getContent());
             binding.chatItemSenderTimestamp.setText(viewState.getTimestamp());
         }
-    }
-
-    @NonNull
-    @Override
-    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        switch (viewType) {
-            case DATE_HEADER_VIEW_TYPE:
-                return new DateHeaderViewHolder(ActivityChatItemDateBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
-            case RECEIVED_MESSAGE_VIEW_TYPE:
-                return new ReceiverViewHolder(ActivityChatItemReceiverBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
-            case SENT_MESSAGE_VIEW_TYPE:
-                return new SenderViewHolder(ActivityChatItemSenderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
-            default:
-                throw new IllegalStateException("Unexpected value: " + viewType);
-        }
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        switch (holder.getItemViewType()) {
-            case DATE_HEADER_VIEW_TYPE:
-                ((DateHeaderViewHolder) holder).bind(getItem(position));
-                break;
-            case RECEIVED_MESSAGE_VIEW_TYPE:
-                ((ReceiverViewHolder) holder).bind(getItem(position));
-                break;
-            case SENT_MESSAGE_VIEW_TYPE:
-                ((SenderViewHolder) holder).bind(getItem(position));
-                break;
-            default:
-                throw new IllegalStateException("Unexpected value: " + holder.getItemViewType());
-        }
-    }
-
-    @Override
-    public int getItemViewType(int position) {
-        ChatMessageItemViewState itemViewState = getItem(position);
-        if (itemViewState.getItemType() == ChatMessageItemType.RECEIVED) {
-            return RECEIVED_MESSAGE_VIEW_TYPE;
-        } else if (itemViewState.getItemType() == ChatMessageItemType.SENT) {
-            return SENT_MESSAGE_VIEW_TYPE;
-        }
-        throw new IllegalArgumentException("Unknown message item view type");
     }
 
     private static class ChatAdapterDiffCallback extends DiffUtil.ItemCallback<ChatMessageItemViewState> {

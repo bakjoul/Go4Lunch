@@ -8,5 +8,5 @@ public interface ChatRepository {
 
     LiveData<ChatThreadEntity> getMessages(String workmateId);
 
-    void sendMessage(String content, String workmateId);
+    void sendMessage(String sender, String receiver, String content);
 }
