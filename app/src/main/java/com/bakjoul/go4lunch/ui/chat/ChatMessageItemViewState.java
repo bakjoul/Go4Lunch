@@ -2,14 +2,12 @@ package com.bakjoul.go4lunch.ui.chat;
 
 import androidx.annotation.NonNull;
 
-import com.google.firebase.Timestamp;
-
 import java.util.Objects;
 
 public class ChatMessageItemViewState {
 
     @NonNull
-    private final Timestamp timestamp;
+    private final String timestamp;
 
     @NonNull
     private final String sender;
@@ -17,14 +15,14 @@ public class ChatMessageItemViewState {
     @NonNull
     private final String content;
 
-    public ChatMessageItemViewState(@NonNull Timestamp timestamp, @NonNull String sender, @NonNull String content) {
+    public ChatMessageItemViewState(@NonNull String timestamp, @NonNull String sender, @NonNull String content) {
         this.timestamp = timestamp;
         this.sender = sender;
         this.content = content;
     }
 
     @NonNull
-    public Timestamp getTimestamp() {
+    public String getTimestamp() {
         return timestamp;
     }
 
@@ -55,7 +53,7 @@ public class ChatMessageItemViewState {
     @Override
     public String toString() {
         return "ChatMessageItemViewState{" +
-            "timestamp=" + timestamp +
+            "timestamp='" + timestamp + '\'' +
             ", sender='" + sender + '\'' +
             ", content='" + content + '\'' +
             '}';

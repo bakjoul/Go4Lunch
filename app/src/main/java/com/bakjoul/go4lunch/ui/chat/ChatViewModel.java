@@ -7,11 +7,14 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.bakjoul.go4lunch.data.chat.ChatMessage;
+import com.bakjoul.go4lunch.data.chat.ChatMessageResponse;
 import com.bakjoul.go4lunch.domain.chat.ChatRepository;
+import com.google.firebase.Timestamp;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
 
@@ -34,15 +37,17 @@ public class ChatViewModel extends ViewModel {
         this.chatRepository = chatRepository;
 
         workmateId = savedStateHandle.get(KEY);
+
+        chatRepository.createConversation(workmateId);
     }
 
     public LiveData<ChatViewState> getChatViewStateLiveData() {
         return Transformations.switchMap(
             chatRepository.getMessages(workmateId),
             entity -> {
-                if (entity != null && entity.get(0) != null && workmateId != null) {
+                if (entity != null && workmateId != null) {
                     return new MutableLiveData<>(
-                        new ChatViewState(workmateId, "", mapMessages(entity.get(0).getMessages()))
+                        new ChatViewState(workmateId, "", mapMessages(entity.getMessages()))
                     );
                 }
                 return null;
@@ -52,13 +57,20 @@ public class ChatViewModel extends ViewModel {
 
 
     @NonNull
-    private List<ChatMessageItemViewState> mapMessages(@NonNull List<ChatMessage> messages) {
+    private List<ChatMessageItemViewState> mapMessages(@NonNull List<ChatMessageResponse> messages) {
         List<ChatMessageItemViewState> messageItemViewStates = new ArrayList<>();
-        for (ChatMessage message : messages) {
+        for (ChatMessageResponse message : messages) {
             ChatMessageItemViewState itemViewState =
-                new ChatMessageItemViewState(message.getTimeStamp(), message.getSender(), message.getContent());
+                new ChatMessageItemViewState(convertTimestamp(message.getTimestamp()), message.getSender(), message.getContent());
+            messageItemViewStates.add(itemViewState);
         }
         return messageItemViewStates;
+    }
+
+    @NonNull
+    private String convertTimestamp(@NonNull Timestamp timestamp) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+        return dateFormat.format(timestamp.toDate());
     }
 
     public void sendMessage(@NonNull String content) {

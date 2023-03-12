@@ -13,13 +13,13 @@ public class ChatThreadResponse {
     private final String id;
 
     @Nullable
-    private final List<ChatMessage> messages;
+    private final List<ChatMessageResponse> messages;
 
     public ChatThreadResponse() {
         this(null, null);
     }
 
-    public ChatThreadResponse(@Nullable String id, @Nullable List<ChatMessage> messages) {
+    public ChatThreadResponse(@Nullable String id, @Nullable List<ChatMessageResponse> messages) {
         this.id = id;
         this.messages = messages;
     }
@@ -30,7 +30,7 @@ public class ChatThreadResponse {
     }
 
     @Nullable
-    public List<ChatMessage> getMessages() {
+    public List<ChatMessageResponse> getMessages() {
         return messages;
     }
 

@@ -2,7 +2,7 @@ package com.bakjoul.go4lunch.domain.chat;
 
 import androidx.annotation.NonNull;
 
-import com.bakjoul.go4lunch.data.chat.ChatMessage;
+import com.bakjoul.go4lunch.data.chat.ChatMessageResponse;
 
 import java.util.List;
 import java.util.Objects;
@@ -13,9 +13,9 @@ public class ChatThreadEntity {
     private final String id;
 
     @NonNull
-    private final List<ChatMessage> messages;
+    private final List<ChatMessageResponse> messages;
 
-    public ChatThreadEntity(@NonNull String id, @NonNull List<ChatMessage> messages) {
+    public ChatThreadEntity(@NonNull String id, @NonNull List<ChatMessageResponse> messages) {
         this.id = id;
         this.messages = messages;
     }
@@ -26,7 +26,7 @@ public class ChatThreadEntity {
     }
 
     @NonNull
-    public List<ChatMessage> getMessages() {
+    public List<ChatMessageResponse> getMessages() {
         return messages;
     }
 

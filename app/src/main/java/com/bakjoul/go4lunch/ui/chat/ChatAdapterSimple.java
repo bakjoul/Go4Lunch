@@ -38,6 +38,7 @@ public class ChatAdapterSimple extends ListAdapter<ChatMessageItemViewState, Cha
 
         public void bind(@NonNull ChatMessageItemViewState viewState) {
             binding.chatItemReceiverMessage.setText(viewState.getContent());
+            binding.chatItemReceiverTimestamp.setText(viewState.getTimestamp());
         }
     }
 

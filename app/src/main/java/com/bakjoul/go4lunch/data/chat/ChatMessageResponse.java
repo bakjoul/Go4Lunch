@@ -6,49 +6,47 @@ import com.google.firebase.Timestamp;
 
 import java.util.Objects;
 
-public class ChatMessage {
+public class ChatMessageResponse {
 
-    @NonNull
     private final String content;
 
-    @NonNull
     private final String sender;
 
-    @NonNull
-    private final com.google.firebase.Timestamp timeStamp;
+    private final com.google.firebase.Timestamp timestamp;
 
-    public ChatMessage(@NonNull String content, @NonNull String sender, @NonNull com.google.firebase.Timestamp timeStamp) {
-        this.content = content;
-        this.sender = sender;
-        this.timeStamp = timeStamp;
+    public ChatMessageResponse() {
+        this(null, null, null);
     }
 
-    @NonNull
+    public ChatMessageResponse(String content, String sender, Timestamp timestamp) {
+        this.content = content;
+        this.sender = sender;
+        this.timestamp = timestamp;
+    }
+
     public String getContent() {
         return content;
     }
 
-    @NonNull
     public String getSender() {
         return sender;
     }
 
-    @NonNull
-    public Timestamp getTimeStamp() {
-        return timeStamp;
+    public Timestamp getTimestamp() {
+        return timestamp;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        ChatMessage that = (ChatMessage) o;
-        return content.equals(that.content) && sender.equals(that.sender) && timeStamp.equals(that.timeStamp);
+        ChatMessageResponse message = (ChatMessageResponse) o;
+        return Objects.equals(content, message.content) && Objects.equals(sender, message.sender) && Objects.equals(timestamp, message.timestamp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(content, sender, timeStamp);
+        return Objects.hash(content, sender, timestamp);
     }
 
     @NonNull
@@ -57,7 +55,7 @@ public class ChatMessage {
         return "ChatMessage{" +
             "content='" + content + '\'' +
             ", sender='" + sender + '\'' +
-            ", timeStamp=" + timeStamp +
+            ", timeStamp=" + timestamp +
             '}';
     }
 }
