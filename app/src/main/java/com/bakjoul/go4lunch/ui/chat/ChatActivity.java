@@ -3,12 +3,14 @@ package com.bakjoul.go4lunch.ui.chat;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.databinding.ActivityChatBinding;
+import com.google.android.material.textfield.TextInputEditText;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,16 +39,6 @@ public class ChatActivity extends AppCompatActivity {
         Intent intent = new Intent(sourceActivity, ChatActivity.class);
         intent.putExtras(arg);
         sourceActivity.startActivity(intent);
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        // Hides keyboard on click outside
-        if (getCurrentFocus() != null) {
-            InputMethodManager inputMethodManager = (InputMethodManager) getApplicationContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-            inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
-        }
-        return super.dispatchTouchEvent(ev);
     }
 
     @Override
@@ -88,6 +81,34 @@ public class ChatActivity extends AppCompatActivity {
         );
     }
 
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(@NonNull MotionEvent ev) {
+        // Hides keyboard on click outside of input
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            View view = getCurrentFocus();
+            if (view instanceof EditText && view.isFocused()) {
+                Rect rect = new Rect();
+                view.getGlobalVisibleRect(rect);
+                int x = (int) ev.getRawX();
+                int y = (int) ev.getRawY();
+                if (!rect.contains(x, y)) {
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
     private void setToolbar() {
         Toolbar toolbar = binding.chatToolbar;
         toolbar.setTitle("Chat");
@@ -101,12 +122,9 @@ public class ChatActivity extends AppCompatActivity {
         }
     }
 
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-        }
-
-        return super.onOptionsItemSelected(item);
+    private void hideSoftKeyboard(@NonNull TextInputEditText textInputEditText) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(textInputEditText.getWindowToken(), 0);
+        textInputEditText.clearFocus();
     }
 }
