@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -96,12 +97,12 @@ public class ChatActivity extends AppCompatActivity {
 
     @Override
     public boolean dispatchTouchEvent(@NonNull MotionEvent ev) {
-        // Hides keyboard on click outside of input
+        // Hides keyboard on click outside of input box
         if (ev.getAction() == MotionEvent.ACTION_DOWN) {
             View view = getCurrentFocus();
-            if (view instanceof EditText && view.isFocused()) {
+            if (view != null && view == binding.chatInputLinearLayout.findFocus()) {
                 Rect rect = new Rect();
-                view.getGlobalVisibleRect(rect);
+                binding.chatInputLinearLayout.getGlobalVisibleRect(rect);
                 int x = (int) ev.getRawX();
                 int y = (int) ev.getRawY();
                 if (!rect.contains(x, y)) {
