@@ -10,32 +10,41 @@ import java.util.Objects;
 public class ChatMessageResponse {
 
     @Nullable
-    private final String content;
+    private final String id;
 
     @Nullable
     private final String sender;
 
     @Nullable
-    private final com.google.firebase.Timestamp timestamp;
+    private final String content;
+
+    @Nullable
+    private final Timestamp timestamp;
 
     public ChatMessageResponse() {
-        this(null, null, null);
+        this(null, null, null, null);
     }
 
-    public ChatMessageResponse(@Nullable String content, @Nullable String sender, @Nullable Timestamp timestamp) {
-        this.content = content;
+    public ChatMessageResponse(@Nullable String id, @Nullable String sender, @Nullable String content, @Nullable Timestamp timestamp) {
+        this.id = id;
         this.sender = sender;
+        this.content = content;
         this.timestamp = timestamp;
     }
 
     @Nullable
-    public String getContent() {
-        return content;
+    public String getId() {
+        return id;
     }
 
     @Nullable
     public String getSender() {
         return sender;
+    }
+
+    @Nullable
+    public String getContent() {
+        return content;
     }
 
     @Nullable
@@ -48,20 +57,21 @@ public class ChatMessageResponse {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChatMessageResponse that = (ChatMessageResponse) o;
-        return Objects.equals(content, that.content) && Objects.equals(sender, that.sender) && Objects.equals(timestamp, that.timestamp);
+        return Objects.equals(id, that.id) && Objects.equals(sender, that.sender) && Objects.equals(content, that.content) && Objects.equals(timestamp, that.timestamp);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(content, sender, timestamp);
+        return Objects.hash(id, sender, content, timestamp);
     }
 
     @NonNull
     @Override
     public String toString() {
         return "ChatMessageResponse{" +
-            "content='" + content + '\'' +
+            "id='" + id + '\'' +
             ", sender='" + sender + '\'' +
+            ", content='" + content + '\'' +
             ", timestamp=" + timestamp +
             '}';
     }
