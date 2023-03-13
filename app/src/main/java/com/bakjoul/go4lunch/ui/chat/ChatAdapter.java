@@ -103,7 +103,7 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, ChatAdapt
     private static class ChatAdapterDiffCallback extends DiffUtil.ItemCallback<ChatMessageItemViewState> {
         @Override
         public boolean areItemsTheSame(@NonNull ChatMessageItemViewState oldItem, @NonNull ChatMessageItemViewState newItem) {
-            return oldItem.getTimestamp().equals(newItem.getTimestamp());
+            return oldItem.getId().equals(newItem.getId());
         }
 
         @Override

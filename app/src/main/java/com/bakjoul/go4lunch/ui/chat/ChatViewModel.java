@@ -72,6 +72,7 @@ public class ChatViewModel extends ViewModel {
         for (ChatMessageEntity message : messageEntityList) {
             ChatMessageItemViewState itemViewState =
                 new ChatMessageItemViewState(
+                    message.getId(),
                     getItemType(message),
                     message.getSender(),
                     message.getContent(),
