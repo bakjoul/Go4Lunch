@@ -6,16 +6,14 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.bakjoul.go4lunch.data.utils.FirestoreCollectionLiveData;
-import com.bakjoul.go4lunch.data.utils.FirestoreDocumentLiveData;
+import com.bakjoul.go4lunch.data.utils.FirestoreChatQueryLiveData;
+import com.bakjoul.go4lunch.data.utils.TimeUtils;
+import com.bakjoul.go4lunch.domain.chat.ChatMessageEntity;
 import com.bakjoul.go4lunch.domain.chat.ChatRepository;
-import com.bakjoul.go4lunch.domain.chat.ChatThreadEntity;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.Query;
 
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -30,40 +28,62 @@ public class ChatRepositoryImplementation implements ChatRepository {
     @NonNull
     private final FirebaseFirestore firestoreDb;
 
-    @NonNull
-    private final FirebaseAuth firebaseAuth; // TODO Bakjoul not authorized ! :D
-
     @Inject
-    public ChatRepositoryImplementation(
-        @NonNull FirebaseFirestore firestoreDb,
-        @NonNull FirebaseAuth firebaseAuth
-    ) {
+    public ChatRepositoryImplementation(@NonNull FirebaseFirestore firestoreDb) {
         this.firestoreDb = firestoreDb;
-        this.firebaseAuth = firebaseAuth;
     }
 
-    // TODO Bakjoul supprimable!
     @Override
-    public void createConversation(String workmateId) {
-        String chatId = getChatId(firebaseAuth.getUid(), workmateId);
+    public LiveData<List<ChatMessageEntity>> getMessages(String sender, String receiver) {
+        if (sender == null && receiver == null) {
+            return new MutableLiveData<>();
+        } else {
+            return new FirestoreChatQueryLiveData<ChatMessageResponse, ChatMessageEntity>(
+                firestoreDb.collection("chats").document(getChatId(sender, receiver)).collection("chat")
+                    .orderBy("timestamp", Query.Direction.DESCENDING),
+                ChatMessageResponse.class
+            ) {
+                @Override
+                public ChatMessageEntity map(ChatMessageResponse response, String responseId) {
+                    final ChatMessageEntity entity;
 
-        firestoreDb.collection("chats").document(chatId)
-            .get()
-            .addOnCompleteListener(task -> {
-                if (task.isSuccessful()) {
-                    if (task.getResult().exists()) {
-                        Log.d(TAG, "Conversation already exists");
+                    if (response.getSender() != null
+                        && response.getContent() != null
+                        && response.getTimestamp() != null) {
+                        entity = new ChatMessageEntity(
+                            responseId,
+                            response.getSender(),
+                            response.getContent(),
+                            response.getTimestamp()
+                        );
                     } else {
-                        firestoreDb.collection("chats").document(chatId)
-                            .set(new ChatThreadResponse(chatId, new ArrayList<>()))
-                            .addOnCompleteListener(task1 -> Log.d(TAG, "Chat between " + firebaseAuth.getUid() + " and " + workmateId + "was created"))
-                            .addOnFailureListener(e -> Log.e(TAG, "Chat could not be created. " + e.getMessage()));
+                        entity = null;
                     }
-                } else {
-                    Log.e(TAG, "Error getting document", task.getException());
-                }
 
-            });
+                    return entity;
+                }
+            };
+        }
+    }
+
+    @Override
+    public void sendMessage(String sender, String receiver, String content) {
+        if (sender != null && receiver != null) {
+            Date now = TimeUtils.getNetworkTime();
+            ChatMessageEntity message = new ChatMessageEntity(sender, content, new Timestamp(now));
+
+            firestoreDb.collection("chats")
+                .document(getChatId(sender, receiver))
+                .collection("chat")
+                .add(message)
+                .addOnCompleteListener(task -> {
+                    if (task.getException() == null) {
+                        Log.d(TAG, "Message sent to " + receiver);
+                    } else {
+                        Log.d(TAG, "Message could not be sent: " + task.getException().getMessage());
+                    }
+                });
+        }
     }
 
     @NonNull
@@ -73,52 +93,6 @@ public class ChatRepositoryImplementation implements ChatRepository {
             return sender + receiver;
         } else {
             return receiver + sender;
-        }
-    }
-
-    @Override
-    public LiveData<ChatThreadEntity> getMessages(String workmateId) {
-        if (firebaseAuth.getUid() == null) {
-            return new MutableLiveData<>();
-        } else {
-            return new FirestoreCollectionLiveData<ChatThreadResponse, List<ChatThreadEntity>>(
-                firestoreDb.collection("chats").document(getChatId(firebaseAuth.getUid(), workmateId)).collection("chat"),
-                ChatThreadResponse.class
-            ) {
-
-                @Override
-                public List<ChatThreadEntity> map(ChatThreadResponse response) {
-                    if (response != null && response.getId() != null && response.getMessages() != null) {
-                        return new ChatThreadEntity( // TODO Bakjoul change mapping to List<>
-                            response.getId(),
-                            response.getMessages()
-                        );
-                    } else {
-                        return null;
-                    }
-                }
-            };
-
-        }
-    }
-
-    @Override
-    public void sendMessage(String sender, String receiver, String content) {
-        if (sender != null && receiver != null) {
-            ChatMessageResponse chatMessageResponse = new ChatMessageResponse(content, firebaseAuth.getUid(), new Timestamp(new Date()));
-            firestoreDb.collection("chats")
-                .document(getChatId(sender, receiver))
-                .collection("chat")
-                .document()
-                .set(chatMessageResponse)
-                //.update("messages", FieldValue.arrayUnion(chatMessageResponse))
-                .addOnCompleteListener(task -> {
-                    if (task.getException() == null) {
-                        Log.d(TAG, "Message sent to " + receiver);
-                    } else {
-                         Log.d(TAG, "Message could not be sent: " + task.getException().getMessage());
-                    }
-                });
         }
     }
 }

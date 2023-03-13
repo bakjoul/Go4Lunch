@@ -1,5 +1,7 @@
 package com.bakjoul.go4lunch.ui.chat;
 
+import android.util.Log;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -7,12 +9,11 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.bakjoul.go4lunch.data.chat.ChatMessageItemType;
-import com.bakjoul.go4lunch.data.chat.ChatMessageResponse;
-import com.bakjoul.go4lunch.domain.chat.ChatRepository;
+import com.bakjoul.go4lunch.data.chat.ChatMessageViewType;
+import com.bakjoul.go4lunch.domain.chat.ChatMessageEntity;
+import com.bakjoul.go4lunch.domain.chat.GetMessagesUseCase;
 import com.bakjoul.go4lunch.domain.chat.SendMessageUseCase;
 import com.google.firebase.Timestamp;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,34 +31,32 @@ public class ChatViewModel extends ViewModel {
     private final String workmateId;
 
     @NonNull
-    private final SendMessageUseCase sendMessageUseCase;
+    private final GetMessagesUseCase getMessagesUseCase;
 
     @NonNull
-    private final ChatRepository chatRepository; // TODO Bakjoul remove any repo dependency from VMs, use UseCase only!
+    private final SendMessageUseCase sendMessageUseCase;
 
     @Inject
     public ChatViewModel(
+        @NonNull GetMessagesUseCase getMessagesUseCase,
         @NonNull SendMessageUseCase sendMessageUseCase,
-        @NonNull ChatRepository chatRepository,
         @NonNull SavedStateHandle savedStateHandle
     ) {
+        this.getMessagesUseCase = getMessagesUseCase;
         this.sendMessageUseCase = sendMessageUseCase;
-        this.chatRepository = chatRepository;
         workmateId = savedStateHandle.get(KEY);
-
-        chatRepository.createConversation(workmateId);
     }
 
     public LiveData<ChatViewState> getChatViewStateLiveData() {
         return Transformations.switchMap(
-            chatRepository.getMessages(workmateId),
+            getMessagesUseCase.invoke(workmateId),
             entity -> {
                 if (entity != null && workmateId != null) {
                     return new MutableLiveData<>(
-                        new ChatViewState(workmateId, "", mapMessages(entity.getMessages()))
+                        new ChatViewState(workmateId, "", mapMessages(entity))
                     );
                 }
-                return null;
+                return new MutableLiveData<>(new ChatViewState("", "", new ArrayList<>()));
             }
         );
     }
@@ -69,9 +68,10 @@ public class ChatViewModel extends ViewModel {
     }
 
     @NonNull
-    private List<ChatMessageItemViewState> mapMessages(@NonNull List<ChatMessageResponse> messages) { // TODO Bakjoul ChatMessageResponse -> ChatMessageEntity
+    private List<ChatMessageItemViewState> mapMessages(@NonNull List<ChatMessageEntity> messageEntityList) {
         List<ChatMessageItemViewState> messageItemViewStates = new ArrayList<>();
-        for (ChatMessageResponse message : messages) {
+
+        for (ChatMessageEntity message : messageEntityList) {
             ChatMessageItemViewState itemViewState =
                 new ChatMessageItemViewState(
                     getItemType(message),
@@ -81,15 +81,16 @@ public class ChatViewModel extends ViewModel {
                 );
             messageItemViewStates.add(itemViewState);
         }
+
         return messageItemViewStates;
     }
 
-    private ChatMessageItemType getItemType(@NonNull ChatMessageResponse message) {
-       // if (message.getSender().equals(firebaseAuth.getUid())) { // TODO BAKJOUL Exprimer sender // receiver dans l'entity
-            return ChatMessageItemType.SENT;
-//        } else {
-//            return ChatMessageItemType.RECEIVED;
-//        }
+    private ChatMessageViewType getItemType(@NonNull ChatMessageEntity message) {
+        if (!message.getSender().equals(workmateId)) {
+            return ChatMessageViewType.SENT_MESSAGE_VIEW_TYPE;
+        } else {
+            return ChatMessageViewType.RECEIVED_MESSAGE_VIEW_TYPE;
+        }
     }
 
     @NonNull
