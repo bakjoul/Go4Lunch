@@ -118,7 +118,7 @@ public class MapFragment extends Fragment {
 
                     // Adds markers click listeners
                     googleMap.setOnMarkerClickListener(marker -> {
-                        startActivity(DetailsActivity.navigate(getContext(), (String) marker.getTag()));
+                        startActivity(DetailsActivity.navigate(requireContext(), (String) marker.getTag()));
                         return true;
                     });
 

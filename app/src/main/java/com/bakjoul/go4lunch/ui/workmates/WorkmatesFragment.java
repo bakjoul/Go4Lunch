@@ -98,7 +98,7 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
 
         if (binding.workmatesRecyclerView.getLayoutManager() != null) {
             WorkmateTag workmateTag = (WorkmateTag) binding.workmatesRecyclerView.getLayoutManager().findViewByPosition(position).getTag();
-            startActivity(DetailsActivity.navigate(getActivity(), workmateTag.getChosenRestaurantId()));
+            startActivity(DetailsActivity.navigate(requireContext(), workmateTag.getChosenRestaurantId()));
         }
     }
 
@@ -106,7 +106,7 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
     public void onWorkmatePhotoClicked(int position) {
         if (binding.workmatesRecyclerView.getLayoutManager() != null) {
             WorkmateTag workmateTag = (WorkmateTag) binding.workmatesRecyclerView.getLayoutManager().findViewByPosition(position).getTag();
-            ChatActivity.navigate(workmateTag.getWorkmateId(), getActivity());
+            startActivity(ChatActivity.navigate(requireContext(), workmateTag.getWorkmateId()));
         }
     }
 }

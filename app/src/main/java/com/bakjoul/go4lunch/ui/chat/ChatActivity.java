@@ -1,6 +1,5 @@
 package com.bakjoul.go4lunch.ui.chat;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
@@ -26,12 +25,11 @@ public class ChatActivity extends AppCompatActivity {
 
     private ActivityChatBinding binding;
 
-    public static void navigate(String workmateId, Activity sourceActivity) {
-        Bundle arg = new Bundle();
-        arg.putString("workmateId", workmateId);
-        Intent intent = new Intent(sourceActivity, ChatActivity.class);
-        intent.putExtras(arg);
-        sourceActivity.startActivity(intent);
+    @NonNull
+    public static Intent navigate(Context context, String workmateId) {
+        Intent intent = new Intent(context, ChatActivity.class);
+        intent.putExtra("workmateId", workmateId);
+        return intent;
     }
 
     @Override

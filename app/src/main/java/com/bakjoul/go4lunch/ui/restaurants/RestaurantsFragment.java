@@ -112,7 +112,7 @@ public class RestaurantsFragment extends Fragment implements RestaurantsAdapter.
         if (binding.restaurantsRecyclerView.getLayoutManager() != null) {
             startActivity(
                 DetailsActivity.navigate(
-                    getActivity(),
+                    requireContext(),
                     binding.restaurantsRecyclerView.getLayoutManager().findViewByPosition(position).getTag().toString()
                 ));
         }
