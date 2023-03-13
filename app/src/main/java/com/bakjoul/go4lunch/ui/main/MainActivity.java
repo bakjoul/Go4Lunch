@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
             switch (item.getItemId()) {
                 case R.id.mainNavigationDrawer_menu_lunch:
                     if (viewState.getChosenRestaurantId() != null) {
-                        DetailsActivity.navigate(viewState.getChosenRestaurantId(), this);
+                        startActivity(DetailsActivity.navigate(getApplicationContext(), viewState.getChosenRestaurantId()));
                     } else {
                         Toast.makeText(getApplicationContext(), R.string.main_toast_lunch, Toast.LENGTH_LONG).show();
                     }

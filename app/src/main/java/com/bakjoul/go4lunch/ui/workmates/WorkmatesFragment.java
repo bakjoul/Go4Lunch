@@ -98,7 +98,7 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
 
         if (binding.workmatesRecyclerView.getLayoutManager() != null) {
             WorkmateTag workmateTag = (WorkmateTag) binding.workmatesRecyclerView.getLayoutManager().findViewByPosition(position).getTag();
-            DetailsActivity.navigate(workmateTag.getChosenRestaurantId(), getActivity());
+            startActivity(DetailsActivity.navigate(getActivity(), workmateTag.getChosenRestaurantId()));
         }
     }
 

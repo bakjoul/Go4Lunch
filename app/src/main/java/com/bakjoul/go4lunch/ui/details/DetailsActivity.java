@@ -3,7 +3,7 @@ package com.bakjoul.go4lunch.ui.details;
 import android.animation.ObjectAnimator;
 import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
-import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,12 +31,11 @@ public class DetailsActivity extends AppCompatActivity {
 
     private ActivityDetailsBinding binding;
 
-    public static void navigate(String restaurantId, Activity sourceActivity) {
-        Bundle arg = new Bundle();
-        arg.putString("restaurantId", restaurantId);
-        Intent intent = new Intent(sourceActivity, DetailsActivity.class);
-        intent.putExtras(arg);
-        sourceActivity.startActivity(intent);
+    @NonNull
+    public static Intent navigate(Context context, String restaurantId) {
+        Intent intent = new Intent(context, DetailsActivity.class);
+        intent.putExtra("restaurantId", restaurantId);
+        return intent;
     }
 
     @Override
