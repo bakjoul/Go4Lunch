@@ -2,14 +2,14 @@ package com.bakjoul.go4lunch.ui.chat;
 
 import androidx.annotation.NonNull;
 
-import com.bakjoul.go4lunch.data.chat.ChatMessageItemType;
+import com.bakjoul.go4lunch.data.chat.ChatMessageViewType;
 
 import java.util.Objects;
 
 public class ChatMessageItemViewState {
 
     @NonNull
-    private final ChatMessageItemType itemType;
+    private final ChatMessageViewType itemType;
 
     @NonNull
     private final String sender;
@@ -20,7 +20,7 @@ public class ChatMessageItemViewState {
     @NonNull
     private final String timestamp;
 
-    public ChatMessageItemViewState(@NonNull ChatMessageItemType itemType, @NonNull String sender, @NonNull String content, @NonNull String timestamp) {
+    public ChatMessageItemViewState(@NonNull ChatMessageViewType itemType, @NonNull String sender, @NonNull String content, @NonNull String timestamp) {
         this.itemType = itemType;
         this.sender = sender;
         this.content = content;
@@ -28,7 +28,7 @@ public class ChatMessageItemViewState {
     }
 
     @NonNull
-    public ChatMessageItemType getItemType() {
+    public ChatMessageViewType getItemType() {
         return itemType;
     }
 

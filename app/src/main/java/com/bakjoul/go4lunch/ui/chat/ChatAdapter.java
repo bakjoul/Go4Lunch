@@ -9,18 +9,12 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bakjoul.go4lunch.data.chat.ChatMessageItemType;
+import com.bakjoul.go4lunch.data.chat.ChatMessageViewType;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemDateBinding;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemReceiverBinding;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemSenderBinding;
 
 public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, ChatAdapter.BaseViewHolder> {
-
-    private enum Type {
-        DATE_HEADER_VIEW_TYPE,
-        RECEIVED_MESSAGE_VIEW_TYPE,
-        SENT_MESSAGE_VIEW_TYPE
-    }
 
     public ChatAdapter() {
         super(new ChatAdapterDiffCallback());
@@ -29,7 +23,7 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, ChatAdapt
     @NonNull
     @Override
     public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        switch (Type.values()[viewType]) {
+        switch (ChatMessageViewType.values()[viewType]) {
             case DATE_HEADER_VIEW_TYPE:
                 return new DateHeaderViewHolder(ActivityChatItemDateBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
             case RECEIVED_MESSAGE_VIEW_TYPE:
