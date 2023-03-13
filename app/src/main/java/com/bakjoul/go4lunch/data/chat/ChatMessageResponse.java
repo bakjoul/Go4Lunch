@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Objects;
 
@@ -19,6 +20,7 @@ public class ChatMessageResponse {
     private final String content;
 
     @Nullable
+    @ServerTimestamp
     private final Timestamp timestamp;
 
     public ChatMessageResponse() {

@@ -7,15 +7,15 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.data.utils.FirestoreChatQueryLiveData;
-import com.bakjoul.go4lunch.data.utils.TimeUtils;
 import com.bakjoul.go4lunch.domain.chat.ChatMessageEntity;
 import com.bakjoul.go4lunch.domain.chat.ChatRepository;
-import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -69,13 +69,16 @@ public class ChatRepositoryImplementation implements ChatRepository {
     @Override
     public void sendMessage(String sender, String receiver, String content) {
         if (sender != null && receiver != null) {
-            Date now = TimeUtils.getNetworkTime();
-            ChatMessageEntity message = new ChatMessageEntity(sender, content, new Timestamp(now));
+            Map<String, Object> messageMap = new HashMap<>();
+            messageMap.put("id", null);
+            messageMap.put("sender", sender);
+            messageMap.put("content", content);
+            messageMap.put("timestamp", FieldValue.serverTimestamp());
 
             firestoreDb.collection("chats")
                 .document(getChatId(sender, receiver))
                 .collection("chat")
-                .add(message)
+                .add(messageMap)
                 .addOnCompleteListener(task -> {
                     if (task.getException() == null) {
                         Log.d(TAG, "Message sent to " + receiver);

@@ -3,9 +3,9 @@ package com.bakjoul.go4lunch.domain.chat;
 import androidx.annotation.NonNull;
 
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.ServerTimestamp;
 
 import java.util.Objects;
-import java.util.UUID;
 
 public class ChatMessageEntity {
 
@@ -19,17 +19,11 @@ public class ChatMessageEntity {
     private final String content;
 
     @NonNull
+    @ServerTimestamp
     private final Timestamp timestamp;
 
     public ChatMessageEntity(@NonNull String id, @NonNull String sender, @NonNull String content, @NonNull Timestamp timestamp) {
         this.id = id;
-        this.sender = sender;
-        this.content = content;
-        this.timestamp = timestamp;
-    }
-
-    public ChatMessageEntity(@NonNull String sender, @NonNull String content, @NonNull Timestamp timestamp) {
-        this.id = UUID.randomUUID().toString();
         this.sender = sender;
         this.content = content;
         this.timestamp = timestamp;
