@@ -25,8 +25,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class ChatViewModel extends ViewModel {
 
-    private static final String KEY = "workmateId";
+    private static final String KEY_WORKMATE_ID = "workmateId";
+    private static final String KEY_PHOTO_URL = "photoUrl";
+    private static final String KEY_USERNAME = "username";
+
     private final String workmateId;
+    private final String photoUrl;
+    private final String username;
 
     @NonNull
     private final GetMessagesUseCase getMessagesUseCase;
@@ -42,7 +47,9 @@ public class ChatViewModel extends ViewModel {
     ) {
         this.getMessagesUseCase = getMessagesUseCase;
         this.sendMessageUseCase = sendMessageUseCase;
-        workmateId = savedStateHandle.get(KEY);
+        workmateId = savedStateHandle.get(KEY_WORKMATE_ID);
+        photoUrl = savedStateHandle.get(KEY_PHOTO_URL);
+        username = savedStateHandle.get(KEY_USERNAME);
     }
 
     public LiveData<ChatViewState> getChatViewStateLiveData() {
@@ -51,7 +58,7 @@ public class ChatViewModel extends ViewModel {
             entity -> {
                 if (entity != null && workmateId != null) {
                     return new MutableLiveData<>(
-                        new ChatViewState(workmateId, "", mapMessages(entity))
+                        new ChatViewState(photoUrl, username, mapMessages(entity))
                     );
                 }
                 return new MutableLiveData<>(new ChatViewState("", "", new ArrayList<>()));

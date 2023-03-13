@@ -18,9 +18,21 @@
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/chat_toolbar"
             style="@style/SecondaryToolbar"
-            android:background="?colorPrimary"
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize" />
+            android:layout_height="?attr/actionBarSize"
+            android:background="?colorPrimary">
+
+            <TextView
+                android:id="@+id/chat_receiver_info"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical"
+                android:textColor="@color/white"
+                android:textSize="18sp"
+                app:drawableStartCompat="@color/white"
+                tools:text="Recipient username" />
+        </com.google.android.material.appbar.MaterialToolbar>
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.recyclerview.widget.RecyclerView
@@ -60,10 +72,11 @@
                 android:inputType="textMultiLine|textAutoCorrect|textCapSentences" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <androidx.appcompat.widget.AppCompatImageView
+        <ImageView
             android:id="@+id/chat_send_btn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:contentDescription="@string/chat_send_button_desc"
             android:src="@drawable/baseline_send_24" />
     </LinearLayout>
 

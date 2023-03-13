@@ -61,7 +61,7 @@ public class WorkmatesAdapter extends ListAdapter<WorkmateItemViewState, Workmat
         }
 
         public void bind(@NonNull WorkmateItemViewState viewState) {
-            itemView.setTag(new WorkmateTag(viewState.getChosenRestaurantId(), viewState.getId()));
+            itemView.setTag(new WorkmateTag(viewState.getId(), viewState.getChosenRestaurantId(), viewState.getPhotoUrl(), viewState.getName()));
             ImageView photo = binding.workmatesItemPhoto;
             Glide.with(photo.getContext())
                 .load(viewState.getPhotoUrl())

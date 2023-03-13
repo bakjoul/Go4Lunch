@@ -1,22 +1,35 @@
 package com.bakjoul.go4lunch.ui.workmates;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
-import javax.annotation.Nullable;
-
 public class WorkmateTag {
+
+    @NonNull
+    private final String id;
 
     @Nullable
     private final String chosenRestaurantId;
 
     @Nullable
-    private final String workmateId;
+    private final String photoUrl;
 
-    public WorkmateTag(@Nullable String chosenRestaurantId, @Nullable String workmateId) {
+    @NonNull
+    private final String username;
+
+
+    public WorkmateTag(@NonNull String id, @Nullable String chosenRestaurantId, @Nullable String photoUrl, @NonNull String username) {
+        this.id = id;
         this.chosenRestaurantId = chosenRestaurantId;
-        this.workmateId = workmateId;
+        this.photoUrl = photoUrl;
+        this.username = username;
+    }
+
+    @NonNull
+    public String getId() {
+        return id;
     }
 
     @Nullable
@@ -25,29 +38,36 @@ public class WorkmateTag {
     }
 
     @Nullable
-    public String getWorkmateId() {
-        return workmateId;
+    public String getPhotoUrl() {
+        return photoUrl;
+    }
+
+    @NonNull
+    public String getUsername() {
+        return username;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        WorkmateTag workmateTag = (WorkmateTag) o;
-        return Objects.equals(chosenRestaurantId, workmateTag.chosenRestaurantId) && Objects.equals(workmateId, workmateTag.workmateId);
+        WorkmateTag that = (WorkmateTag) o;
+        return id.equals(that.id) && Objects.equals(chosenRestaurantId, that.chosenRestaurantId) && Objects.equals(photoUrl, that.photoUrl) && username.equals(that.username);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(chosenRestaurantId, workmateId);
+        return Objects.hash(id, chosenRestaurantId, photoUrl, username);
     }
 
     @NonNull
     @Override
     public String toString() {
-        return "Tag{" +
-            "chosenRestaurantId='" + chosenRestaurantId + '\'' +
-            ", workmateId='" + workmateId + '\'' +
+        return "WorkmateTag{" +
+            "id='" + id + '\'' +
+            ", chosenRestaurantId='" + chosenRestaurantId + '\'' +
+            ", photoUrl='" + photoUrl + '\'' +
+            ", username='" + username + '\'' +
             '}';
     }
 }

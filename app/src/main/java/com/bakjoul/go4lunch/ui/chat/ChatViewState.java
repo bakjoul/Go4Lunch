@@ -8,7 +8,7 @@ import java.util.Objects;
 public class ChatViewState {
 
     @NonNull
-    private final String workmateId;
+    private final String photoUrl;
 
     @NonNull
     private final String workmateUsername;
@@ -16,15 +16,15 @@ public class ChatViewState {
     @NonNull
     private final List<ChatMessageItemViewState> messageItemViewStates;
 
-    public ChatViewState(@NonNull String workmateId, @NonNull String workmateUsername, @NonNull List<ChatMessageItemViewState> messageItemViewStates) {
-        this.workmateId = workmateId;
+    public ChatViewState(@NonNull String photoUrl, @NonNull String workmateUsername, @NonNull List<ChatMessageItemViewState> messageItemViewStates) {
+        this.photoUrl = photoUrl;
         this.workmateUsername = workmateUsername;
         this.messageItemViewStates = messageItemViewStates;
     }
 
     @NonNull
-    public String getWorkmateId() {
-        return workmateId;
+    public String getPhotoUrl() {
+        return photoUrl;
     }
 
     @NonNull
@@ -42,19 +42,19 @@ public class ChatViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChatViewState that = (ChatViewState) o;
-        return workmateId.equals(that.workmateId) && workmateUsername.equals(that.workmateUsername) && messageItemViewStates.equals(that.messageItemViewStates);
+        return photoUrl.equals(that.photoUrl) && workmateUsername.equals(that.workmateUsername) && messageItemViewStates.equals(that.messageItemViewStates);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(workmateId, workmateUsername, messageItemViewStates);
+        return Objects.hash(photoUrl, workmateUsername, messageItemViewStates);
     }
 
     @NonNull
     @Override
     public String toString() {
         return "ChatViewState{" +
-            "workmateId='" + workmateId + '\'' +
+            "photoUrl='" + photoUrl + '\'' +
             ", workmateUsername='" + workmateUsername + '\'' +
             ", messageItemViewStates=" + messageItemViewStates +
             '}';

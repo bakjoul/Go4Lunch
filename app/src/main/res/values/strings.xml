@@ -58,5 +58,6 @@
     <string name="settings_toggle_lunch_reminder">Rappel de déjeuner</string>
     <string name="settings_toolbar_title">Settings</string>
     <string name="chat_input_hint">Message</string>
+    <string name="chat_send_button_desc">Send button</string>
 
 </resources>

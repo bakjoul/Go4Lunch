@@ -3,21 +3,24 @@ package com.bakjoul.go4lunch.ui.chat;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.bakjoul.go4lunch.databinding.ActivityChatBinding;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.CustomTarget;
+import com.bumptech.glide.request.transition.Transition;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -27,9 +30,16 @@ public class ChatActivity extends AppCompatActivity {
     private ActivityChatBinding binding;
 
     @NonNull
-    public static Intent navigate(Context context, String workmateId) {
+    public static Intent navigate(
+        Context context,
+        String workmateId,
+        String photoUrl,
+        String username
+    ) {
         Intent intent = new Intent(context, ChatActivity.class);
         intent.putExtra("workmateId", workmateId);
+        intent.putExtra("photoUrl", photoUrl);
+        intent.putExtra("username", username);
         return intent;
     }
 
@@ -51,6 +61,21 @@ public class ChatActivity extends AppCompatActivity {
         setInputOnKeyListener(viewModel);
 
         viewModel.getChatViewStateLiveData().observe(this, viewState -> {
+                Glide.with(this)
+                    .load(viewState.getPhotoUrl())
+                    .circleCrop()
+                    .into(new CustomTarget<Drawable>() {
+                        @Override
+                        public void onResourceReady(@NonNull Drawable resource, @Nullable Transition<? super Drawable> transition) {
+                            binding.chatReceiverInfo.setCompoundDrawablesRelativeWithIntrinsicBounds(resource, null, null, null);
+                        }
+
+                        @Override
+                        public void onLoadCleared(@Nullable Drawable placeholder) {
+                        }
+                    });
+                binding.chatReceiverInfo.setText(viewState.getWorkmateUsername());
+
                 adapter.submitList(viewState.getMessageItemViewStates());
 
                 binding.chatRecyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
@@ -116,7 +141,7 @@ public class ChatActivity extends AppCompatActivity {
     }
 
     private void setToolbar() {
-        binding.chatToolbar.setTitle("Chat");
+        binding.chatToolbar.setTitle("");
         setSupportActionBar(binding.chatToolbar);
         if (getSupportActionBar() != null) {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);

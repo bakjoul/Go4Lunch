@@ -105,8 +105,8 @@ public class WorkmatesFragment extends Fragment implements WorkmatesAdapter.OnWo
     @Override
     public void onWorkmatePhotoClicked(int position) {
         if (binding.workmatesRecyclerView.getLayoutManager() != null) {
-            WorkmateTag workmateTag = (WorkmateTag) binding.workmatesRecyclerView.getLayoutManager().findViewByPosition(position).getTag();
-            startActivity(ChatActivity.navigate(requireContext(), workmateTag.getWorkmateId()));
+            WorkmateTag tag = (WorkmateTag) binding.workmatesRecyclerView.getLayoutManager().findViewByPosition(position).getTag();
+            startActivity(ChatActivity.navigate(requireContext(), tag.getId(), tag.getPhotoUrl(), tag.getUsername()));
         }
     }
 }
