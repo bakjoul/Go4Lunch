@@ -14,12 +14,12 @@ public class ChatViewState {
     private final String workmateUsername;
 
     @NonNull
-    private final List<ChatMessageItemViewState> messageItemViewStates;
+    private final List<ChatItemViewState> chatItemViewStates;
 
-    public ChatViewState(@NonNull String photoUrl, @NonNull String workmateUsername, @NonNull List<ChatMessageItemViewState> messageItemViewStates) {
+    public ChatViewState(@NonNull String photoUrl, @NonNull String workmateUsername, @NonNull List<ChatItemViewState> chatItemViewStates) {
         this.photoUrl = photoUrl;
         this.workmateUsername = workmateUsername;
-        this.messageItemViewStates = messageItemViewStates;
+        this.chatItemViewStates = chatItemViewStates;
     }
 
     @NonNull
@@ -33,8 +33,8 @@ public class ChatViewState {
     }
 
     @NonNull
-    public List<ChatMessageItemViewState> getMessageItemViewStates() {
-        return messageItemViewStates;
+    public List<ChatItemViewState> getChatItemViewStates() {
+        return chatItemViewStates;
     }
 
     @Override
@@ -42,12 +42,12 @@ public class ChatViewState {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ChatViewState that = (ChatViewState) o;
-        return photoUrl.equals(that.photoUrl) && workmateUsername.equals(that.workmateUsername) && messageItemViewStates.equals(that.messageItemViewStates);
+        return photoUrl.equals(that.photoUrl) && workmateUsername.equals(that.workmateUsername) && chatItemViewStates.equals(that.chatItemViewStates);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(photoUrl, workmateUsername, messageItemViewStates);
+        return Objects.hash(photoUrl, workmateUsername, chatItemViewStates);
     }
 
     @NonNull
@@ -56,7 +56,7 @@ public class ChatViewState {
         return "ChatViewState{" +
             "photoUrl='" + photoUrl + '\'' +
             ", workmateUsername='" + workmateUsername + '\'' +
-            ", messageItemViewStates=" + messageItemViewStates +
+            ", chatItemViewStates=" + chatItemViewStates +
             '}';
     }
 }
