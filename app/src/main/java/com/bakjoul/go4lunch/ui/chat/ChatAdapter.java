@@ -9,12 +9,12 @@ import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bakjoul.go4lunch.data.chat.ChatMessageViewType;
+import com.bakjoul.go4lunch.data.chat.ChatItemViewType;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemDateBinding;
-import com.bakjoul.go4lunch.databinding.ActivityChatItemReceiverBinding;
-import com.bakjoul.go4lunch.databinding.ActivityChatItemSenderBinding;
+import com.bakjoul.go4lunch.databinding.ActivityChatItemReceivedBinding;
+import com.bakjoul.go4lunch.databinding.ActivityChatItemSentBinding;
 
-public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, ChatAdapter.BaseViewHolder> {
+public class ChatAdapter extends ListAdapter<ChatItemViewState, ChatAdapter.BaseViewHolder> {
 
     public ChatAdapter() {
         super(new ChatAdapterDiffCallback());
@@ -23,13 +23,13 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, ChatAdapt
     @NonNull
     @Override
     public BaseViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        switch (ChatMessageViewType.values()[viewType]) {
-            case DATE_HEADER_VIEW_TYPE:
+        switch (ChatItemViewType.values()[viewType]) {
+            case DATE_HEADER:
                 return new DateHeaderViewHolder(ActivityChatItemDateBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
-            case RECEIVED_MESSAGE_VIEW_TYPE:
-                return new ReceiverViewHolder(ActivityChatItemReceiverBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
-            case SENT_MESSAGE_VIEW_TYPE:
-                return new SenderViewHolder(ActivityChatItemSenderBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+            case RECEIVED_MESSAGE:
+                return new ReceiverViewHolder(ActivityChatItemReceivedBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
+            case SENT_MESSAGE:
+                return new SenderViewHolder(ActivityChatItemSentBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
             default:
                 throw new IllegalStateException("Unexpected value: " + viewType);
         }
@@ -42,7 +42,7 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, ChatAdapt
 
     @Override
     public int getItemViewType(int position) {
-        return getItem(position).getItemType().ordinal();
+        return getItem(position).getItemViewType();
     }
 
     abstract static class BaseViewHolder extends RecyclerView.ViewHolder {
@@ -50,7 +50,7 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, ChatAdapt
             super(itemView);
         }
 
-        abstract void bind(ChatMessageItemViewState viewState);
+        abstract void bind(ChatItemViewState viewState);
     }
 
     public static class DateHeaderViewHolder extends BaseViewHolder {
@@ -63,51 +63,60 @@ public class ChatAdapter extends ListAdapter<ChatMessageItemViewState, ChatAdapt
         }
 
         @Override
-        void bind(@NonNull ChatMessageItemViewState viewState) {
-            binding.chatItemDate.setText("");
+        void bind(ChatItemViewState viewState) {
+            if (viewState instanceof ChatItemViewState.DateHeader) {
+                ChatItemViewState.DateHeader dateHeaderItem = (ChatItemViewState.DateHeader) viewState;
+                binding.chatItemDate.setText(dateHeaderItem.getDate());
+            }
         }
     }
 
     public static class ReceiverViewHolder extends BaseViewHolder {
 
-        private final ActivityChatItemReceiverBinding binding;
+        private final ActivityChatItemReceivedBinding binding;
 
-        public ReceiverViewHolder(@NonNull ActivityChatItemReceiverBinding binding) {
+        public ReceiverViewHolder(@NonNull ActivityChatItemReceivedBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
 
         @Override
-        void bind(@NonNull ChatMessageItemViewState viewState) {
-            binding.chatItemReceiverMessage.setText(viewState.getContent());
-            binding.chatItemReceiverTimestamp.setText(viewState.getTimestamp());
+        void bind(ChatItemViewState viewState) {
+            if (viewState instanceof ChatItemViewState.ChatMessage) {
+                ChatItemViewState.ChatMessage messageItem = (ChatItemViewState.ChatMessage) viewState;
+                binding.chatItemReceiverMessage.setText(messageItem.getContent());
+                binding.chatItemReceiverTimestamp.setText(messageItem.getTimestamp());
+            }
         }
     }
 
     public static class SenderViewHolder extends BaseViewHolder {
 
-        private final ActivityChatItemSenderBinding binding;
+        private final ActivityChatItemSentBinding binding;
 
-        public SenderViewHolder(@NonNull ActivityChatItemSenderBinding binding) {
+        public SenderViewHolder(@NonNull ActivityChatItemSentBinding binding) {
             super(binding.getRoot());
             this.binding = binding;
         }
 
         @Override
-        void bind(@NonNull ChatMessageItemViewState viewState) {
-            binding.chatItemSenderMessage.setText(viewState.getContent());
-            binding.chatItemSenderTimestamp.setText(viewState.getTimestamp());
+        void bind(ChatItemViewState viewState) {
+            if (viewState instanceof ChatItemViewState.ChatMessage) {
+                ChatItemViewState.ChatMessage messageItem = (ChatItemViewState.ChatMessage) viewState;
+                binding.chatItemSenderMessage.setText(messageItem.getContent());
+                binding.chatItemSenderTimestamp.setText(messageItem.getTimestamp());
+            }
         }
     }
 
-    private static class ChatAdapterDiffCallback extends DiffUtil.ItemCallback<ChatMessageItemViewState> {
+    private static class ChatAdapterDiffCallback extends DiffUtil.ItemCallback<ChatItemViewState> {
         @Override
-        public boolean areItemsTheSame(@NonNull ChatMessageItemViewState oldItem, @NonNull ChatMessageItemViewState newItem) {
+        public boolean areItemsTheSame(@NonNull ChatItemViewState oldItem, @NonNull ChatItemViewState newItem) {
             return oldItem.getId().equals(newItem.getId());
         }
 
         @Override
-        public boolean areContentsTheSame(@NonNull ChatMessageItemViewState oldItem, @NonNull ChatMessageItemViewState newItem) {
+        public boolean areContentsTheSame(@NonNull ChatItemViewState oldItem, @NonNull ChatItemViewState newItem) {
             return oldItem.equals(newItem);
         }
     }

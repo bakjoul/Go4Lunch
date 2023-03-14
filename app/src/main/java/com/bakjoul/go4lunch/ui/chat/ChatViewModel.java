@@ -7,7 +7,7 @@ import androidx.lifecycle.SavedStateHandle;
 import androidx.lifecycle.Transformations;
 import androidx.lifecycle.ViewModel;
 
-import com.bakjoul.go4lunch.data.chat.ChatMessageViewType;
+import com.bakjoul.go4lunch.data.chat.ChatItemViewType;
 import com.bakjoul.go4lunch.domain.chat.ChatMessageEntity;
 import com.bakjoul.go4lunch.domain.chat.GetMessagesUseCase;
 import com.bakjoul.go4lunch.domain.chat.SendMessageUseCase;
@@ -15,8 +15,12 @@ import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
@@ -73,29 +77,65 @@ public class ChatViewModel extends ViewModel {
     }
 
     @NonNull
-    private List<ChatMessageItemViewState> mapMessages(@NonNull List<ChatMessageEntity> messageEntityList) {
-        List<ChatMessageItemViewState> messageItemViewStates = new ArrayList<>();
+    private List<ChatItemViewState> mapMessages(@NonNull List<ChatMessageEntity> messageEntityList) {
+        List<ChatItemViewState> chatItemViewStates = new ArrayList<>();
 
-        for (ChatMessageEntity message : messageEntityList) {
-            ChatMessageItemViewState itemViewState =
-                new ChatMessageItemViewState(
-                    message.getId(),
-                    getItemType(message),
-                    message.getSender(),
-                    message.getContent(),
-                    convertTimestamp(message.getTimestamp())
-                );
-            messageItemViewStates.add(itemViewState);
+        Date previousDate = null;
+
+        // Loop through the messages list in reverse order to check if date changes first
+        for (int i = messageEntityList.size() - 1; i >= 0; i--) {
+            ChatMessageEntity message = messageEntityList.get(i);
+            Date messageDate = message.getTimestamp().toDate();
+
+            // If date has changed, adds a date header view state
+            if (previousDate == null || !isSameDay(previousDate, messageDate)) {
+                ChatItemViewState.DateHeader dateHeader = new ChatItemViewState.DateHeader(UUID.randomUUID().toString(), formatDate(messageDate));
+                chatItemViewStates.add(0, dateHeader);  // Adds the header to the beginning of the list
+            }
+
+            ChatItemViewState.ChatMessage chatMessage = new ChatItemViewState.ChatMessage(
+                message.getId(),
+                getItemType(message),
+                message.getSender(),
+                message.getContent(),
+                convertTimestamp(message.getTimestamp())
+            );
+            chatItemViewStates.add(0, chatMessage); // Adds the message to the beginning of the list
+
+            previousDate = messageDate;
         }
 
-        return messageItemViewStates;
+        return chatItemViewStates;
     }
 
-    private ChatMessageViewType getItemType(@NonNull ChatMessageEntity message) {
-        if (!message.getSender().equals(workmateId)) {
-            return ChatMessageViewType.SENT_MESSAGE_VIEW_TYPE;
+    private boolean isSameDay(Date date1, Date date2) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date1);
+        Calendar cal2 = Calendar.getInstance();
+        cal2.setTime(date2);
+        return calendar.get(Calendar.YEAR) == cal2.get(Calendar.YEAR)
+            && calendar.get(Calendar.DAY_OF_YEAR) == cal2.get(Calendar.DAY_OF_YEAR);
+    }
+
+    @NonNull
+    private String formatDate(@NonNull Date date) {
+        Date currentDate = new Date();
+        long diffInDays = TimeUnit.DAYS.convert(currentDate.getTime() - date.getTime(), TimeUnit.MILLISECONDS);
+
+        SimpleDateFormat dateFormat;
+        if (diffInDays > 7) {
+            dateFormat = new SimpleDateFormat("d MMMM", Locale.getDefault());
         } else {
-            return ChatMessageViewType.RECEIVED_MESSAGE_VIEW_TYPE;
+            dateFormat = new SimpleDateFormat("EEE d", Locale.getDefault());
+        }
+        return dateFormat.format(date).toUpperCase();
+    }
+
+    private ChatItemViewType getItemType(@NonNull ChatMessageEntity message) {
+        if (!message.getSender().equals(workmateId)) {
+            return ChatItemViewType.SENT_MESSAGE;
+        } else {
+            return ChatItemViewType.RECEIVED_MESSAGE;
         }
     }
 

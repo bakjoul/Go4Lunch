@@ -76,7 +76,7 @@ public class ChatActivity extends AppCompatActivity {
                     });
                 binding.chatReceiverInfo.setText(viewState.getWorkmateUsername());
 
-                adapter.submitList(viewState.getMessageItemViewStates());
+                adapter.submitList(viewState.getChatItemViewStates());
 
                 binding.chatRecyclerView.addOnLayoutChangeListener(new View.OnLayoutChangeListener() {
                     @Override
