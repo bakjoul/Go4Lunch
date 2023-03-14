@@ -6,6 +6,8 @@ import com.bakjoul.go4lunch.data.chat.ChatItemViewType;
 
 import java.util.Objects;
 
+import javax.annotation.Nullable;
+
 public abstract class ChatItemViewState {
     @NonNull
     private final String id;
@@ -99,12 +101,16 @@ public abstract class ChatItemViewState {
         @NonNull
         private final String timestamp;
 
-        public ChatMessage(@NonNull String id, @NonNull ChatItemViewType itemType, @NonNull String sender, @NonNull String content, @NonNull String timestamp) {
+        @Nullable
+        private final String photoUrl;
+
+        public ChatMessage(@NonNull String id, @NonNull ChatItemViewType itemType, @NonNull String sender, @NonNull String content, @NonNull String timestamp, @Nullable String photoUrl) {
             super(id);
             this.itemType = itemType;
             this.sender = sender;
             this.content = content;
             this.timestamp = timestamp;
+            this.photoUrl = photoUrl;
         }
 
         @NonNull
@@ -127,18 +133,23 @@ public abstract class ChatItemViewState {
             return timestamp;
         }
 
+        @Nullable
+        public String getPhotoUrl() {
+            return photoUrl;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             if (!super.equals(o)) return false;
             ChatMessage that = (ChatMessage) o;
-            return itemType == that.itemType && sender.equals(that.sender) && content.equals(that.content) && timestamp.equals(that.timestamp);
+            return itemType == that.itemType && sender.equals(that.sender) && content.equals(that.content) && timestamp.equals(that.timestamp) && Objects.equals(photoUrl, that.photoUrl);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(super.hashCode(), itemType, sender, content, timestamp);
+            return Objects.hash(super.hashCode(), itemType, sender, content, timestamp, photoUrl);
         }
 
         @NonNull
@@ -150,6 +161,7 @@ public abstract class ChatItemViewState {
                 ", sender='" + sender + '\'' +
                 ", content='" + content + '\'' +
                 ", timestamp='" + timestamp + '\'' +
+                ", photoUrl='" + photoUrl + '\'' +
                 '}';
         }
 

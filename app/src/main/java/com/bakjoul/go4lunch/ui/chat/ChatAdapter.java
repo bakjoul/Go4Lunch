@@ -3,6 +3,7 @@ package com.bakjoul.go4lunch.ui.chat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.DiffUtil;
@@ -13,6 +14,7 @@ import com.bakjoul.go4lunch.data.chat.ChatItemViewType;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemDateBinding;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemReceivedBinding;
 import com.bakjoul.go4lunch.databinding.ActivityChatItemSentBinding;
+import com.bumptech.glide.Glide;
 
 public class ChatAdapter extends ListAdapter<ChatItemViewState, ChatAdapter.BaseViewHolder> {
 
@@ -84,6 +86,11 @@ public class ChatAdapter extends ListAdapter<ChatItemViewState, ChatAdapter.Base
         void bind(ChatItemViewState viewState) {
             if (viewState instanceof ChatItemViewState.ChatMessage) {
                 ChatItemViewState.ChatMessage messageItem = (ChatItemViewState.ChatMessage) viewState;
+                ImageView photo = binding.chatItemReceiverPhoto;
+                Glide.with(photo.getContext())
+                    .load(messageItem.getPhotoUrl())
+                    .circleCrop()
+                    .into(photo);
                 binding.chatItemReceiverMessage.setText(messageItem.getContent());
                 binding.chatItemReceiverTimestamp.setText(messageItem.getTimestamp());
             }

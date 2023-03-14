@@ -98,7 +98,8 @@ public class ChatViewModel extends ViewModel {
                 getItemType(message),
                 message.getSender(),
                 message.getContent(),
-                convertTimestamp(message.getTimestamp())
+                convertTimestamp(message.getTimestamp()),
+                photoUrl
             );
             chatItemViewStates.add(0, chatMessage); // Adds the message to the beginning of the list
 
