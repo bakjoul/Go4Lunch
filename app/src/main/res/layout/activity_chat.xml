@@ -43,7 +43,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/chat_appbar"
-        tools:listitem="@layout/activity_chat_item_receiver" />
+        tools:listitem="@layout/activity_chat_item_received" />
 
     <LinearLayout
         android:id="@+id/chat_input_LinearLayout"
