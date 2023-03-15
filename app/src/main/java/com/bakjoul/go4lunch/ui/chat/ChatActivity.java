@@ -93,11 +93,17 @@ public class ChatActivity extends AppCompatActivity {
         binding.chatSendBtn.setOnClickListener(v -> handleMessageSent(viewModel));
     }
 
-    // Directly sends message when hitting Enter key on keyboards
+
     private void setInputOnKeyListener(ChatViewModel viewModel) {
-        binding.chatInputEdit.setOnKeyListener((v, keyCode, event) -> {
+        binding.chatInputEdit.setOnKeyListener((view, keyCode, event) -> {
+            // Directly sends message when hitting Enter key on keyboards
             if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
                 handleMessageSent(viewModel);
+                return true;
+            }
+            // Hides soft keyboard on Escape key pressed
+            else if (keyCode == KeyEvent.KEYCODE_ESCAPE && event.getAction() == KeyEvent.ACTION_DOWN) {
+                hideSoftKeyboard(view);
                 return true;
             }
             return false;
@@ -131,13 +137,17 @@ public class ChatActivity extends AppCompatActivity {
                 int x = (int) ev.getRawX();
                 int y = (int) ev.getRawY();
                 if (!rect.contains(x, y)) {
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    hideSoftKeyboard(view);
                     view.clearFocus();
                 }
             }
         }
         return super.dispatchTouchEvent(ev);
+    }
+
+    private void hideSoftKeyboard(@NonNull View view) {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
     }
 
     private void setToolbar() {
