@@ -59,5 +59,6 @@
     <string name="settings_toolbar_title">Settings</string>
     <string name="chat_input_hint">Message</string>
     <string name="chat_send_button_desc">Send button</string>
+    <string name="workmates_tip">Appuyez sur la photo pour discuter avec un collègue</string>
 
 </resources>
