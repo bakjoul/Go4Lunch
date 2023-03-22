@@ -16,8 +16,6 @@ import com.bakjoul.go4lunch.data.restaurants.model.RestaurantMarker;
 import com.bakjoul.go4lunch.databinding.FragmentMapBinding;
 import com.bakjoul.go4lunch.ui.details.DetailsActivity;
 import com.bakjoul.go4lunch.ui.utils.SvgToBitmap;
-import com.bakjoul.go4lunch.ui.utils.markers_overlay.FloatingMarkerTitlesOverlay;
-import com.bakjoul.go4lunch.ui.utils.markers_overlay.MarkerInfo;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -25,8 +23,6 @@ import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.snackbar.Snackbar;
-
-import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -38,7 +34,6 @@ public class MapFragment extends Fragment {
     private static final float MOVE_CAMERA_ZOOM = 13.5f;
 
     private FragmentMapBinding binding;
-    private FloatingMarkerTitlesOverlay floatingMarkerOverlay;
 
     @NonNull
     public static MapFragment newInstance() {
@@ -60,7 +55,6 @@ public class MapFragment extends Fragment {
         if (supportMapFragment != null) {
             // On map ready
             supportMapFragment.getMapAsync(googleMap -> {
-                setFloatingMarkersOverlay(googleMap);
                 viewModel.onMapReady();
                 googleMap.setMinZoomPreference(MIN_ZOOM_PREFERENCE);
                 googleMap.setMaxZoomPreference(MAX_ZOOM_PREFERENCE);
@@ -98,22 +92,16 @@ public class MapFragment extends Fragment {
                     }
 
                     googleMap.clear();
-                    floatingMarkerOverlay.clearMarkers();
 
                     // Adds markers
-                    List<RestaurantMarker> markersList = viewState.getRestaurantsMarkers();
-                    for (int i = 0; i < markersList.size(); i++) {
+                    for (RestaurantMarker marker : viewState.getRestaurantsMarkers()) {
                         MarkerOptions markerOptions = new MarkerOptions()
-                            .position(markersList.get(i).getPosition())
-                            .title(markersList.get(i).getTitle())
-                            .icon(getIcon(markersList.get(i)));
+                            .position(marker.getPosition())
+                            .title(marker.getTitle())
+                            .icon(getIcon(marker));
                         googleMap
                             .addMarker(markerOptions)
-                            .setTag(markersList.get(i).getId());
-
-                        // Adds markers title overlay
-                        MarkerInfo markerInfo = new MarkerInfo(markersList.get(i).getPosition(), markersList.get(i).getTitle(), getResources().getColor(R.color.white));
-                        floatingMarkerOverlay.addMarker(i, markerInfo);
+                            .setTag(marker.getId());
                     }
 
                     // Adds markers click listeners
@@ -138,13 +126,5 @@ public class MapFragment extends Fragment {
     @NonNull
     private BitmapDescriptor getIcon(@NonNull RestaurantMarker m) {
         return BitmapDescriptorFactory.fromBitmap(new SvgToBitmap().getBitmapFromVectorDrawable(getContext(), m.getIcon()));
-    }
-
-    private void setFloatingMarkersOverlay(GoogleMap googleMap) {
-        floatingMarkerOverlay = binding.mapOverlay;
-        floatingMarkerOverlay.setSource(googleMap);
-        floatingMarkerOverlay.setTextSizeDIP(12);
-        floatingMarkerOverlay.setMaxTextWidthDIP(128);
-        floatingMarkerOverlay.setMaxTextHeightDIP(32);
     }
 }
