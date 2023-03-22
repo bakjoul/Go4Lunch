@@ -1,67 +1,65 @@
 <resources>
-    <string name="app_name">Go4Lunch</string>
+    <string name="app_name" translatable="false">Go4Lunch</string>
 
-    <string name="fb_app_id">617236343084381</string>
-    <string name="fb_login_protocol_scheme">fb617236343084381</string>
-    <string name="fb_client_token">322987708a1d3820ee4db7fa2c506060</string>
-    <string name="google_server_client_id">632861719315-imlohdmamhkqk7qshlqtg3fj38sbo7mq.apps.googleusercontent.com</string>
+    <string name="fb_app_id" translatable="false">617236343084381</string>
+    <string name="fb_login_protocol_scheme" translatable="false">fb617236343084381</string>
+    <string name="fb_client_token" translatable="false">322987708a1d3820ee4db7fa2c506060</string>
+    <string name="google_server_client_id" translatable="false">632861719315-imlohdmamhkqk7qshlqtg3fj38sbo7mq.apps.googleusercontent.com</string>
 
-    <string name="main_drawer_name_hint">John Smith</string>
-    <string name="main_drawer_mail_hint">jsmith.1337@gmail.com</string>
+    <string name="main_drawer_name_hint" translatable="false">John Smith</string>
+    <string name="main_drawer_mail_hint" translatable="false">jsmith.1337@gmail.com</string>
     <string name="navigation_drawer_menu_lunch">YOUR LUNCH</string>
     <string name="navigation_drawer_menu_settings">SETTINGS</string>
     <string name="navigation_drawer_menu_logout">LOGOUT</string>
     <string name="bottom_navigation_view_mapView">Map View</string>
     <string name="bottom_navigation_view_listView">List View</string>
     <string name="bottom_navigation_view_workmates">Workmates</string>
-    <string name="login_subtitle">Find a nice restaurant and invite your co-workers for lunch!</string>
+    <string name="login_subtitle" translatable="false">Find a nice restaurant and invite your co-workers for lunch!</string>
     <string name="login_button_facebook_text">Sign in with Facebook</string>
     <string name="login_button_google_text">Sign in with Google</string>
-    <string name="restaurants_item_rating_cs">Rating</string>
-    <string name="no_permission_message">Localisation requise</string>
-    <string name="no_permission_submessage">Appuyez n\'importe où pour continuer</string>
-    <string name="restaurant_is_open">Ouvert</string>
-    <string name="restaurant_is_closed">Fermé</string>
-    <string name="information_not_available">Information indisponible</string>
-    <string name="location_permission_rationale_title">Localisation requise</string>
-    <string name="location_permission_rationale_message">Pour continuer, autorisez la localisation de l\'appareil.</string>
-    <string name="permission_rationale_positive_button">OK</string>
-    <string name="permission_rationale_negative_button">Annuler</string>
-    <string name="details_select_restaurant_desc">Choisir ce restaurant</string>
+    <string name="no_permission_message">Location required</string>
+    <string name="no_permission_submessage">Tap anywhere to continue</string>
+    <string name="restaurant_is_open">Open</string>
+    <string name="restaurant_is_closed">Closed</string>
+    <string name="information_not_available">Information not available</string>
+    <string name="location_permission_rationale_title">Location required</string>
+    <string name="permission_rationale_positive_button" translatable="false">OK</string>
+    <string name="permission_rationale_negative_button">Cancel</string>
+    <string name="details_select_restaurant_desc">Choose restaurant</string>
     <string name="details_button_call">CALL</string>
     <string name="details_button_like">LIKE</string>
     <string name="details_button_website">WEBSITE</string>
     <string name="details_error_viewstate">An error occurred</string>
-    <string name="details_opened_until">\u0020jusqu\'à\u0020</string>
-    <string name="details_time_separator">h</string>
-    <string name="details_open_at">\u0020⋅ Ouvre à\u0020</string>
+    <string name="details_opened_until">\u0020until\u0020</string>
+    <string name="details_time_separator">:</string>
+    <string name="details_open_at">\u0020⋅ Opens at\u0020</string>
     <string name="details_back_button_desc">Back button</string>
-    <string name="snackbar_message">Une erreur est survenue</string>
-    <string name="snackbar_retry">Réessayer</string>
+    <string name="snackbar_message">An error occurred</string>
+    <string name="snackbar_retry">Retry</string>
     <string name="toolbar_title_hungry">I\'m Hungry!</string>
     <string name="toolbar_title_workmates">Available workmates</string>
-    <string name="workmates_empty">Aucun collègue disponible</string>
-    <string name="restaurants_empty">Aucun restaurant trouvé</string>
+    <string name="workmates_empty">No available workmates</string>
+    <string name="restaurants_empty">No restaurant found</string>
     <string name="details_text_joining">\u0020is joining!</string>
-    <string name="main_toast_lunch">Vous n\'avez pas encore fait votre choix</string>
-    <string name="main_searchview_query_hint_restaurants">Chercher un restaurant</string>
-    <string name="main_searchview_query_hint_workmates">Chercher un collègue</string>
-    <string name="no_match">Aucune correspondance trouvée</string>
-    <string name="notification_title">C\'est l\'heure de déjeuner !</string>
-    <string name="notification_waiting_for_you">\u0020vous attend au\u0020</string>
-    <string name="notification_and">\u0020et\u0020</string>
-    <string name="notification_with">\navec\u0020</string>
-    <string name="permissions_rationale_title">Permissions requises</string>
-    <string name="notification_permission_rationale_title">Permission de notification requise</string>
-    <string name="notification_permission_rationale_message">Pour continuer, autorisez les notifications.</string>
-    <string name="permissions_rationale_message">Pour continuer, autorisez la localisation et les notifications.</string>
-    <string name="settings_toggle_lunch_reminder">Rappel de déjeuner</string>
+    <string name="main_toast_lunch">You haven\'t picked a restaurant yet</string>
+    <string name="main_searchview_query_hint_restaurants">Search for a restaurant</string>
+    <string name="main_searchview_query_hint_workmates">Search for a workmate</string>
+    <string name="no_match">No match found</string>
+    <string name="notification_title">It\'s time for lunch!</string>
+    <string name="notification_waiting_for_you">\u0020is waiting for you at\u0020</string>
+    <string name="notification_and">\u0020and\u0020</string>
+    <string name="notification_with">\nwith\u0020</string>
+    <string name="permissions_rationale_title">Permissions required</string>
+    <string name="notification_permission_rationale_title">Notification permission required</string>
+    <string name="notification_permission_rationale_message">To continue, allow notifications.</string>
+    <string name="permissions_rationale_message">To continue, allow location services and notifications.</string>
+    <string name="settings_toggle_lunch_reminder">Lunch reminder</string>
     <string name="settings_toolbar_title">Settings</string>
     <string name="chat_input_hint">Message</string>
     <string name="chat_send_button_desc">Send button</string>
-    <string name="workmates_tip">Appuyez sur la photo pour discuter avec un collègue</string>
+    <string name="workmates_tip">Tap on profile picture to chat with a workmate</string>
     <string name="main_user_not_logged">User not logged</string>
-    <string name="workmates_has_not_decided_yet">%s n\'a pas encore décidé</string>
-    <string name="workmates_having_lunch_at">%s déjeune à %s</string>
-
+    <string name="workmates_has_not_decided_yet">%s hasn\'t decided yet</string>
+    <string name="workmates_having_lunch_at">%s is having lunch at %s</string>
+    <string name="location_permission_rationale_message">To continue, allow the use of location services.</string>
 </resources>
