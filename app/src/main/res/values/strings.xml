@@ -60,5 +60,8 @@
     <string name="chat_input_hint">Message</string>
     <string name="chat_send_button_desc">Send button</string>
     <string name="workmates_tip">Appuyez sur la photo pour discuter avec un collègue</string>
+    <string name="main_user_not_logged">User not logged</string>
+    <string name="workmates_has_not_decided_yet">%s n\'a pas encore décidé</string>
+    <string name="workmates_having_lunch_at">%s déjeune à %s</string>
 
 </resources>

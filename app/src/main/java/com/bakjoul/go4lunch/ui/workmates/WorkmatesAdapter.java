@@ -68,11 +68,11 @@ public class WorkmatesAdapter extends ListAdapter<WorkmateItemViewState, Workmat
                 .circleCrop()
                 .into(photo);
             if (viewState.getChosenRestaurantName() == null) {
-                binding.workmatesItemText.setText(String.format("%s n'a pas encore décidé", viewState.getName()));
+                binding.workmatesItemText.setText(String.format(itemView.getResources().getString(R.string.workmates_has_not_decided_yet), viewState.getName()));
                 binding.workmatesItemText.setTypeface(null, Typeface.ITALIC);
                 binding.workmatesItemText.setTextColor(itemView.getResources().getColor(R.color.grey));
             } else {
-                binding.workmatesItemText.setText(String.format("%s déjeune à %s", viewState.getName(), viewState.getChosenRestaurantName()));
+                binding.workmatesItemText.setText(String.format(itemView.getResources().getString(R.string.workmates_having_lunch_at), viewState.getName(), viewState.getChosenRestaurantName()));
                 binding.workmatesItemText.setTypeface(null, Typeface.BOLD);
                 binding.workmatesItemText.setTextColor(itemView.getResources().getColor(R.color.black));
             }

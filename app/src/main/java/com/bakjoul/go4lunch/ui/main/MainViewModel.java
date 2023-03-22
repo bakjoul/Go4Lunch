@@ -106,7 +106,7 @@ public class MainViewModel extends ViewModel {
             mainViewStateMediatorLiveData.setValue(
                 new MainViewState(
                     null,
-                    "User not logged",
+                    context.getString(R.string.main_user_not_logged),
                     "",
                     null,
                     new ArrayList<>()
