@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
+import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.autocomplete.model.PredictionResponse;
 import com.bakjoul.go4lunch.data.autocomplete.model.StructuredFormattingResponse;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
@@ -40,6 +41,8 @@ import java.util.Collections;
 import java.util.List;
 
 public class MainViewModelTest {
+
+    private static final String USER_NOT_LOGGED = "Utilisateur non authentifié";
 
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
@@ -68,6 +71,8 @@ public class MainViewModelTest {
 
     @Before
     public void setUp() {
+        doReturn(USER_NOT_LOGGED).when(context).getString(R.string.main_user_not_logged);
+
         isLocationPermissionEnabledLiveData.setValue(true);
         doReturn(isLocationPermissionEnabledLiveData).when(locationPermissionRepository).getLocationPermissionLiveData();
 
@@ -323,7 +328,7 @@ public class MainViewModelTest {
     // region OUT
     @NonNull
     private MainViewState getUserNotLoggedViewState() {
-        return new MainViewState(null, "User not logged", "", null, new ArrayList<>());
+        return new MainViewState(null, "Utilisateur non authentifié", "", null, new ArrayList<>());
     }
 
     @NonNull
