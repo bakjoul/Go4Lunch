@@ -8,10 +8,10 @@ import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
 
-import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
+import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 
 import org.junit.Before;
@@ -29,7 +29,7 @@ public class WorkmatesViewModelTest {
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
-    private final WorkmateRepositoryImplementation workmateRepositoryImplementation = Mockito.mock(WorkmateRepositoryImplementation.class);
+    private final WorkmateRepository workmateRepository = Mockito.mock(WorkmateRepository.class);
     private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
 
     private final MutableLiveData<List<WorkmateEntity>> availableWorkmatesLiveData = new MutableLiveData<>();
@@ -41,13 +41,13 @@ public class WorkmatesViewModelTest {
 
     @Before
     public void setUp() {
-        doReturn(availableWorkmatesLiveData).when(workmateRepositoryImplementation).getAvailableWorkmatesLiveData();
-        doReturn(workmatesGoingToRestaurantsLiveData).when(workmateRepositoryImplementation).getWorkmatesGoingToRestaurantsLiveData();
+        doReturn(availableWorkmatesLiveData).when(workmateRepository).getAvailableWorkmatesLiveData();
+        doReturn(workmatesGoingToRestaurantsLiveData).when(workmateRepository).getWorkmatesGoingToRestaurantsLiveData();
 
         userSearchLiveData.setValue(null);
         doReturn(userSearchLiveData).when(autocompleteRepository).getUserSearchLiveData();
 
-        viewModel = new WorkmatesViewModel(workmateRepositoryImplementation, autocompleteRepository);
+        viewModel = new WorkmatesViewModel(workmateRepository, autocompleteRepository);
     }
 
     @Test
