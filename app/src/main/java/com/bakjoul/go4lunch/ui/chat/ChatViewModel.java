@@ -11,6 +11,7 @@ import com.bakjoul.go4lunch.data.chat.ChatItemViewType;
 import com.bakjoul.go4lunch.domain.chat.ChatMessageEntity;
 import com.bakjoul.go4lunch.domain.chat.GetMessagesUseCase;
 import com.bakjoul.go4lunch.domain.chat.SendMessageUseCase;
+import com.bakjoul.go4lunch.ui.utils.RandomUUIDUtil;
 import com.google.firebase.Timestamp;
 
 import java.text.SimpleDateFormat;
@@ -19,7 +20,6 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -43,14 +43,19 @@ public class ChatViewModel extends ViewModel {
     @NonNull
     private final SendMessageUseCase sendMessageUseCase;
 
+    @NonNull
+    private final RandomUUIDUtil randomUUIDUtil;
+
     @Inject
     public ChatViewModel(
         @NonNull GetMessagesUseCase getMessagesUseCase,
         @NonNull SendMessageUseCase sendMessageUseCase,
-        @NonNull SavedStateHandle savedStateHandle
+        @NonNull SavedStateHandle savedStateHandle,
+        @NonNull RandomUUIDUtil randomUUIDUtil
     ) {
         this.getMessagesUseCase = getMessagesUseCase;
         this.sendMessageUseCase = sendMessageUseCase;
+        this.randomUUIDUtil = randomUUIDUtil;
         workmateId = savedStateHandle.get(KEY_WORKMATE_ID);
         photoUrl = savedStateHandle.get(KEY_PHOTO_URL);
         username = savedStateHandle.get(KEY_USERNAME);
@@ -89,7 +94,7 @@ public class ChatViewModel extends ViewModel {
 
             // If date has changed, adds a date header view state
             if (previousDate == null || !isSameDay(previousDate, messageDate)) {
-                ChatItemViewState.DateHeader dateHeader = new ChatItemViewState.DateHeader(UUID.randomUUID().toString(), formatDate(messageDate));
+                ChatItemViewState.DateHeader dateHeader = new ChatItemViewState.DateHeader(randomUUIDUtil.generateUUID(), formatDate(messageDate));
                 chatItemViewStates.add(0, dateHeader);  // Adds the header to the beginning of the list
             }
 
@@ -124,7 +129,7 @@ public class ChatViewModel extends ViewModel {
         long diffInDays = TimeUnit.DAYS.convert(currentDate.getTime() - date.getTime(), TimeUnit.MILLISECONDS);
 
         SimpleDateFormat dateFormat;
-        if (diffInDays > 7) {
+        if (diffInDays >= 7) {
             dateFormat = new SimpleDateFormat("d MMMM", Locale.getDefault());
         } else {
             dateFormat = new SimpleDateFormat("EEE d", Locale.getDefault());
