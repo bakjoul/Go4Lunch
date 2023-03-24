@@ -1,6 +1,7 @@
 package com.bakjoul.go4lunch.data.settings;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
@@ -8,6 +9,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
+
+import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -81,6 +84,30 @@ public class SettingsRepositoryImplementationTest {
 
         // When
         boolean areNotificationsEnabled = settingsRepositoryImplementation.areNotificationsEnabled();
+
+        // Then
+        assertFalse(areNotificationsEnabled);
+    }
+
+    @Test
+    public void areNotificationsEnabledLiveData_should_return_true_when_notifications_are_enabled() {
+        // Given
+        doReturn(true).when(sharedPreferences).getBoolean("lunchReminder", true);
+
+        // When
+        boolean areNotificationsEnabled = LiveDataTestUtil.getValueForTesting(settingsRepositoryImplementation.areNotificationsEnabledLiveData());
+
+        // Then
+        assertTrue(areNotificationsEnabled);
+    }
+
+    @Test
+    public void areNotificationsEnabledLiveData_should_return_false_when_notifications_are_disabled() {
+        // Given
+        doReturn(false).when(sharedPreferences).getBoolean("lunchReminder", true);
+
+        // When
+        boolean areNotificationsEnabled = LiveDataTestUtil.getValueForTesting(settingsRepositoryImplementation.areNotificationsEnabledLiveData());
 
         // Then
         assertFalse(areNotificationsEnabled);
