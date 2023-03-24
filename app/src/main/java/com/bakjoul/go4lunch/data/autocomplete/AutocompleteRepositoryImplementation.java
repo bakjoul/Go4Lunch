@@ -1,5 +1,6 @@
 package com.bakjoul.go4lunch.data.autocomplete;
 
+import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 
@@ -9,6 +10,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.BuildConfig;
+import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.api.GoogleApis;
 import com.bakjoul.go4lunch.data.autocomplete.model.AutocompleteQuery;
 import com.bakjoul.go4lunch.data.autocomplete.model.AutocompleteResponse;
@@ -24,6 +26,7 @@ import java.util.List;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
+import dagger.hilt.android.qualifiers.ApplicationContext;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -36,7 +39,9 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
     private static final int GPS_SCALE = 2;
     private static final String RADIUS = "2000";
     private static final String TYPE = "restaurant";
-    private static final String LANGUAGE = "fr";
+
+    @NonNull
+    private final Context context;
 
     @NonNull
     private final GoogleApis googleApis;
@@ -46,7 +51,11 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
     private final LruCache<AutocompleteQuery, AutocompleteResponse> lruCache = new LruCache<>(500);
 
     @Inject
-    public AutocompleteRepositoryImplementation(@NonNull GoogleApis googleApis) {
+    public AutocompleteRepositoryImplementation(
+        @NonNull @ApplicationContext Context context,
+        @NonNull GoogleApis googleApis
+    ) {
+        this.context = context;
         this.googleApis = googleApis;
     }
 
@@ -63,7 +72,7 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
         if (existingResponse != null) {
             responseMutableLiveData.setValue(existingResponse.getPredictions());
         } else {
-            googleApis.getRestaurantAutocomplete(userInput, LocationUtils.locationToString(location), RADIUS, TYPE, LANGUAGE, BuildConfig.MAPS_API_KEY).enqueue(new Callback<AutocompleteResponse>() {
+            googleApis.getRestaurantAutocomplete(userInput, LocationUtils.locationToString(location), RADIUS, TYPE, context.getString(R.string.language), BuildConfig.MAPS_API_KEY).enqueue(new Callback<AutocompleteResponse>() {
                 @Override
                 public void onResponse(@NonNull Call<AutocompleteResponse> call, @NonNull Response<AutocompleteResponse> response) {
                     AutocompleteResponse body = response.body();

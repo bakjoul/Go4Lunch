@@ -3,13 +3,16 @@ package com.bakjoul.go4lunch.data.autocomplete;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
+import android.content.Context;
 import android.location.Location;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
+import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.api.GoogleApis;
 import com.bakjoul.go4lunch.data.autocomplete.model.AutocompleteResponse;
 import com.bakjoul.go4lunch.data.autocomplete.model.PredictionResponse;
@@ -29,8 +32,12 @@ import retrofit2.Response;
 
 public class AutocompleteRepositoryImplementationTest {
 
+    private static final String LANGUAGE = "en";
+
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
+
+    private final Context context = Mockito.mock(Context.class);
 
     private final GoogleApis googleApis = Mockito.mock(GoogleApis.class);
 
@@ -41,6 +48,8 @@ public class AutocompleteRepositoryImplementationTest {
     @SuppressWarnings("unchecked")
     @Before
     public void setUp() {
+        doReturn(LANGUAGE).when(context).getString(R.string.language);
+
         location = Mockito.mock(Location.class);
         Call<AutocompleteResponse> mockedCall = Mockito.mock(Call.class);
         Mockito.doReturn(mockedCall).when(googleApis).getRestaurantAutocomplete(anyString(), anyString(), anyString(), anyString(), anyString(), anyString());
@@ -51,7 +60,7 @@ public class AutocompleteRepositoryImplementationTest {
             return null;
         }).when(mockedCall).enqueue(any(Callback.class));
 
-        autocompleteRepositoryImplementation = new AutocompleteRepositoryImplementation(googleApis);
+        autocompleteRepositoryImplementation = new AutocompleteRepositoryImplementation(context, googleApis);
     }
 
     @Test

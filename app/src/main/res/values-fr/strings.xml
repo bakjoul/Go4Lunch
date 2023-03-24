@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Go4Lunch</string>
     <string name="navigation_drawer_menu_lunch">VOTRE DÉJEUNER</string>
     <string name="navigation_drawer_menu_settings">PARAMÈTRES</string>
     <string name="navigation_drawer_menu_logout">SE DÉCONNECTER</string>
@@ -53,4 +52,5 @@
     <string name="main_user_not_logged">Utilisateur non authentifié</string>
     <string name="workmates_has_not_decided_yet">%s n\'a pas encore décidé</string>
     <string name="workmates_having_lunch_at">%s déjeune à %s</string>
+    <string name="language">fr</string>
 </resources>
