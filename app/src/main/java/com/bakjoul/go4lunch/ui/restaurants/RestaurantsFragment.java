@@ -1,6 +1,7 @@
 package com.bakjoul.go4lunch.ui.restaurants;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -102,8 +103,8 @@ public class RestaurantsFragment extends Fragment implements RestaurantsAdapter.
     @Override
     public void onRestaurantClicked(int position) {
         SearchView searchView = requireActivity().findViewById(R.id.main_SearchView);
-        // Closes search view if it has focus
-        if (searchView.hasFocus()) {
+        // Closes search view if it has focus and input is empty
+        if (searchView.hasFocus() && searchView.getQuery().length() == 0) {
             searchView.setIconified(true);
             searchView.onActionViewCollapsed();
             return;
