@@ -31,11 +31,9 @@ public class SettingsViewModelTest {
 
     private final SettingsRepository settingsRepository = Mockito.mock(SettingsRepository.class);
 
-    private final SetNotificationsPreferencesUseCase setNotificationsPreferencesUseCase = Mockito.mock(SetNotificationsPreferencesUseCase.class);
-
     private final WorkManager workManager = Mockito.mock(WorkManager.class);
 
-    private final Clock clock = Mockito.mock(Clock.class);
+    private final SetNotificationsPreferencesUseCase setNotificationsPreferencesUseCase = new SetNotificationsPreferencesUseCase(settingsRepository, workManager, Clock.systemDefaultZone());
 
     private final MutableLiveData<Boolean> areNotificationsEnabledLiveData = new MutableLiveData<>();
 
@@ -72,15 +70,25 @@ public class SettingsViewModelTest {
         assertEquals(getSettingsViewState(false), result);
     }
 
-/*    @Test
-    public void onNotificationSwitchChanged() {
+    @Test
+    public void onNotificationSwitchChanged_to_true() {
         // When
         viewModel.onNotificationSwitchChanged(true);
 
         // Then
         verify(workManager).enqueueUniquePeriodicWork(eq("NOTIFICATION_WORK_REQUEST"), eq(ExistingPeriodicWorkPolicy.KEEP), any(PeriodicWorkRequest.class));
         verify(settingsRepository).setNotification(true);
-    }*/
+    }
+
+    @Test
+    public void onNotificationSwitchChanged_to_false() {
+        // When
+        viewModel.onNotificationSwitchChanged(false);
+
+        // Then
+        verify(workManager).cancelUniqueWork("NOTIFICATION_WORK_REQUEST");
+        verify(settingsRepository).setNotification(false);
+    }
 
     // region OUT
     @NonNull
