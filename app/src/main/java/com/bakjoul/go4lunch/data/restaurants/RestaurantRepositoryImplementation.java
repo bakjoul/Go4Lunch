@@ -62,7 +62,12 @@ public class RestaurantRepositoryImplementation implements RestaurantRepository 
                 )
             );
         } else {
-            googleApis.getNearbyRestaurants(locationToString(location), RANK_BY, TYPE, BuildConfig.MAPS_API_KEY).enqueue(new Callback<NearbySearchResponse>() {
+            googleApis.getNearbyRestaurants(
+                locationToString(location),
+                RANK_BY,
+                TYPE,
+                BuildConfig.MAPS_API_KEY
+            ).enqueue(new Callback<NearbySearchResponse>() {
                 @Override
                 public void onResponse(@NonNull Call<NearbySearchResponse> call, @NonNull Response<NearbySearchResponse> response) {
                     NearbySearchResponse body = response.body();

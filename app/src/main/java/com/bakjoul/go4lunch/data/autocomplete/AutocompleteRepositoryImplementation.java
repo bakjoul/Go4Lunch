@@ -72,7 +72,14 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
         if (existingResponse != null) {
             responseMutableLiveData.setValue(existingResponse.getPredictions());
         } else {
-            googleApis.getRestaurantAutocomplete(userInput, LocationUtils.locationToString(location), RADIUS, TYPE, context.getString(R.string.language), BuildConfig.MAPS_API_KEY).enqueue(new Callback<AutocompleteResponse>() {
+            googleApis.getRestaurantAutocomplete(
+                userInput,
+                LocationUtils.locationToString(location),
+                RADIUS,
+                TYPE,
+                context.getString(R.string.language),
+                BuildConfig.MAPS_API_KEY
+            ).enqueue(new Callback<AutocompleteResponse>() {
                 @Override
                 public void onResponse(@NonNull Call<AutocompleteResponse> call, @NonNull Response<AutocompleteResponse> response) {
                     AutocompleteResponse body = response.body();
@@ -88,7 +95,7 @@ public class AutocompleteRepositoryImplementation implements AutocompleteReposit
 
                 @Override
                 public void onFailure(@NonNull Call<AutocompleteResponse> call, @NonNull Throwable t) {
-                    Log.d(TAG, "onFailure: " + t.getMessage());
+                    Log.d(TAG, "onFailure: ", t);
                     responseMutableLiveData.setValue(new ArrayList<>());
                 }
             });

@@ -55,7 +55,7 @@ public class RestaurantDetailsRepositoryImplementation implements RestaurantDeta
 
                 @Override
                 public void onFailure(@NonNull Call<DetailsResponse> call, @NonNull Throwable t) {
-                    Log.d(TAG, "onFailure: ");
+                    Log.d(TAG, "onFailure: ", t);
                     detailsResponseMutableLiveData.setValue(null);
                 }
             });

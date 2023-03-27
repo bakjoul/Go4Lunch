@@ -39,7 +39,9 @@ public class ChatRepositoryImplementation implements ChatRepository {
             return new MutableLiveData<>();
         } else {
             return new FirestoreChatQueryLiveData<ChatMessageResponse, ChatMessageEntity>(
-                firestoreDb.collection("chats").document(getChatId(sender, receiver)).collection("chat")
+                firestoreDb.collection("chats")
+                    .document(getChatId(sender, receiver))
+                    .collection("chat")
                     .orderBy("timestamp", Query.Direction.DESCENDING),
                 ChatMessageResponse.class
             ) {
