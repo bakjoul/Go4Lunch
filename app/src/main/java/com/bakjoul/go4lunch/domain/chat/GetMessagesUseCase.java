@@ -31,7 +31,10 @@ public class GetMessagesUseCase {
     }
 
     public LiveData<List<ChatMessageEntity>> invoke(String receiverId) {
-        String currentUserId = authRepository.getCurrentUserId();
+        String currentUserId = null;
+        if (authRepository.getCurrentUser() != null) {
+            currentUserId = authRepository.getCurrentUser().getId();
+        }
 
         if (currentUserId == null) {
             Log.d(TAG, "User is not logged in");

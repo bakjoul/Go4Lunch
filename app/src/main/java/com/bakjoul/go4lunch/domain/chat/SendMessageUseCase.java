@@ -29,7 +29,10 @@ public class SendMessageUseCase {
     }
 
     public void invoke(String receiverId, String content) {
-        String currentUserId = authRepository.getCurrentUserId();
+        String currentUserId = null;
+        if (authRepository.getCurrentUser() != null) {
+            currentUserId = authRepository.getCurrentUser().getId();
+        }
 
         if (currentUserId == null) {
             Log.d(TAG, "User is not logged in");

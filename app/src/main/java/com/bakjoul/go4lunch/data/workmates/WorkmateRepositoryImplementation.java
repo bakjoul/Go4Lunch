@@ -8,10 +8,11 @@ import androidx.lifecycle.Transformations;
 import com.bakjoul.go4lunch.data.user.UserGoingToRestaurantResponse;
 import com.bakjoul.go4lunch.data.utils.FirestoreCollectionLiveData;
 import com.bakjoul.go4lunch.data.utils.FirestoreQueryLiveData;
+import com.bakjoul.go4lunch.domain.auth.GetCurrentUserIdUseCase;
+import com.bakjoul.go4lunch.domain.auth.GetCurrentFirebaseUserUseCase;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Collection;
@@ -31,15 +32,20 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     private final FirebaseFirestore firestoreDb;
 
     @NonNull
-    private final FirebaseAuth firebaseAuth;
+    private final GetCurrentFirebaseUserUseCase getCurrentFirebaseUserUseCase;
+
+    @NonNull
+    private final GetCurrentUserIdUseCase getCurrentUserIdUseCase;
 
     @Inject
     public WorkmateRepositoryImplementation(
         @NonNull FirebaseFirestore firestoreDb,
-        @NonNull FirebaseAuth firebaseAuth
+        @NonNull GetCurrentFirebaseUserUseCase getCurrentFirebaseUserUseCase,
+        @NonNull GetCurrentUserIdUseCase getCurrentUserIdUseCase
     ) {
         this.firestoreDb = firestoreDb;
-        this.firebaseAuth = firebaseAuth;
+        this.getCurrentFirebaseUserUseCase = getCurrentFirebaseUserUseCase;
+        this.getCurrentUserIdUseCase = getCurrentUserIdUseCase;
     }
 
     @Override
@@ -59,8 +65,8 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
                     && response.getChosenRestaurantId() != null
                     && response.getChosenRestaurantName() != null
                     && response.getChosenRestaurantAddress() != null
-                    && firebaseAuth.getCurrentUser() != null
-                    && !response.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
+                    && getCurrentFirebaseUserUseCase.invoke() != null
+                    && !response.getId().equals(getCurrentUserIdUseCase.invoke())) {
                     entity = new UserGoingToRestaurantEntity(
                         response.getId(),
                         response.getUsername(),
@@ -87,7 +93,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
                 Set<String> ids = new HashSet<>();
                 if (response != null) {
                     for (UserGoingToRestaurantEntity entity : response) {
-                        if (!entity.getId().equals(firebaseAuth.getUid())) {
+                        if (!entity.getId().equals(getCurrentUserIdUseCase.invoke())) {
                             ids.add(entity.getChosenRestaurantId());
                         }
                     }
@@ -114,8 +120,8 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
                     && response.getChosenRestaurantId() != null
                     && response.getChosenRestaurantName() != null
                     && response.getChosenRestaurantAddress() != null
-                    && firebaseAuth.getCurrentUser() != null
-                    && !response.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
+                    && getCurrentFirebaseUserUseCase.invoke() != null
+                    && !response.getId().equals(getCurrentUserIdUseCase.invoke())) {
                     entity = new UserGoingToRestaurantEntity(
                         response.getId(),
                         response.getUsername(),
@@ -142,7 +148,7 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
                 Map<String, Integer> restaurantsAttendance = new HashMap<>();
                 if (response != null) {
                     for (UserGoingToRestaurantEntity entity : response) {
-                        if (!entity.getId().equals(firebaseAuth.getUid())) {
+                        if (!entity.getId().equals(getCurrentUserIdUseCase.invoke())) {
                             restaurantsAttendance.merge(entity.getChosenRestaurantId(), 1, Integer::sum);
                         }
                     }
@@ -165,8 +171,8 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
                 if (response.getId() != null
                     && response.getUsername() != null
                     && response.getEmail() != null
-                    && firebaseAuth.getCurrentUser() != null
-                    && !response.getId().equals(firebaseAuth.getCurrentUser().getUid())) {
+                    && getCurrentFirebaseUserUseCase.invoke() != null
+                    && !response.getId().equals(getCurrentUserIdUseCase.invoke())) {
                     entity = new WorkmateEntity(
                         response.getId(),
                         response.getUsername(),

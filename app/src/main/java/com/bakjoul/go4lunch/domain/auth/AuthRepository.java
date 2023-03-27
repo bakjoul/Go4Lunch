@@ -5,5 +5,5 @@ import androidx.annotation.Nullable;
 public interface AuthRepository {
 
     @Nullable
-    String getCurrentUserId();
+    LoggedUserEntity getCurrentUser();
 }
