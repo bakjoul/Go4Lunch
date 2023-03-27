@@ -228,6 +228,8 @@ public class MainActivity extends AppCompatActivity implements SuggestionsAdapte
         if (!shown) {
             switch (selected) {
                 case MAP:
+                    binding.mainToolbar.setTitle(R.string.toolbar_title_hungry);
+                    binding.mainSearchView.setQueryHint(getString(R.string.main_searchview_query_hint_restaurants));
                     transaction.add(binding.mainFrameLayoutFragmentContainer.getId(), MapFragment.newInstance());
                     break;
                 case RESTAURANTS:
