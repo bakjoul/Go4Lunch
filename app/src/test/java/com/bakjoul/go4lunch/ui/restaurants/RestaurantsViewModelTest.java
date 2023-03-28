@@ -1,4 +1,3 @@
-
 package com.bakjoul.go4lunch.ui.restaurants;
 
 import static org.junit.Assert.assertEquals;

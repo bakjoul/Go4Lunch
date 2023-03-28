@@ -49,7 +49,8 @@
             android:value="@string/fb_client_token" />
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="${MAPS_API_KEY}" /> <!-- If you want to disable android.startup completely. -->
+            android:value="${MAPS_API_KEY}" />
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"
