@@ -1,17 +1,12 @@
 package com.bakjoul.go4lunch.ui.settings;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 import androidx.lifecycle.MutableLiveData;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import com.bakjoul.go4lunch.domain.settings.SetNotificationsPreferencesUseCase;
 import com.bakjoul.go4lunch.domain.settings.SettingsRepository;
@@ -22,8 +17,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import java.time.Clock;
-
 public class SettingsViewModelTest {
 
     @Rule
@@ -31,9 +24,7 @@ public class SettingsViewModelTest {
 
     private final SettingsRepository settingsRepository = Mockito.mock(SettingsRepository.class);
 
-    private final WorkManager workManager = Mockito.mock(WorkManager.class);
-
-    private final SetNotificationsPreferencesUseCase setNotificationsPreferencesUseCase = new SetNotificationsPreferencesUseCase(settingsRepository, workManager, Clock.systemDefaultZone());
+    private final SetNotificationsPreferencesUseCase setNotificationsPreferencesUseCase = Mockito.mock(SetNotificationsPreferencesUseCase.class);
 
     private final MutableLiveData<Boolean> areNotificationsEnabledLiveData = new MutableLiveData<>();
 
@@ -41,6 +32,7 @@ public class SettingsViewModelTest {
 
     @Before
     public void setUp() {
+        areNotificationsEnabledLiveData.setValue(true);
         doReturn(areNotificationsEnabledLiveData).when(settingsRepository).areNotificationsEnabledLiveData();
 
         viewModel = new SettingsViewModel(settingsRepository, setNotificationsPreferencesUseCase);
@@ -48,9 +40,6 @@ public class SettingsViewModelTest {
 
     @Test
     public void nominal_case() {
-        // Given
-        areNotificationsEnabledLiveData.setValue(true);
-
         // When
         SettingsViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getSettingsViewStateLiveData());
 
@@ -76,7 +65,7 @@ public class SettingsViewModelTest {
         viewModel.onNotificationSwitchChanged(true);
 
         // Then
-        verify(workManager).enqueueUniquePeriodicWork(eq("NOTIFICATION_WORK_REQUEST"), eq(ExistingPeriodicWorkPolicy.KEEP), any(PeriodicWorkRequest.class));
+        verify(setNotificationsPreferencesUseCase).invoke(true);
         verify(settingsRepository).setNotification(true);
     }
 
@@ -86,7 +75,7 @@ public class SettingsViewModelTest {
         viewModel.onNotificationSwitchChanged(false);
 
         // Then
-        verify(workManager).cancelUniqueWork("NOTIFICATION_WORK_REQUEST");
+        verify(setNotificationsPreferencesUseCase).invoke(false);
         verify(settingsRepository).setNotification(false);
     }
 

@@ -1,7 +1,5 @@
 package com.bakjoul.go4lunch.data.auth;
 
-import android.net.Uri;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -30,14 +28,22 @@ public class AuthRepositoryFirebase implements AuthRepository {
         if (firebaseUser != null) {
             final String username = firebaseUser.getDisplayName();
             final String email = firebaseUser.getEmail();
-            final Uri photoUrl = firebaseUser.getPhotoUrl();
+            final String photoUrl;
 
-            return new LoggedUserEntity(
-                firebaseUser.getUid(),
-                username != null ? username : "",
-                email != null ? email : "",
-                photoUrl != null ? photoUrl.toString() : ""
-            );
+            if (firebaseUser.getPhotoUrl() != null) {
+                photoUrl = firebaseUser.getPhotoUrl().toString();
+            } else {
+                photoUrl = null;
+            }
+
+            if (username != null && email != null) {
+                return new LoggedUserEntity(
+                    firebaseUser.getUid(),
+                    username,
+                    email,
+                    photoUrl
+                );
+            }
         }
         return null;
     }

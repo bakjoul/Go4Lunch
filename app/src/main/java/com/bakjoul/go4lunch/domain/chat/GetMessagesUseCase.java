@@ -4,8 +4,11 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.domain.auth.AuthRepository;
+import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
+import com.bakjoul.go4lunch.domain.auth.LoggedUserEntity;
 
 import java.util.List;
 
@@ -19,28 +22,26 @@ public class GetMessagesUseCase {
     private final ChatRepository chatRepository;
 
     @NonNull
-    private final AuthRepository authRepository;
+    private final GetCurrentUserUseCase getCurrentUserUseCase;
 
     @Inject
     public GetMessagesUseCase(
         @NonNull ChatRepository chatRepository,
-        @NonNull AuthRepository authRepository
+        @NonNull GetCurrentUserUseCase getCurrentUserUseCase
     ) {
         this.chatRepository = chatRepository;
-        this.authRepository = authRepository;
+        this.getCurrentUserUseCase = getCurrentUserUseCase;
     }
 
+    @NonNull
     public LiveData<List<ChatMessageEntity>> invoke(String receiverId) {
-        String currentUserId = null;
-        if (authRepository.getCurrentUser() != null) {
-            currentUserId = authRepository.getCurrentUser().getId();
-        }
+        final LoggedUserEntity currentUser = getCurrentUserUseCase.invoke();
 
-        if (currentUserId == null) {
+        if (currentUser == null) {
             Log.d(TAG, "User is not logged in");
-            return null;
+            return new MutableLiveData<>(null);
         } else {
-            return chatRepository.getMessages(currentUserId, receiverId);
+            return chatRepository.getMessages(currentUser.getId(), receiverId);
         }
     }
 }

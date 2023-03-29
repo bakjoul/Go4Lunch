@@ -1,0 +1,51 @@
+package com.bakjoul.go4lunch.domain.workmate;
+
+import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Transformations;
+
+import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
+import com.bakjoul.go4lunch.domain.auth.LoggedUserEntity;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.inject.Inject;
+
+// TODO BAKJOUL Example here
+public class GetWorkmatesUseCase {
+
+    @NonNull
+    private final GetCurrentUserUseCase getCurrentUserUseCase;
+    @NonNull
+    private final WorkmateRepository workmateRepository;
+
+    @Inject
+    public GetWorkmatesUseCase(
+        @NonNull GetCurrentUserUseCase getCurrentUserUseCase,
+        @NonNull WorkmateRepository workmateRepository
+    ) {
+        this.getCurrentUserUseCase = getCurrentUserUseCase;
+        this.workmateRepository = workmateRepository;
+    }
+
+    public LiveData<List<WorkmateEntity>> invoke() {
+        return Transformations.map(workmateRepository.getAvailableWorkmatesLiveData(), workmateEntities -> {
+            LoggedUserEntity currentUser = getCurrentUserUseCase.invoke();
+
+            if (currentUser == null) {
+                return workmateEntities;
+            } else {
+                List<WorkmateEntity> filteredWorkmateEntities = new ArrayList<>(workmateEntities.size());
+
+                for (WorkmateEntity workmateEntity : workmateEntities) {
+                    if (!workmateEntity.getId().equals(currentUser.getId())) {
+                        filteredWorkmateEntities.add(workmateEntity);
+                    }
+                }
+
+                return filteredWorkmateEntities;
+            }
+        });
+    }
+}

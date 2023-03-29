@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
+import com.bakjoul.go4lunch.domain.workmate.GetWorkmatesUseCase;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
@@ -29,9 +30,10 @@ public class WorkmatesViewModel extends ViewModel {
     @Inject
     public WorkmatesViewModel(
         @NonNull WorkmateRepository workmateRepository,
+        @NonNull GetWorkmatesUseCase getWorkmatesUseCase,
         @NonNull AutocompleteRepository autocompleteRepository
     ) {
-        LiveData<List<WorkmateEntity>> availableWorkmatesLiveData = workmateRepository.getAvailableWorkmatesLiveData();
+        LiveData<List<WorkmateEntity>> availableWorkmatesLiveData = getWorkmatesUseCase.invoke();
         LiveData<List<UserGoingToRestaurantEntity>> workmatesGoingToRestaurantsLiveData = workmateRepository.getWorkmatesGoingToRestaurantsLiveData();
         LiveData<String> userSearchLiveData = autocompleteRepository.getUserSearchLiveData();
 

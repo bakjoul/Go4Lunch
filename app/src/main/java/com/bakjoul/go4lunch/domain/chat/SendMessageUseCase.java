@@ -5,6 +5,8 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 
 import com.bakjoul.go4lunch.domain.auth.AuthRepository;
+import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
+import com.bakjoul.go4lunch.domain.auth.LoggedUserEntity;
 
 import javax.inject.Inject;
 
@@ -16,28 +18,24 @@ public class SendMessageUseCase {
     private final ChatRepository chatRepository;
 
     @NonNull
-    private final AuthRepository authRepository;
+    private final GetCurrentUserUseCase getCurrentUserUseCase;
 
     @Inject
     public SendMessageUseCase(
         @NonNull ChatRepository chatRepository,
-        @NonNull AuthRepository authRepository
+        @NonNull GetCurrentUserUseCase getCurrentUserUseCase
     ) {
-
         this.chatRepository = chatRepository;
-        this.authRepository = authRepository;
+        this.getCurrentUserUseCase = getCurrentUserUseCase;
     }
 
     public void invoke(String receiverId, String content) {
-        String currentUserId = null;
-        if (authRepository.getCurrentUser() != null) {
-            currentUserId = authRepository.getCurrentUser().getId();
-        }
+        final LoggedUserEntity currentUser = getCurrentUserUseCase.invoke();
 
-        if (currentUserId == null) {
+        if (currentUser == null) {
             Log.d(TAG, "User is not logged in");
         } else {
-            chatRepository.sendMessage(currentUserId, receiverId, content);
+            chatRepository.sendMessage(currentUser.getId(), receiverId, content);
         }
     }
 }

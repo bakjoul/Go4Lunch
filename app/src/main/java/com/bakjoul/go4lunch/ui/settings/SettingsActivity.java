@@ -30,10 +30,12 @@ public class SettingsActivity extends AppCompatActivity {
         setToolbar();
 
         viewModel.getSettingsViewStateLiveData().observe(this, viewState ->
-            binding.settingsSwitchNotification.setChecked(viewState.isLunchReminderEnabled()));
+            binding.settingsSwitchNotification.setChecked(viewState.isLunchReminderEnabled())
+        );
 
         binding.settingsSwitchNotification.setOnCheckedChangeListener((compoundButton, isChecked) ->
-            viewModel.onNotificationSwitchChanged(isChecked));
+            viewModel.onNotificationSwitchChanged(isChecked)
+        );
     }
 
     private void setToolbar() {

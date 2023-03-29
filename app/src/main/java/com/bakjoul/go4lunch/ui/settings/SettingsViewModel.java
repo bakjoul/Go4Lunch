@@ -32,15 +32,10 @@ public class SettingsViewModel extends ViewModel {
     }
 
     public LiveData<SettingsViewState> getSettingsViewStateLiveData() {
-        return Transformations.switchMap(
+        //noinspection Convert2MethodRef
+        return Transformations.map(
             settingsRepository.areNotificationsEnabledLiveData(),
-            areNotificationsEnabled -> {
-                if (areNotificationsEnabled) {
-                    return new MutableLiveData<>(new SettingsViewState(true));
-                } else {
-                    return new MutableLiveData<>(new SettingsViewState(false));
-                }
-            }
+            areNotificationsEnabled -> new SettingsViewState(areNotificationsEnabled)
         );
     }
 

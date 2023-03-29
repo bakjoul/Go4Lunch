@@ -1,6 +1,7 @@
 package com.bakjoul.go4lunch.domain.auth;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import java.util.Objects;
 
@@ -14,10 +15,10 @@ public class LoggedUserEntity {
     @NonNull
     private final String email;
 
-    @NonNull
+    @Nullable
     private final String photoUrl;
 
-    public LoggedUserEntity(@NonNull String id, @NonNull String username, @NonNull String email, @NonNull String photoUrl) {
+    public LoggedUserEntity(@NonNull String id, @NonNull String username, @NonNull String email, @Nullable String photoUrl) {
         this.id = id;
         this.username = username;
         this.email = email;
@@ -39,7 +40,7 @@ public class LoggedUserEntity {
         return email;
     }
 
-    @NonNull
+    @Nullable
     public String getPhotoUrl() {
         return photoUrl;
     }

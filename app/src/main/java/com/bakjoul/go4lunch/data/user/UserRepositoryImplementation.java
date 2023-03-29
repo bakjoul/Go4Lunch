@@ -10,8 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.bakjoul.go4lunch.data.utils.FirestoreCollectionIdsLiveData;
 import com.bakjoul.go4lunch.data.utils.FirestoreDocumentLiveData;
 import com.bakjoul.go4lunch.data.workmates.WorkmateResponse;
-import com.bakjoul.go4lunch.domain.auth.GetCurrentFirebaseUserUseCase;
-import com.bakjoul.go4lunch.domain.auth.GetCurrentUserIdUseCase;
+import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
 import com.google.firebase.auth.FirebaseUser;
@@ -36,17 +35,17 @@ public class UserRepositoryImplementation implements UserRepository {
     private final GetCurrentFirebaseUserUseCase getCurrentFirebaseUserUseCase;
 
     @NonNull
-    private final GetCurrentUserIdUseCase getCurrentUserIdUseCase;
+    private final GetCurrentUserUseCase getCurrentUserUseCase;
 
     @Inject
     public UserRepositoryImplementation(
         @NonNull FirebaseFirestore firestoreDb,
         @NonNull GetCurrentFirebaseUserUseCase getCurrentFirebaseUserUseCase,
-        @NonNull GetCurrentUserIdUseCase getCurrentUserIdUseCase
+        @NonNull GetCurrentUserUseCase getCurrentUserUseCase
     ) {
         this.firestoreDb = firestoreDb;
         this.getCurrentFirebaseUserUseCase = getCurrentFirebaseUserUseCase;
-        this.getCurrentUserIdUseCase = getCurrentUserIdUseCase;
+        this.getCurrentUserUseCase = getCurrentUserUseCase;
     }
 
     @Override
@@ -78,7 +77,7 @@ public class UserRepositoryImplementation implements UserRepository {
         @NonNull String restaurantName,
         @NonNull String restaurantAddress
     ) {
-        String currentUserId = getCurrentUserIdUseCase.invoke();
+        String currentUserId = getCurrentUserUseCase.invoke();
         if (currentUserId != null) {
             final Map<String, Object> chosenRestaurantData = getCurrentUserData();
             chosenRestaurantData.put("chosenRestaurantId", restaurantId);
@@ -110,7 +109,7 @@ public class UserRepositoryImplementation implements UserRepository {
 
     @Override
     public void unchooseRestaurant() {
-        String currentUserId = getCurrentUserIdUseCase.invoke();
+        String currentUserId = getCurrentUserUseCase.invoke();
         if (currentUserId != null) {
             firestoreDb
                 .collection("usersGoingToRestaurants")
@@ -123,7 +122,7 @@ public class UserRepositoryImplementation implements UserRepository {
 
     @Override
     public void addRestaurantToFavorites(@NonNull String restaurantId, @NonNull String restaurantName) {
-        String currentUserId = getCurrentUserIdUseCase.invoke();
+        String currentUserId = getCurrentUserUseCase.invoke();
         if (currentUserId != null) {
             final Map<String, Object> restaurantData = new HashMap<>();
             restaurantData.put("restaurantId", restaurantId);
@@ -141,7 +140,7 @@ public class UserRepositoryImplementation implements UserRepository {
 
     @Override
     public void removeRestaurantFromFavorites(@NonNull String restaurantId) {
-        String currentUserId = getCurrentUserIdUseCase.invoke();
+        String currentUserId = getCurrentUserUseCase.invoke();
         if (currentUserId != null) {
             firestoreDb.collection("users")
                 .document(currentUserId)
@@ -155,7 +154,7 @@ public class UserRepositoryImplementation implements UserRepository {
 
     @Override
     public LiveData<UserGoingToRestaurantEntity> getChosenRestaurantLiveData() {
-        String currentUserId = getCurrentUserIdUseCase.invoke();
+        String currentUserId = getCurrentUserUseCase.invoke();
         if (currentUserId != null) {
             return new FirestoreDocumentLiveData<UserGoingToRestaurantResponse, UserGoingToRestaurantEntity>(
                 firestoreDb.collection("usersGoingToRestaurants").document(currentUserId),
@@ -196,7 +195,7 @@ public class UserRepositoryImplementation implements UserRepository {
 
     @Override
     public LiveData<Collection<String>> getFavoritesRestaurantsLiveData() {
-        String currentUserId = getCurrentUserIdUseCase.invoke();
+        String currentUserId = getCurrentUserUseCase.invoke();
         if (currentUserId != null) {
             return new FirestoreCollectionIdsLiveData(
                 firestoreDb
