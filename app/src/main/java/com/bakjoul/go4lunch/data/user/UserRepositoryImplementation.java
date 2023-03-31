@@ -10,7 +10,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.bakjoul.go4lunch.data.utils.FirestoreCollectionIdsLiveData;
 import com.bakjoul.go4lunch.data.utils.FirestoreDocumentLiveData;
 import com.bakjoul.go4lunch.data.workmates.WorkmateResponse;
-import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
 import com.bakjoul.go4lunch.domain.auth.LoggedUserEntity;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
@@ -31,16 +30,9 @@ public class UserRepositoryImplementation implements UserRepository {
     @NonNull
     private final FirebaseFirestore firestoreDb;
 
-    @NonNull
-    private final GetCurrentUserUseCase getCurrentUserUseCase;
-
     @Inject
-    public UserRepositoryImplementation(
-        @NonNull FirebaseFirestore firestoreDb,
-        @NonNull GetCurrentUserUseCase getCurrentUserUseCase
-    ) {
+    public UserRepositoryImplementation(@NonNull FirebaseFirestore firestoreDb) {
         this.firestoreDb = firestoreDb;
-        this.getCurrentUserUseCase = getCurrentUserUseCase;
     }
 
     @Override
@@ -72,7 +64,7 @@ public class UserRepositoryImplementation implements UserRepository {
         @NonNull String restaurantAddress
     ) {
         if (currentUser != null) {
-            final Map<String, Object> chosenRestaurantData = getCurrentUserData();
+            final Map<String, Object> chosenRestaurantData = getCurrentUserData(currentUser);
             chosenRestaurantData.put("chosenRestaurantId", restaurantId);
             chosenRestaurantData.put("chosenRestaurantName", restaurantName);
             chosenRestaurantData.put("chosenRestaurantAddress", restaurantAddress);
@@ -87,9 +79,8 @@ public class UserRepositoryImplementation implements UserRepository {
     }
 
     @NonNull
-    private Map<String, Object> getCurrentUserData() {
+    private Map<String, Object> getCurrentUserData(@Nullable LoggedUserEntity currentUser) {
         final Map<String, Object> userData = new HashMap<>();
-        final LoggedUserEntity currentUser = getCurrentUserUseCase.invoke();
         if (currentUser != null) {
             userData.put("id", currentUser.getId());
             userData.put("username", currentUser.getUsername());
