@@ -66,7 +66,6 @@ public class SettingsViewModelTest {
 
         // Then
         verify(setNotificationsPreferencesUseCase).invoke(true);
-        verify(settingsRepository).setNotification(true);
     }
 
     @Test
@@ -76,7 +75,6 @@ public class SettingsViewModelTest {
 
         // Then
         verify(setNotificationsPreferencesUseCase).invoke(false);
-        verify(settingsRepository).setNotification(false);
     }
 
     // region OUT

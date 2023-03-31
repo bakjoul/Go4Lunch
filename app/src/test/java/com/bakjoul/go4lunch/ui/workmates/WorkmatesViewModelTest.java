@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
+import com.bakjoul.go4lunch.domain.workmate.GetWorkmatesUseCase;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
@@ -30,6 +31,7 @@ public class WorkmatesViewModelTest {
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     private final WorkmateRepository workmateRepository = Mockito.mock(WorkmateRepository.class);
+    private final GetWorkmatesUseCase getWorkmatesUseCase = Mockito.mock(GetWorkmatesUseCase.class);
     private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
 
     private final MutableLiveData<List<WorkmateEntity>> availableWorkmatesLiveData = new MutableLiveData<>();
@@ -41,13 +43,13 @@ public class WorkmatesViewModelTest {
 
     @Before
     public void setUp() {
-        doReturn(availableWorkmatesLiveData).when(workmateRepository).getAvailableWorkmatesLiveData();
+        doReturn(availableWorkmatesLiveData).when(getWorkmatesUseCase).invoke();
         doReturn(workmatesGoingToRestaurantsLiveData).when(workmateRepository).getWorkmatesGoingToRestaurantsLiveData();
 
         userSearchLiveData.setValue(null);
         doReturn(userSearchLiveData).when(autocompleteRepository).getUserSearchLiveData();
 
-        viewModel = new WorkmatesViewModel(workmateRepository, autocompleteRepository);
+        viewModel = new WorkmatesViewModel(workmateRepository, getWorkmatesUseCase, autocompleteRepository);
     }
 
     @Test

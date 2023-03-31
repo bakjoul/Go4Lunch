@@ -96,6 +96,7 @@ public class MainViewModel extends ViewModel {
 
             LiveData<UserGoingToRestaurantEntity> userChosenRestaurantLiveData = userRepository.getChosenRestaurantLiveData(currentUser);
 
+            //noinspection Convert2MethodRef
             LiveData<List<PredictionResponse>> predictionsLiveData = Transformations.switchMap(
                 currentUserSearchMutableLiveData, userSearch ->
                     getAutocompletePredictionsUseCase.invoke(userSearch)

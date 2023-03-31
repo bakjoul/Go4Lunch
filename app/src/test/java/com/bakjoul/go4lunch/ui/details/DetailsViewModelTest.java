@@ -22,10 +22,12 @@ import com.bakjoul.go4lunch.data.details.model.DetailsResponse;
 import com.bakjoul.go4lunch.data.details.model.OpenResponse;
 import com.bakjoul.go4lunch.data.details.model.PeriodResponse;
 import com.bakjoul.go4lunch.data.details.model.RestaurantDetailsResponse;
-import com.bakjoul.go4lunch.data.user.UserRepositoryImplementation;
-import com.bakjoul.go4lunch.data.workmates.WorkmateRepositoryImplementation;
+import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
+import com.bakjoul.go4lunch.domain.auth.LoggedUserEntity;
 import com.bakjoul.go4lunch.domain.details.RestaurantDetailsRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
+import com.bakjoul.go4lunch.domain.user.UserRepository;
+import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 
@@ -154,8 +156,9 @@ public class DetailsViewModelTest {
     private final Application application = Mockito.mock(Application.class);
     private final RestaurantDetailsRepository restaurantDetailsRepository = Mockito.mock(RestaurantDetailsRepository.class);
     private final SavedStateHandle savedStateHandle = Mockito.mock(SavedStateHandle.class);
-    private final UserRepositoryImplementation userRepositoryImplementation = Mockito.mock(UserRepositoryImplementation.class);
-    private final WorkmateRepositoryImplementation workmateRepositoryImplementation = Mockito.mock(WorkmateRepositoryImplementation.class);
+    private final UserRepository userRepository = Mockito.mock(UserRepository.class);
+    private final WorkmateRepository workmateRepository = Mockito.mock(WorkmateRepository.class);
+    private final GetCurrentUserUseCase getCurrentUserUseCase = Mockito.mock(GetCurrentUserUseCase.class);
     private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
     private final Clock clock = Clock.fixed(
         ZonedDateTime.of(FAKE_DATE_TIME.getYear(), FAKE_DATE_TIME.getMonthValue(), FAKE_DATE_TIME.getDayOfMonth(), FAKE_DATE_TIME.getHour(), FAKE_DATE_TIME.getMinute(), 0, 0, ZoneOffset.UTC).toInstant(),
@@ -165,6 +168,8 @@ public class DetailsViewModelTest {
         ZonedDateTime.of(FAKE_DATE_TIME_2.getYear(), FAKE_DATE_TIME_2.getMonthValue(), FAKE_DATE_TIME_2.getDayOfMonth(), FAKE_DATE_TIME_2.getHour(), FAKE_DATE_TIME_2.getMinute(), 0, 0, ZoneOffset.UTC).toInstant(),
         ZoneOffset.UTC
     );
+
+    private final LoggedUserEntity fakeUser = Mockito.mock(LoggedUserEntity.class);
 
     private final MutableLiveData<DetailsResponse> detailsResponseLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<UserGoingToRestaurantEntity>> workmatesLiveData = new MutableLiveData<>();
@@ -183,10 +188,12 @@ public class DetailsViewModelTest {
         doReturn(OPEN_AT).when(application).getString(R.string.details_open_at);
         doReturn(JOINING).when(application).getString(R.string.details_text_joining);
 
+        doReturn(fakeUser).when(getCurrentUserUseCase).invoke();
+
         doReturn(detailsResponseLiveData).when(restaurantDetailsRepository).getDetailsResponse(anyString());
-        doReturn(workmatesLiveData).when(workmateRepositoryImplementation).getWorkmatesGoingToRestaurantIdLiveData(anyString());
-        doReturn(chosenRestaurantLiveData).when(userRepositoryImplementation).getChosenRestaurantLiveData();
-        doReturn(favoritesRestaurants).when(userRepositoryImplementation).getFavoritesRestaurantsLiveData();
+        doReturn(workmatesLiveData).when(workmateRepository).getWorkmatesGoingToRestaurantIdLiveData(anyString());
+        doReturn(chosenRestaurantLiveData).when(userRepository).getChosenRestaurantLiveData(fakeUser);
+        doReturn(favoritesRestaurants).when(userRepository).getFavoritesRestaurantsLiveData(fakeUser);
         doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", true);
 
         workmatesLiveData.setValue(new ArrayList<>());
@@ -411,7 +418,7 @@ public class DetailsViewModelTest {
         viewModel.onRestaurantChoosed(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName", "fakeAddress");
 
         // Then
-        verify(userRepositoryImplementation).chooseRestaurant(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName", "fakeAddress");
+        verify(userRepository).chooseRestaurant(fakeUser, RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName", "fakeAddress");
     }
 
     @Test
@@ -425,7 +432,7 @@ public class DetailsViewModelTest {
         viewModel.onRestaurantUnchoosed();
 
         // Then
-        verify(userRepositoryImplementation).unchooseRestaurant();
+        verify(userRepository).unchooseRestaurant(fakeUser);
     }
 
     @Test
@@ -439,7 +446,7 @@ public class DetailsViewModelTest {
         viewModel.onFavoriteButtonClicked(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName");
 
         // Then
-        verify(userRepositoryImplementation).addRestaurantToFavorites(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName");
+        verify(userRepository).addRestaurantToFavorites(fakeUser, RESTAURANT_DETAILS_RESPONSE_1.getPlaceId(), "fakeName");
     }
 
     @Test
@@ -453,7 +460,7 @@ public class DetailsViewModelTest {
         viewModel.onUnfavoriteButtonClicked(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId());
 
         // Then
-        verify(userRepositoryImplementation).removeRestaurantFromFavorites(RESTAURANT_DETAILS_RESPONSE_1.getPlaceId());
+        verify(userRepository).removeRestaurantFromFavorites(fakeUser, RESTAURANT_DETAILS_RESPONSE_1.getPlaceId());
     }
 
     // region IN
@@ -462,8 +469,9 @@ public class DetailsViewModelTest {
             application,
             restaurantDetailsRepository,
             savedStateHandle,
-            userRepositoryImplementation,
-            workmateRepositoryImplementation,
+            userRepository,
+            workmateRepository,
+            getCurrentUserUseCase,
             restaurantImageMapper,
             clock
         );
@@ -474,8 +482,9 @@ public class DetailsViewModelTest {
             application,
             restaurantDetailsRepository,
             savedStateHandle,
-            userRepositoryImplementation,
-            workmateRepositoryImplementation,
+            userRepository,
+            workmateRepository,
+            getCurrentUserUseCase,
             restaurantImageMapper,
             clock2
         );
