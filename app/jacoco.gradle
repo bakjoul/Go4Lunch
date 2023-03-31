@@ -25,7 +25,8 @@ android.applicationVariants.all { variant ->
     def variantName = variant.name.capitalize()
     def filesToAnalyze = [
             '**/*ViewModel.class',
-            '**/*RepositoryImplementation.class'
+            '**/*RepositoryImplementation.class',
+            '**/*UseCase.class'
     ]
     def filesToExclude = [
             '**/UserRepositoryImplementation.class',
