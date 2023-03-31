@@ -1,9 +1,9 @@
 package com.bakjoul.go4lunch.data.user;
 
-import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -11,9 +11,9 @@ import com.bakjoul.go4lunch.data.utils.FirestoreCollectionIdsLiveData;
 import com.bakjoul.go4lunch.data.utils.FirestoreDocumentLiveData;
 import com.bakjoul.go4lunch.data.workmates.WorkmateResponse;
 import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
+import com.bakjoul.go4lunch.domain.auth.LoggedUserEntity;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.Collection;
@@ -32,53 +32,46 @@ public class UserRepositoryImplementation implements UserRepository {
     private final FirebaseFirestore firestoreDb;
 
     @NonNull
-    private final GetCurrentFirebaseUserUseCase getCurrentFirebaseUserUseCase;
-
-    @NonNull
     private final GetCurrentUserUseCase getCurrentUserUseCase;
 
     @Inject
     public UserRepositoryImplementation(
         @NonNull FirebaseFirestore firestoreDb,
-        @NonNull GetCurrentFirebaseUserUseCase getCurrentFirebaseUserUseCase,
         @NonNull GetCurrentUserUseCase getCurrentUserUseCase
     ) {
         this.firestoreDb = firestoreDb;
-        this.getCurrentFirebaseUserUseCase = getCurrentFirebaseUserUseCase;
         this.getCurrentUserUseCase = getCurrentUserUseCase;
     }
 
     @Override
-    public void createFirestoreUser() {
-        FirebaseUser firebaseUser = getCurrentFirebaseUserUseCase.invoke();
-
-        if (firebaseUser != null) {
+    public void createFirestoreUser(@Nullable LoggedUserEntity currentUser) {
+        if (currentUser != null) {
             firestoreDb.collection("users")
-                .document(firebaseUser.getUid())
-                .set(map(firebaseUser));
+                .document(currentUser.getId())
+                .set(map(currentUser));
+        } else {
+            Log.d(TAG, "Could not create Firestore user because current user is null");
         }
     }
 
     @NonNull
-    private WorkmateResponse map(@NonNull FirebaseUser firebaseUser) {
-        final Uri photoUrl = firebaseUser.getPhotoUrl();
-
+    private WorkmateResponse map(@NonNull LoggedUserEntity currentUser) {
         return new WorkmateResponse(
-            firebaseUser.getUid(),
-            firebaseUser.getDisplayName(),
-            firebaseUser.getEmail(),
-            photoUrl != null ? photoUrl.toString() : null
+            currentUser.getId(),
+            currentUser.getUsername(),
+            currentUser.getEmail(),
+            currentUser.getPhotoUrl()
         );
     }
 
     @Override
     public void chooseRestaurant(
+        @Nullable LoggedUserEntity currentUser,
         @NonNull String restaurantId,
         @NonNull String restaurantName,
         @NonNull String restaurantAddress
     ) {
-        String currentUserId = getCurrentUserUseCase.invoke();
-        if (currentUserId != null) {
+        if (currentUser != null) {
             final Map<String, Object> chosenRestaurantData = getCurrentUserData();
             chosenRestaurantData.put("chosenRestaurantId", restaurantId);
             chosenRestaurantData.put("chosenRestaurantName", restaurantName);
@@ -86,9 +79,9 @@ public class UserRepositoryImplementation implements UserRepository {
 
             firestoreDb
                 .collection("usersGoingToRestaurants")
-                .document(currentUserId)
+                .document(currentUser.getId())
                 .set(chosenRestaurantData)
-                .addOnCompleteListener(documentReference -> Log.d(TAG, "Chosen restaurant updated (" + restaurantId + ") for user " + currentUserId))
+                .addOnCompleteListener(documentReference -> Log.d(TAG, "Chosen restaurant updated (" + restaurantId + ") for user " + currentUser.getId()))
                 .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
         }
     }
@@ -96,10 +89,10 @@ public class UserRepositoryImplementation implements UserRepository {
     @NonNull
     private Map<String, Object> getCurrentUserData() {
         final Map<String, Object> userData = new HashMap<>();
-        FirebaseUser currentUser = getCurrentFirebaseUserUseCase.invoke();
+        final LoggedUserEntity currentUser = getCurrentUserUseCase.invoke();
         if (currentUser != null) {
-            userData.put("id", currentUser.getUid());
-            userData.put("username", currentUser.getDisplayName());
+            userData.put("id", currentUser.getId());
+            userData.put("username", currentUser.getUsername());
             userData.put("email", currentUser.getEmail());
             userData.put("photoUrl", currentUser.getPhotoUrl());
         }
@@ -108,28 +101,30 @@ public class UserRepositoryImplementation implements UserRepository {
     }
 
     @Override
-    public void unchooseRestaurant() {
-        String currentUserId = getCurrentUserUseCase.invoke();
-        if (currentUserId != null) {
+    public void unchooseRestaurant(@Nullable LoggedUserEntity currentUser) {
+        if (currentUser != null) {
             firestoreDb
                 .collection("usersGoingToRestaurants")
-                .document(currentUserId)
+                .document(currentUser.getId())
                 .delete()
-                .addOnCompleteListener(documentReference -> Log.d(TAG, "Chosen restaurant deleted for user " + currentUserId))
+                .addOnCompleteListener(documentReference -> Log.d(TAG, "Chosen restaurant deleted for user " + currentUser.getId()))
                 .addOnFailureListener(e -> Log.d(TAG, "onFailure: " + e.getMessage()));
         }
     }
 
     @Override
-    public void addRestaurantToFavorites(@NonNull String restaurantId, @NonNull String restaurantName) {
-        String currentUserId = getCurrentUserUseCase.invoke();
-        if (currentUserId != null) {
+    public void addRestaurantToFavorites(
+        @Nullable LoggedUserEntity currentUser,
+        @NonNull String restaurantId,
+        @NonNull String restaurantName
+    ) {
+        if (currentUser != null) {
             final Map<String, Object> restaurantData = new HashMap<>();
             restaurantData.put("restaurantId", restaurantId);
             restaurantData.put("restaurantName", restaurantName);
 
             firestoreDb.collection("users")
-                .document(currentUserId)
+                .document(currentUser.getId())
                 .collection("favoriteRestaurants")
                 .document(restaurantId)
                 .set(restaurantData)
@@ -139,11 +134,13 @@ public class UserRepositoryImplementation implements UserRepository {
     }
 
     @Override
-    public void removeRestaurantFromFavorites(@NonNull String restaurantId) {
-        String currentUserId = getCurrentUserUseCase.invoke();
-        if (currentUserId != null) {
+    public void removeRestaurantFromFavorites(
+        @Nullable LoggedUserEntity currentUser,
+        @NonNull String restaurantId
+    ) {
+        if (currentUser != null) {
             firestoreDb.collection("users")
-                .document(currentUserId)
+                .document(currentUser.getId())
                 .collection("favoriteRestaurants")
                 .document(restaurantId)
                 .delete()
@@ -153,11 +150,10 @@ public class UserRepositoryImplementation implements UserRepository {
     }
 
     @Override
-    public LiveData<UserGoingToRestaurantEntity> getChosenRestaurantLiveData() {
-        String currentUserId = getCurrentUserUseCase.invoke();
-        if (currentUserId != null) {
+    public LiveData<UserGoingToRestaurantEntity> getChosenRestaurantLiveData(@Nullable LoggedUserEntity currentUser) {
+        if (currentUser != null) {
             return new FirestoreDocumentLiveData<UserGoingToRestaurantResponse, UserGoingToRestaurantEntity>(
-                firestoreDb.collection("usersGoingToRestaurants").document(currentUserId),
+                firestoreDb.collection("usersGoingToRestaurants").document(currentUser.getId()),
                 UserGoingToRestaurantResponse.class
             ) {
                 @Override
@@ -194,13 +190,12 @@ public class UserRepositoryImplementation implements UserRepository {
     }
 
     @Override
-    public LiveData<Collection<String>> getFavoritesRestaurantsLiveData() {
-        String currentUserId = getCurrentUserUseCase.invoke();
-        if (currentUserId != null) {
+    public LiveData<Collection<String>> getFavoritesRestaurantsLiveData(@Nullable LoggedUserEntity currentUser) {
+        if (currentUser != null) {
             return new FirestoreCollectionIdsLiveData(
                 firestoreDb
                     .collection("users")
-                    .document(currentUserId)
+                    .document(currentUser.getId())
                     .collection("favoriteRestaurants")
             );
         }

@@ -2,16 +2,17 @@ package com.bakjoul.go4lunch.ui.main;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
@@ -20,6 +21,9 @@ import androidx.lifecycle.MutableLiveData;
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.autocomplete.model.PredictionResponse;
 import com.bakjoul.go4lunch.data.autocomplete.model.StructuredFormattingResponse;
+import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
+import com.bakjoul.go4lunch.domain.auth.LogOutUseCase;
+import com.bakjoul.go4lunch.domain.auth.LoggedUserEntity;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.autocomplete.GetAutocompletePredictionsUseCase;
 import com.bakjoul.go4lunch.domain.dispatcher.IsUserAuthenticatedUseCase;
@@ -28,8 +32,6 @@ import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,7 +50,8 @@ public class MainViewModelTest {
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
 
     private final Context context = Mockito.mock(Context.class);
-    private final FirebaseAuth firebaseAuth = Mockito.mock(FirebaseAuth.class);
+    private final GetCurrentUserUseCase getCurrentUserUseCase = Mockito.mock(GetCurrentUserUseCase.class);
+    private final LogOutUseCase logOutUseCase = Mockito.mock(LogOutUseCase.class);
     private final IsUserAuthenticatedUseCase isUserAuthenticatedUseCase = Mockito.mock(IsUserAuthenticatedUseCase.class);
     private final GetAutocompletePredictionsUseCase getAutocompletePredictionsUseCase = Mockito.mock(GetAutocompletePredictionsUseCase.class);
     private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
@@ -56,14 +59,10 @@ public class MainViewModelTest {
     private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
     private final UserRepository userRepository = Mockito.mock(UserRepository.class);
 
-    private final FirebaseUser firebaseUser = Mockito.mock(FirebaseUser.class);
-
-    private final Uri uri = Mockito.mock(Uri.class);
+    private final LoggedUserEntity fakeUser = Mockito.mock(LoggedUserEntity.class);
 
     private final MutableLiveData<Boolean> isLocationPermissionEnabledLiveData = new MutableLiveData<>();
-
     private final MutableLiveData<UserGoingToRestaurantEntity> userChosenRestaurantLiveData = new MutableLiveData<>();
-
     private final MutableLiveData<String> userSearchLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<PredictionResponse>> predictionsLiveData = new MutableLiveData<>();
 
@@ -76,14 +75,13 @@ public class MainViewModelTest {
         isLocationPermissionEnabledLiveData.setValue(true);
         doReturn(isLocationPermissionEnabledLiveData).when(locationPermissionRepository).getLocationPermissionLiveData();
 
-        doReturn(userChosenRestaurantLiveData).when(userRepository).getChosenRestaurantLiveData();
+        doReturn(fakeUser).when(getCurrentUserUseCase).invoke();
+        doReturn("fakeUrl").when(fakeUser).getPhotoUrl();
+        doReturn("fakeUsername").when(fakeUser).getUsername();
+        doReturn("fakeEmail").when(fakeUser).getEmail();
 
+        doReturn(userChosenRestaurantLiveData).when(userRepository).getChosenRestaurantLiveData(any(LoggedUserEntity.class));
         doReturn(predictionsLiveData).when(getAutocompletePredictionsUseCase).invoke(anyString());
-
-        doReturn(firebaseUser).when(firebaseAuth).getCurrentUser();
-        doReturn(uri).when(firebaseUser).getPhotoUrl();
-        doReturn("fakeUsername").when(firebaseUser).getDisplayName();
-        doReturn("fakeEmail").when(firebaseUser).getEmail();
 
         doReturn(userSearchLiveData).when(autocompleteRepository).getUserSearchLiveData();
     }
@@ -113,7 +111,7 @@ public class MainViewModelTest {
         MainViewState result = LiveDataTestUtil.getValueForTesting(viewModel.getMainViewStateMediatorLiveData());
 
         // Then
-        verify(userRepository).createFirestoreUser();
+        verify(userRepository).createFirestoreUser(any(LoggedUserEntity.class));
         assertEquals(getDefaultMainViewState(), result);
     }
 
@@ -308,11 +306,25 @@ public class MainViewModelTest {
         Mockito.verifyNoMoreInteractions(gpsLocationRepository, locationPermissionRepository);
     }
 
+    @Test
+    public void logOut() {
+        // Given
+        initViewModel();
+
+        // When
+        viewModel.logOut();
+
+        // Then
+        Mockito.verify(logOutUseCase).invoke();
+        verifyNoMoreInteractions(logOutUseCase);
+    }
+
     // region IN
     private void initViewModel() {
         viewModel = new MainViewModel(
             context,
-            firebaseAuth,
+            getCurrentUserUseCase,
+            logOutUseCase,
             isUserAuthenticatedUseCase,
             getAutocompletePredictionsUseCase,
             gpsLocationRepository,
@@ -333,17 +345,17 @@ public class MainViewModelTest {
 
     @NonNull
     private MainViewState getDefaultMainViewState() {
-        return new MainViewState(uri, "fakeUsername", "fakeEmail", null, new ArrayList<>());
+        return new MainViewState("fakeUrl", "fakeUsername", "fakeEmail", null, new ArrayList<>());
     }
 
     @NonNull
     private MainViewState getExpectedViewStateWithChosenRestaurant() {
-        return new MainViewState(uri, "fakeUsername", "fakeEmail", "fakeChosenRestaurantId", new ArrayList<>());
+        return new MainViewState("fakeUrl", "fakeUsername", "fakeEmail", "fakeChosenRestaurantId", new ArrayList<>());
     }
 
     @NonNull
     private MainViewState getExpectedViewStateForFakeRestaurantSearch() {
-        return new MainViewState(uri, "fakeUsername", "fakeEmail", null, Collections.singletonList("fakeRestaurantName"));
+        return new MainViewState("fakeUrl", "fakeUsername", "fakeEmail", null, Collections.singletonList("fakeRestaurantName"));
     }
     // endregion OUT
 }

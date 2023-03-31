@@ -1,23 +1,38 @@
 package com.bakjoul.go4lunch.domain.user;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
+
+import com.bakjoul.go4lunch.domain.auth.LoggedUserEntity;
 
 import java.util.Collection;
 
 public interface UserRepository {
 
-    void createFirestoreUser();
+    void createFirestoreUser(@Nullable LoggedUserEntity currentUser);
 
-    void chooseRestaurant(@NonNull String restaurantId, @NonNull String restaurantName, @NonNull String restaurantAddress);
+    void chooseRestaurant(
+        @Nullable LoggedUserEntity currentUser,
+        @NonNull String restaurantId,
+        @NonNull String restaurantName,
+        @NonNull String restaurantAddress
+    );
 
-    void unchooseRestaurant();
+    void unchooseRestaurant(@Nullable LoggedUserEntity currentUser);
 
-    void addRestaurantToFavorites(@NonNull String restaurantId, @NonNull String restaurantName);
+    void addRestaurantToFavorites(
+        @Nullable LoggedUserEntity currentUser,
+        @NonNull String restaurantId,
+        @NonNull String restaurantName
+    );
 
-    void removeRestaurantFromFavorites(@NonNull String restaurantId);
+    void removeRestaurantFromFavorites(
+        @Nullable LoggedUserEntity currentUser,
+        @NonNull String restaurantId
+    );
 
-    LiveData<UserGoingToRestaurantEntity> getChosenRestaurantLiveData();
+    LiveData<UserGoingToRestaurantEntity> getChosenRestaurantLiveData(@Nullable LoggedUserEntity currentUser);
 
-    LiveData<Collection<String>> getFavoritesRestaurantsLiveData();
+    LiveData<Collection<String>> getFavoritesRestaurantsLiveData(@Nullable LoggedUserEntity currentUser);
 }

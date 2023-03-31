@@ -4,7 +4,6 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.util.Log;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.NonNull;
@@ -18,6 +17,9 @@ import androidx.lifecycle.ViewModel;
 
 import com.bakjoul.go4lunch.R;
 import com.bakjoul.go4lunch.data.autocomplete.model.PredictionResponse;
+import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
+import com.bakjoul.go4lunch.domain.auth.LogOutUseCase;
+import com.bakjoul.go4lunch.domain.auth.LoggedUserEntity;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.autocomplete.GetAutocompletePredictionsUseCase;
 import com.bakjoul.go4lunch.domain.dispatcher.IsUserAuthenticatedUseCase;
@@ -26,9 +28,6 @@ import com.bakjoul.go4lunch.domain.location.LocationPermissionRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
-import com.facebook.AccessToken;
-import com.facebook.login.LoginManager;
-import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -43,14 +42,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext;
 @HiltViewModel
 public class MainViewModel extends ViewModel {
 
-    private static final String TAG = "MainViewModel";
-
     @SuppressLint("StaticFieldLeak")
     @NonNull
     private final Context context;
 
     @NonNull
-    private final FirebaseAuth firebaseAuth;
+    private final GetCurrentUserUseCase getCurrentUserUseCase;
+
+    @NonNull
+    private final LogOutUseCase logOutUseCase;
 
     @NonNull
     private final GpsLocationRepository gpsLocationRepository;
@@ -73,27 +73,32 @@ public class MainViewModel extends ViewModel {
 
     @Inject
     public MainViewModel(
-        @ApplicationContext @NonNull Context context,
-        @NonNull FirebaseAuth firebaseAuth,
+        @NonNull @ApplicationContext Context context,
+        @NonNull GetCurrentUserUseCase getCurrentUserUseCase,
+        @NonNull LogOutUseCase logOutUseCase,
         @NonNull IsUserAuthenticatedUseCase isUserAuthenticatedUseCase,
         @NonNull GetAutocompletePredictionsUseCase getAutocompletePredictionsUseCase,
         @NonNull GpsLocationRepository gpsLocationRepository,
         @NonNull LocationPermissionRepository locationPermissionRepository,
         @NonNull AutocompleteRepository autocompleteRepository,
-        @NonNull UserRepository userRepository) {
+        @NonNull UserRepository userRepository
+    ) {
         this.context = context;
-        this.firebaseAuth = firebaseAuth;
+        this.getCurrentUserUseCase = getCurrentUserUseCase;
+        this.logOutUseCase = logOutUseCase;
         this.gpsLocationRepository = gpsLocationRepository;
         this.locationPermissionRepository = locationPermissionRepository;
         this.autocompleteRepository = autocompleteRepository;
 
         if (isUserAuthenticatedUseCase.invoke()) {
-            userRepository.createFirestoreUser();
+            final LoggedUserEntity currentUser = getCurrentUserUseCase.invoke();
+            userRepository.createFirestoreUser(currentUser);
 
-            LiveData<UserGoingToRestaurantEntity> userChosenRestaurantLiveData = userRepository.getChosenRestaurantLiveData();
+            LiveData<UserGoingToRestaurantEntity> userChosenRestaurantLiveData = userRepository.getChosenRestaurantLiveData(currentUser);
 
-            LiveData<List<PredictionResponse>> predictionsLiveData = Transformations.switchMap(currentUserSearchMutableLiveData, userSearch ->
-                getAutocompletePredictionsUseCase.invoke(userSearch)
+            LiveData<List<PredictionResponse>> predictionsLiveData = Transformations.switchMap(
+                currentUserSearchMutableLiveData, userSearch ->
+                    getAutocompletePredictionsUseCase.invoke(userSearch)
             );
 
             mainViewStateMediatorLiveData.addSource(userChosenRestaurantLiveData, userChosenRestaurant ->
@@ -129,22 +134,26 @@ public class MainViewModel extends ViewModel {
         @Nullable UserGoingToRestaurantEntity userChosenRestaurant,
         @Nullable List<PredictionResponse> predictionsList
     ) {
+        LoggedUserEntity currentUser = getCurrentUserUseCase.invoke();
         Set<String> suggestionsSet = new HashSet<>();
+
         if (predictionsList != null) {
             for (PredictionResponse predictionResponse : predictionsList) {
                 suggestionsSet.add(predictionResponse.getStructuredFormatting().getMainText());
             }
         }
 
-        mainViewStateMediatorLiveData.setValue(
-            new MainViewState(
-                firebaseAuth.getCurrentUser().getPhotoUrl(),
-                firebaseAuth.getCurrentUser().getDisplayName(),
-                firebaseAuth.getCurrentUser().getEmail(),
-                userChosenRestaurant != null ? userChosenRestaurant.getChosenRestaurantId() : null,
-                new ArrayList<>(suggestionsSet)
-            )
-        );
+        if (currentUser != null) {  // Current user null never supposed to happen here
+            mainViewStateMediatorLiveData.setValue(
+                new MainViewState(
+                    currentUser.getPhotoUrl(),
+                    currentUser.getUsername(),
+                    currentUser.getEmail(),
+                    userChosenRestaurant != null ? userChosenRestaurant.getChosenRestaurantId() : null,
+                    new ArrayList<>(suggestionsSet)
+                )
+            );
+        }
     }
 
     private void combineForFragmentToDisplay(
@@ -181,15 +190,7 @@ public class MainViewModel extends ViewModel {
     }
 
     public void logOut() {
-        firebaseAuth.signOut();
-
-        // Handles Facebook log out
-        AccessToken accessToken = AccessToken.getCurrentAccessToken();
-        boolean isLoggedInOnFacebook = accessToken != null && !accessToken.isExpired();
-        if (isLoggedInOnFacebook) {
-            LoginManager.getInstance().logOut();
-            Log.d(TAG, "logOut: logged out of facebook");
-        }
+        logOutUseCase.invoke();
     }
 
     public void onResume() {

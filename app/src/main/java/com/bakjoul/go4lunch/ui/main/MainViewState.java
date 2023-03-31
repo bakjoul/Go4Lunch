@@ -1,7 +1,5 @@
 package com.bakjoul.go4lunch.ui.main;
 
-import android.net.Uri;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -11,7 +9,7 @@ import java.util.Objects;
 public class MainViewState {
 
     @Nullable
-    private final Uri photoUrl;
+    private final String photoUrl;
     @NonNull
     private final String username;
     @NonNull
@@ -21,7 +19,7 @@ public class MainViewState {
     @NonNull
     private final List<String> suggestions;
 
-    public MainViewState(@Nullable Uri photoUrl, @NonNull String username, @NonNull String email, @Nullable String chosenRestaurantId, @NonNull List<String> suggestions) {
+    public MainViewState(@Nullable String photoUrl, @NonNull String username, @NonNull String email, @Nullable String chosenRestaurantId, @NonNull List<String> suggestions) {
         this.photoUrl = photoUrl;
         this.username = username;
         this.email = email;
@@ -30,7 +28,7 @@ public class MainViewState {
     }
 
     @Nullable
-    public Uri getPhotoUrl() {
+    public String getPhotoUrl() {
         return photoUrl;
     }
 
@@ -71,7 +69,7 @@ public class MainViewState {
     @Override
     public String toString() {
         return "MainViewState{" +
-            "photoUrl=" + photoUrl +
+            "photoUrl='" + photoUrl + '\'' +
             ", username='" + username + '\'' +
             ", email='" + email + '\'' +
             ", chosenRestaurantId='" + chosenRestaurantId + '\'' +
