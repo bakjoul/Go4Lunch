@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.bakjoul.go4lunch.domain.auth.AuthRepository;
 import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
 import com.bakjoul.go4lunch.domain.auth.LoggedUserEntity;
 

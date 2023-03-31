@@ -1,4 +1,4 @@
-package com.bakjoul.go4lunch.domain.dispatcher;
+package com.bakjoul.go4lunch.domain.auth;
 
 import androidx.annotation.NonNull;
 

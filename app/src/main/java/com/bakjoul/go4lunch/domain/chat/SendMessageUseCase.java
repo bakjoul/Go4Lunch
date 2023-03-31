@@ -4,7 +4,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.bakjoul.go4lunch.domain.auth.AuthRepository;
 import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
 import com.bakjoul.go4lunch.domain.auth.LoggedUserEntity;
 

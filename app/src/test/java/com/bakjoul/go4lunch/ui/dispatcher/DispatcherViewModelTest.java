@@ -5,7 +5,7 @@ import static org.mockito.Mockito.doReturn;
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule;
 
-import com.bakjoul.go4lunch.domain.dispatcher.IsUserAuthenticatedUseCase;
+import com.bakjoul.go4lunch.domain.auth.IsUserAuthenticatedUseCase;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 
 import org.junit.Rule;

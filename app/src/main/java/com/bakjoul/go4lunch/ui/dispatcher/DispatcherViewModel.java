@@ -3,7 +3,7 @@ package com.bakjoul.go4lunch.ui.dispatcher;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 
-import com.bakjoul.go4lunch.domain.dispatcher.IsUserAuthenticatedUseCase;
+import com.bakjoul.go4lunch.domain.auth.IsUserAuthenticatedUseCase;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 
 import javax.inject.Inject;
