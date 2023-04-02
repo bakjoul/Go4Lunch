@@ -2,10 +2,8 @@ package com.bakjoul.go4lunch.domain.location;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 
 import javax.inject.Inject;
 
@@ -16,12 +14,19 @@ public class IsLocationPermissionGrantedUseCase {
     @NonNull
     private final Context context;
 
+    @NonNull
+    private final PermissionUtil permissionUtil;
+
     @Inject
-    public IsLocationPermissionGrantedUseCase(@NonNull @ApplicationContext Context context) {
+    public IsLocationPermissionGrantedUseCase(
+        @NonNull @ApplicationContext Context context,
+        @NonNull PermissionUtil permissionUtil
+    ) {
         this.context = context;
+        this.permissionUtil = permissionUtil;
     }
 
     public Boolean invoke() {
-        return ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        return permissionUtil.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
     }
 }
