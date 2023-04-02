@@ -46,7 +46,7 @@ public class GetAvailableWorkmatesUseCaseTest {
     }
 
     @Test
-    public void invoke_should_return_full_workmates_list() {
+    public void invoke_should_return_workmates_list() {
         // Given
         workmatesLiveData.setValue(getDefaultWorkmatesList());
 
@@ -58,7 +58,7 @@ public class GetAvailableWorkmatesUseCaseTest {
     }
 
     @Test
-    public void current_user_null_should_return_null() {
+    public void invoke_should_return_null_when_current_user_is_null() {
         // Given
         doReturn(null).when(getCurrentUserUseCase).invoke();
 
