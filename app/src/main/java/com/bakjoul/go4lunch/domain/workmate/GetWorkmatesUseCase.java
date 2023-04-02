@@ -2,6 +2,7 @@ package com.bakjoul.go4lunch.domain.workmate;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.Transformations;
 
 import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
@@ -30,12 +31,12 @@ public class GetWorkmatesUseCase {
     }
 
     public LiveData<List<WorkmateEntity>> invoke() {
-        return Transformations.map(workmateRepository.getAvailableWorkmatesLiveData(), workmateEntities -> {
-            LoggedUserEntity currentUser = getCurrentUserUseCase.invoke();
+        LoggedUserEntity currentUser = getCurrentUserUseCase.invoke();
 
-            if (currentUser == null) {
-                return workmateEntities;
-            } else {
+        if (currentUser == null) {
+            return new MutableLiveData<>(null);
+        } else {
+            return Transformations.map(workmateRepository.getAvailableWorkmatesLiveData(), workmateEntities -> {
                 List<WorkmateEntity> filteredWorkmateEntities = new ArrayList<>(workmateEntities.size());
 
                 for (WorkmateEntity workmateEntity : workmateEntities) {
@@ -45,7 +46,7 @@ public class GetWorkmatesUseCase {
                 }
 
                 return filteredWorkmateEntities;
-            }
-        });
+            });
+        }
     }
 }
