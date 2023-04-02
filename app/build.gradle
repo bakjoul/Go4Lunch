@@ -21,12 +21,11 @@ android {
         Properties properties = new Properties()
         properties.load(project.rootProject.file('local.properties').newDataInputStream())
         buildConfigField 'String', 'MAPS_API_KEY', "\"${properties.getProperty('MAPS_API_KEY')}\""
-        //resValue 'string', 'google_map_key', OC_P6_Google_Maps_Sdk_key
     }
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
