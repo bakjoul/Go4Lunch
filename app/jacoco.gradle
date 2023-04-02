@@ -31,7 +31,8 @@ android.applicationVariants.all { variant ->
     def filesToExclude = [
             '**/UserRepositoryImplementation.class',
             '**/WorkmateRepositoryImplementation.class',
-            '**/ChatRepositoryImplementation.class'
+            '**/ChatRepositoryImplementation.class',
+            '**/LogOutUseCase.class'
     ]
 
     task("jacoco${variantName}Report", type: JacocoReport, dependsOn: "test${variantName}UnitTest") {
