@@ -21,7 +21,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-public class GetWorkmatesUseCaseTest {
+public class GetAvailableWorkmatesUseCaseTest {
 
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
@@ -34,7 +34,7 @@ public class GetWorkmatesUseCaseTest {
 
     private final MutableLiveData<List<WorkmateEntity>> workmatesLiveData = new MutableLiveData<>();
 
-    private GetWorkmatesUseCase getWorkmatesUseCase;
+    private GetAvailableWorkmatesUseCase getAvailableWorkmatesUseCase;
 
     @Before
     public void setUp() {
@@ -42,7 +42,7 @@ public class GetWorkmatesUseCaseTest {
         doReturn("fakeId").when(mockedUser).getId();
         doReturn(workmatesLiveData).when(workmatesRepository).getAvailableWorkmatesLiveData();
 
-        getWorkmatesUseCase = new GetWorkmatesUseCase(getCurrentUserUseCase, workmatesRepository);
+        getAvailableWorkmatesUseCase = new GetAvailableWorkmatesUseCase(getCurrentUserUseCase, workmatesRepository);
     }
 
     @Test
@@ -51,7 +51,7 @@ public class GetWorkmatesUseCaseTest {
         workmatesLiveData.setValue(getDefaultWorkmatesList());
 
         // When
-        List<WorkmateEntity> result = LiveDataTestUtil.getValueForTesting(getWorkmatesUseCase.invoke());
+        List<WorkmateEntity> result = LiveDataTestUtil.getValueForTesting(getAvailableWorkmatesUseCase.invoke());
 
         // Then
         assertEquals(getExpectedWorkmatesList(), result);
@@ -63,7 +63,7 @@ public class GetWorkmatesUseCaseTest {
         doReturn(null).when(getCurrentUserUseCase).invoke();
 
         // When
-        List<WorkmateEntity> result = LiveDataTestUtil.getValueForTesting(getWorkmatesUseCase.invoke());
+        List<WorkmateEntity> result = LiveDataTestUtil.getValueForTesting(getAvailableWorkmatesUseCase.invoke());
 
         // Then
         assertNull(result);

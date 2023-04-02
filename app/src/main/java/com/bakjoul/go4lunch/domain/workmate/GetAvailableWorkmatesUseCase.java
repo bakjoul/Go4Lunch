@@ -13,8 +13,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-// TODO BAKJOUL Example here
-public class GetWorkmatesUseCase {
+public class GetAvailableWorkmatesUseCase {
 
     @NonNull
     private final GetCurrentUserUseCase getCurrentUserUseCase;
@@ -22,7 +21,7 @@ public class GetWorkmatesUseCase {
     private final WorkmateRepository workmateRepository;
 
     @Inject
-    public GetWorkmatesUseCase(
+    public GetAvailableWorkmatesUseCase(
         @NonNull GetCurrentUserUseCase getCurrentUserUseCase,
         @NonNull WorkmateRepository workmateRepository
     ) {
