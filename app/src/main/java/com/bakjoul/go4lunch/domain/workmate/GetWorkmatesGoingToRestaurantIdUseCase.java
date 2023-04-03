@@ -14,7 +14,7 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-public class GetWorkmatesGoingToRestaurantsUseCase {
+public class GetWorkmatesGoingToRestaurantIdUseCase {
 
     @NonNull
     private final GetCurrentUserUseCase getCurrentUserUseCase;
@@ -23,7 +23,7 @@ public class GetWorkmatesGoingToRestaurantsUseCase {
     private final WorkmateRepository workmateRepository;
 
     @Inject
-    public GetWorkmatesGoingToRestaurantsUseCase(
+    public GetWorkmatesGoingToRestaurantIdUseCase(
         @NonNull GetCurrentUserUseCase getCurrentUserUseCase,
         @NonNull WorkmateRepository workmateRepository
     ) {

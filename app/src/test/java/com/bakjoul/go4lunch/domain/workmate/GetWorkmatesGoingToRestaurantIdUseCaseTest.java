@@ -22,7 +22,7 @@ import org.mockito.Mockito;
 import java.util.Arrays;
 import java.util.List;
 
-public class GetWorkmatesGoingToRestaurantsUseCaseTest {
+public class GetWorkmatesGoingToRestaurantIdUseCaseTest {
 
     @Rule
     public InstantTaskExecutorRule instantTaskExecutorRule = new InstantTaskExecutorRule();
@@ -35,7 +35,7 @@ public class GetWorkmatesGoingToRestaurantsUseCaseTest {
 
     private final MutableLiveData<List<UserGoingToRestaurantEntity>> workmatesLiveData = new MutableLiveData<>();
 
-    private GetWorkmatesGoingToRestaurantsUseCase getWorkmatesGoingToRestaurantsUseCase;
+    private GetWorkmatesGoingToRestaurantIdUseCase getWorkmatesGoingToRestaurantIdUseCase;
 
     @Before
     public void setUp() {
@@ -43,7 +43,7 @@ public class GetWorkmatesGoingToRestaurantsUseCaseTest {
         doReturn("currentUserId").when(mockedUser).getId();
         doReturn(workmatesLiveData).when(workmatesRepository).getWorkmatesGoingToRestaurantIdLiveData(anyString());
 
-        getWorkmatesGoingToRestaurantsUseCase = new GetWorkmatesGoingToRestaurantsUseCase(getCurrentUserUseCase, workmatesRepository);
+        getWorkmatesGoingToRestaurantIdUseCase = new GetWorkmatesGoingToRestaurantIdUseCase(getCurrentUserUseCase, workmatesRepository);
     }
 
     @Test
@@ -52,7 +52,7 @@ public class GetWorkmatesGoingToRestaurantsUseCaseTest {
         doReturn(null).when(getCurrentUserUseCase).invoke();
 
         // When
-        List<UserGoingToRestaurantEntity> result = LiveDataTestUtil.getValueForTesting(getWorkmatesGoingToRestaurantsUseCase.invoke("fakeRestaurantId"));
+        List<UserGoingToRestaurantEntity> result = LiveDataTestUtil.getValueForTesting(getWorkmatesGoingToRestaurantIdUseCase.invoke("fakeRestaurantId"));
 
         // Then
         assertNull(result);
@@ -64,7 +64,7 @@ public class GetWorkmatesGoingToRestaurantsUseCaseTest {
         workmatesLiveData.setValue(getDefaultWorkmatesList());
 
         // When
-        List<UserGoingToRestaurantEntity> result = LiveDataTestUtil.getValueForTesting(getWorkmatesGoingToRestaurantsUseCase.invoke("fakeRestaurantId"));
+        List<UserGoingToRestaurantEntity> result = LiveDataTestUtil.getValueForTesting(getWorkmatesGoingToRestaurantIdUseCase.invoke("fakeRestaurantId"));
 
         // Then
         assertEquals(getExpectedWorkmatesList(), result);

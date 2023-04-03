@@ -20,7 +20,7 @@ import com.bakjoul.go4lunch.domain.auth.GetCurrentUserUseCase;
 import com.bakjoul.go4lunch.domain.details.RestaurantDetailsRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
-import com.bakjoul.go4lunch.domain.workmate.GetWorkmatesGoingToRestaurantsUseCase;
+import com.bakjoul.go4lunch.domain.workmate.GetWorkmatesGoingToRestaurantIdUseCase;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 
 import java.time.Clock;
@@ -68,7 +68,7 @@ public class DetailsViewModel extends ViewModel {
         @NonNull RestaurantDetailsRepository restaurantDetailsRepository,
         @NonNull SavedStateHandle savedStateHandle,
         @NonNull UserRepository userRepository,
-        @NonNull GetWorkmatesGoingToRestaurantsUseCase getWorkmatesGoingToRestaurantsUseCase,
+        @NonNull GetWorkmatesGoingToRestaurantIdUseCase getWorkmatesGoingToRestaurantIdUseCase,
         @NonNull GetCurrentUserUseCase getCurrentUserUseCase,
         @NonNull RestaurantImageMapper restaurantImageMapper,
         @NonNull Clock clock
@@ -88,7 +88,7 @@ public class DetailsViewModel extends ViewModel {
 
         if (restaurantId != null) {
             detailsResponseLiveData = restaurantDetailsRepository.getDetailsResponse(restaurantId);
-            workmatesLiveData = getWorkmatesGoingToRestaurantsUseCase.invoke(restaurantId);
+            workmatesLiveData = getWorkmatesGoingToRestaurantIdUseCase.invoke(restaurantId);
             chosenRestaurantLiveData = userRepository.getChosenRestaurantLiveData(getCurrentUserUseCase.invoke());
             favoriteRestaurantsLiveData = userRepository.getFavoritesRestaurantsLiveData(getCurrentUserUseCase.invoke());
 

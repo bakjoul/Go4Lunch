@@ -27,7 +27,7 @@ import com.bakjoul.go4lunch.domain.auth.LoggedUserEntity;
 import com.bakjoul.go4lunch.domain.details.RestaurantDetailsRepository;
 import com.bakjoul.go4lunch.domain.user.UserGoingToRestaurantEntity;
 import com.bakjoul.go4lunch.domain.user.UserRepository;
-import com.bakjoul.go4lunch.domain.workmate.GetWorkmatesGoingToRestaurantsUseCase;
+import com.bakjoul.go4lunch.domain.workmate.GetWorkmatesGoingToRestaurantIdUseCase;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 
@@ -157,7 +157,7 @@ public class DetailsViewModelTest {
     private final RestaurantDetailsRepository restaurantDetailsRepository = Mockito.mock(RestaurantDetailsRepository.class);
     private final SavedStateHandle savedStateHandle = Mockito.mock(SavedStateHandle.class);
     private final UserRepository userRepository = Mockito.mock(UserRepository.class);
-    private final GetWorkmatesGoingToRestaurantsUseCase getWorkmatesGoingToRestaurantsUseCase = Mockito.mock(GetWorkmatesGoingToRestaurantsUseCase.class);
+    private final GetWorkmatesGoingToRestaurantIdUseCase getWorkmatesGoingToRestaurantIdUseCase = Mockito.mock(GetWorkmatesGoingToRestaurantIdUseCase.class);
     private final GetCurrentUserUseCase getCurrentUserUseCase = Mockito.mock(GetCurrentUserUseCase.class);
     private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
     private final Clock clock = Clock.fixed(
@@ -191,7 +191,7 @@ public class DetailsViewModelTest {
         doReturn(fakeUser).when(getCurrentUserUseCase).invoke();
 
         doReturn(detailsResponseLiveData).when(restaurantDetailsRepository).getDetailsResponse(anyString());
-        doReturn(workmatesLiveData).when(getWorkmatesGoingToRestaurantsUseCase).invoke(anyString());
+        doReturn(workmatesLiveData).when(getWorkmatesGoingToRestaurantIdUseCase).invoke(anyString());
         doReturn(chosenRestaurantLiveData).when(userRepository).getChosenRestaurantLiveData(fakeUser);
         doReturn(favoritesRestaurants).when(userRepository).getFavoritesRestaurantsLiveData(fakeUser);
         doReturn("fakeImageUrl").when(restaurantImageMapper).getImageUrl("fakePhotoReference", true);
@@ -470,7 +470,7 @@ public class DetailsViewModelTest {
             restaurantDetailsRepository,
             savedStateHandle,
             userRepository,
-            getWorkmatesGoingToRestaurantsUseCase,
+            getWorkmatesGoingToRestaurantIdUseCase,
             getCurrentUserUseCase,
             restaurantImageMapper,
             clock
@@ -483,7 +483,7 @@ public class DetailsViewModelTest {
             restaurantDetailsRepository,
             savedStateHandle,
             userRepository,
-            getWorkmatesGoingToRestaurantsUseCase,
+            getWorkmatesGoingToRestaurantIdUseCase,
             getCurrentUserUseCase,
             restaurantImageMapper,
             clock2
