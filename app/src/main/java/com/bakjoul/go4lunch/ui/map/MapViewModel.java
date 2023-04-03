@@ -19,8 +19,8 @@ import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
+import com.bakjoul.go4lunch.domain.map.GetWorkmatesGoingToRestaurantsUseCase;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
-import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -59,7 +59,7 @@ public class MapViewModel extends ViewModel {
         @NonNull LocationModeRepository locationModeRepository,
         @NonNull GpsLocationRepository gpsLocationRepository,
         @NonNull RestaurantRepository restaurantRepository,
-        @NonNull WorkmateRepository workmateRepository,
+        @NonNull GetWorkmatesGoingToRestaurantsUseCase getWorkmatesGoingToRestaurantsUseCase,
         @NonNull AutocompleteRepository autocompleteRepository
     ) {
         this.mapLocationRepository = mapLocationRepository;
@@ -94,7 +94,7 @@ public class MapViewModel extends ViewModel {
             }
         );
 
-        LiveData<Collection<String>> chosenRestaurantsLiveData = workmateRepository.getWorkmatesChosenRestaurantsLiveData();
+        LiveData<Collection<String>> chosenRestaurantsLiveData = getWorkmatesGoingToRestaurantsUseCase.invoke();
         LiveData<String> userSearchLiveData = autocompleteRepository.getUserSearchLiveData();
 
         mapViewStateMediatorLiveData.addSource(isMapReadyMutableLiveData, isMapReady ->

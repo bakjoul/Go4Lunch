@@ -26,8 +26,8 @@ import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.GpsLocationRepository;
 import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
 import com.bakjoul.go4lunch.domain.location.MapLocationRepository;
+import com.bakjoul.go4lunch.domain.map.GetWorkmatesGoingToRestaurantsUseCase;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
-import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -109,7 +109,7 @@ public class MapViewModelTest {
     private final GpsLocationRepository gpsLocationRepository = Mockito.mock(GpsLocationRepository.class);
     private final LocationModeRepository locationModeRepository = Mockito.mock(LocationModeRepository.class);
     private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
-    private final WorkmateRepository workmateRepository = Mockito.mock(WorkmateRepository.class);
+    private final GetWorkmatesGoingToRestaurantsUseCase getWorkmatesGoingToRestaurantsUseCase = Mockito.mock(GetWorkmatesGoingToRestaurantsUseCase.class);
     private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
 
     private final Location location = Mockito.mock(Location.class);
@@ -137,7 +137,7 @@ public class MapViewModelTest {
         doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbyRestaurants(eq(location));
 
         chosenRestaurantsLiveData.setValue(new ArrayList<>());
-        doReturn(chosenRestaurantsLiveData).when(workmateRepository).getWorkmatesChosenRestaurantsLiveData();
+        doReturn(chosenRestaurantsLiveData).when(getWorkmatesGoingToRestaurantsUseCase).invoke();
 
         userSearchLiveData.setValue(null);
         doReturn(userSearchLiveData).when(autocompleteRepository).getUserSearchLiveData();
@@ -147,7 +147,7 @@ public class MapViewModelTest {
             locationModeRepository,
             gpsLocationRepository,
             restaurantRepository,
-            workmateRepository,
+            getWorkmatesGoingToRestaurantsUseCase,
             autocompleteRepository
         );
     }
