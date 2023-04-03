@@ -20,8 +20,8 @@ import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponse;
 import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
+import com.bakjoul.go4lunch.domain.restaurants.GetRestaurantsAttendanceUseCase;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
-import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.SingleLiveEvent;
@@ -63,7 +63,7 @@ public class RestaurantsViewModel extends ViewModel {
         @NonNull Application application,
         @NonNull GetUserPositionUseCase getUserPositionUseCase,
         @NonNull RestaurantRepository restaurantRepository,
-        @NonNull WorkmateRepository workmateRepository,
+        @NonNull GetRestaurantsAttendanceUseCase getRestaurantsAttendanceUseCase,
         @NonNull AutocompleteRepository autocompleteRepository,
         @NonNull LocationDistanceUtil locationDistanceUtils,
         @NonNull RestaurantImageMapper restaurantImageMapper
@@ -88,7 +88,7 @@ public class RestaurantsViewModel extends ViewModel {
             }
         );
 
-        LiveData<Map<String, Integer>> restaurantsAttendanceLiveData = workmateRepository.getRestaurantsAttendance();
+        LiveData<Map<String, Integer>> restaurantsAttendanceLiveData = getRestaurantsAttendanceUseCase.invoke();
         LiveData<String> userSearchLiveData = autocompleteRepository.getUserSearchLiveData();
 
         restaurantsViewStateMediatorLiveData.addSource(responseWrapperLiveData, responseWrapper ->

@@ -2,8 +2,6 @@ package com.bakjoul.go4lunch.data.workmates;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Transformations;
 
 import com.bakjoul.go4lunch.data.user.UserGoingToRestaurantResponse;
 import com.bakjoul.go4lunch.data.utils.FirestoreCollectionLiveData;
@@ -13,12 +11,7 @@ import com.bakjoul.go4lunch.domain.workmate.WorkmateEntity;
 import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.google.firebase.firestore.FirebaseFirestore;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -73,22 +66,6 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
     }
 
     @Override
-    public LiveData<Collection<String>> getWorkmatesChosenRestaurantsLiveData() {
-        return Transformations.switchMap(
-            getWorkmatesGoingToRestaurantsLiveData(),
-            response -> {
-                Set<String> ids = new HashSet<>();
-                if (response != null) {
-                    for (UserGoingToRestaurantEntity entity : response) {
-                        ids.add(entity.getChosenRestaurantId());
-                    }
-                }
-                return new MutableLiveData<>(ids);
-            }
-        );
-    }
-
-    @Override
     public LiveData<List<UserGoingToRestaurantEntity>> getWorkmatesGoingToRestaurantIdLiveData(String restaurantId) {
         return new FirestoreQueryLiveData<UserGoingToRestaurantResponse, UserGoingToRestaurantEntity>(
             firestoreDb.collection("usersGoingToRestaurants").whereEqualTo("chosenRestaurantId", restaurantId),
@@ -122,22 +99,6 @@ public class WorkmateRepositoryImplementation implements WorkmateRepository {
                 return entity;
             }
         };
-    }
-
-    @Override
-    public LiveData<Map<String, Integer>> getRestaurantsAttendance() {
-        return Transformations.switchMap(
-            getWorkmatesGoingToRestaurantsLiveData(),
-            response -> {
-                Map<String, Integer> restaurantsAttendance = new HashMap<>();
-                if (response != null) {
-                    for (UserGoingToRestaurantEntity entity : response) {
-                        restaurantsAttendance.merge(entity.getChosenRestaurantId(), 1, Integer::sum);
-                    }
-                }
-                return new MutableLiveData<>(restaurantsAttendance);
-            }
-        );
     }
 
     @Override

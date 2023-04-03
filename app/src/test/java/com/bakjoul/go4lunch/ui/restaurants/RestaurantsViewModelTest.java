@@ -24,8 +24,8 @@ import com.bakjoul.go4lunch.data.restaurants.model.RestaurantResponseWrapper;
 import com.bakjoul.go4lunch.domain.autocomplete.AutocompleteRepository;
 import com.bakjoul.go4lunch.domain.location.GetUserPositionUseCase;
 import com.bakjoul.go4lunch.domain.location.LocationModeRepository;
+import com.bakjoul.go4lunch.domain.restaurants.GetRestaurantsAttendanceUseCase;
 import com.bakjoul.go4lunch.domain.restaurants.RestaurantRepository;
-import com.bakjoul.go4lunch.domain.workmate.WorkmateRepository;
 import com.bakjoul.go4lunch.ui.utils.LocationDistanceUtil;
 import com.bakjoul.go4lunch.ui.utils.RestaurantImageMapper;
 import com.bakjoul.go4lunch.utils.LiveDataTestUtil;
@@ -102,7 +102,7 @@ public class RestaurantsViewModelTest {
     private final GetUserPositionUseCase getUserPositionUseCase = Mockito.mock(GetUserPositionUseCase.class);
     private final LocationModeRepository locationModeRepository = Mockito.mock(LocationModeRepository.class);
     private final RestaurantRepository restaurantRepository = Mockito.mock(RestaurantRepository.class);
-    private final WorkmateRepository workmateRepository = Mockito.mock(WorkmateRepository.class);
+    private final GetRestaurantsAttendanceUseCase getRestaurantsAttendanceUseCase = Mockito.mock(GetRestaurantsAttendanceUseCase.class);
     private final AutocompleteRepository autocompleteRepository = Mockito.mock(AutocompleteRepository.class);
     private final LocationDistanceUtil locationDistanceUtils = Mockito.mock(LocationDistanceUtil.class);
     private final RestaurantImageMapper restaurantImageMapper = Mockito.mock(RestaurantImageMapper.class);
@@ -134,7 +134,7 @@ public class RestaurantsViewModelTest {
         doReturn(responseWrapperMutableLiveData).when(restaurantRepository).getNearbyRestaurants(eq(location));
 
         restaurantsAttendanceLiveData.setValue(new HashMap<>());
-        doReturn(restaurantsAttendanceLiveData).when(workmateRepository).getRestaurantsAttendance();
+        doReturn(restaurantsAttendanceLiveData).when(getRestaurantsAttendanceUseCase).invoke();
 
         userSearchLiveData.setValue(null);
         doReturn(userSearchLiveData).when(autocompleteRepository).getUserSearchLiveData();
@@ -146,7 +146,7 @@ public class RestaurantsViewModelTest {
             application,
             getUserPositionUseCase,
             restaurantRepository,
-            workmateRepository,
+            getRestaurantsAttendanceUseCase,
             autocompleteRepository,
             locationDistanceUtils,
             restaurantImageMapper);
